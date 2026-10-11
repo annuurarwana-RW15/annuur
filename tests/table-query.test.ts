@@ -67,6 +67,23 @@ describe('buildCsv', () => {
   it('tanpa baris data tetap punya header', () => {
     expect(buildCsv(['A', 'B'], [])).toBe('\uFEFFA;B\n')
   })
+
+  it('string diawali = + - @ tab CR diawali \' (guard formula injection Excel)', () => {
+    expect(buildCsv(['Ket'], [['=HYPERLINK("x")']])).toContain("'=HYPERLINK")
+    expect(buildCsv(['Ket'], [['@SUM(A1)']])).toBe("\uFEFFKet\n'@SUM(A1)\n")
+    expect(buildCsv(['Ket'], [['\ttab']])).toBe("\uFEFFKet\n'\ttab\n")
+  })
+
+  it('angka tetap polos tanpa prefix kuotasi formula', () => {
+    expect(buildCsv(['Ket'], [['-2+5']])).toBe("\uFEFFKet\n'-2+5\n")
+    expect(buildCsv(['Ket'], [[-2]])).toBe('\uFEFFKet\n-2\n')
+    expect(buildCsv(['Ket'], [[-2.5]])).toBe('\uFEFFKet\n-2.5\n')
+  })
+
+  it('string normal tidak diubah', () => {
+    expect(buildCsv(['Ket'], [['Infak']])).toBe('\uFEFFKet\nInfak\n')
+    expect(buildCsv(['Ket'], [['Budi (1234567890)']])).toBe('\uFEFFKet\nBudi (1234567890)\n')
+  })
 })
 
 describe('buildTableHref', () => {

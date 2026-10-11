@@ -38,7 +38,8 @@ export function getTableParams(
 function escapeCell(value: string | number): string {
   if (typeof value === 'number') return String(value)
   const text = String(value)
-  return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
+  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+  return /[";\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
 }
 
 /** UTF-8 BOM + delimiter `;` (id-ID Excel) + angka polos. */
