@@ -1,0 +1,161 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  BENDAHARA
+  KONTEN
+  VIEWER
+}
+
+enum TxType {
+  MASUK
+  KELUAR
+}
+
+enum CategoryType {
+  MASUK
+  KELUAR
+}
+
+enum PeriodStatus {
+  AKTIF
+  DITUTUP
+}
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum DonationStatus {
+  MENUNGGU
+  DIKONFIRMASI
+  DITOLAK
+}
+
+model User {
+  id           String      @id @default(cuid())
+  name         String
+  email        String      @unique
+  passwordHash String
+  role         Role        @default(VIEWER)
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  articles     Article[]
+  transactions Transaction[]
+  verifications Donation[]
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  title     String
+  content   Json
+  isVisible Boolean  @default(true)
+  order     Int      @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+model Article {
+  id             String        @id @default(cuid())
+  title          String
+  slug           String        @unique
+  excerpt        String?
+  coverImage     String?
+  body           String
+  category       String?
+  status         ArticleStatus @default(DRAFT)
+  seoTitle       String?
+  seoDescription String?
+  seoImage       String?
+  viewCount      Int           @default(0)
+  authorId       String
+  author         User          @relation(fields: [authorId], references: [id])
+  publishedAt    DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Category {
+  id           String       @id @default(cuid())
+  name         String
+  type         CategoryType
+  color        String?
+  isActive     Boolean      @default(true)
+  transactions Transaction[]
+}
+
+model Period {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  startDate    DateTime
+  endDate      DateTime
+  status       PeriodStatus  @default(AKTIF)
+  closedAt     DateTime?
+  closedBy     String?
+  transactions Transaction[]
+}
+
+model Transaction {
+  id           String     @id @default(cuid())
+  type         TxType
+  amount       Decimal    @db.Decimal(18, 2)
+  date         DateTime
+  description  String
+  categoryId   String
+  category     Category   @relation(fields: [categoryId], references: [id])
+  periodId     String
+  period       Period     @relation(fields: [periodId], references: [id])
+  receiptImage String?
+  createdBy    String
+  creator      User       @relation(fields: [createdBy], references: [id])
+  donationId   String?    @unique
+  donation     Donation?  @relation(fields: [donationId], references: [id])
+  createdAt    DateTime   @default(now())
+}
+
+model Donation {
+  id           String         @id @default(cuid())
+  donorName    String
+  amount       Decimal        @db.Decimal(18, 2)
+  categoryId   String?
+  message      String?
+  proofImage   String?
+  reference    String         @unique
+  status       DonationStatus @default(MENUNGGU)
+  rejectNote   String?
+  verifiedById String?
+  verifiedBy   User?          @relation(fields: [verifiedById], references: [id])
+  verifiedAt   DateTime?
+  createdAt    DateTime       @default(now())
+  transaction  Transaction?
+}
+
+model PrayerTimeCache {
+  date      String   @id
+  city      String
+  times     Json
+  fetchedAt DateTime @default(now())
+}
+
+model PageView {
+  id       String   @id @default(cuid())
+  path     String
+  referrer String?
+  viewedAt DateTime @default(now())
+
+  @@index([viewedAt])
+  @@index([path, viewedAt])
+}
+
+model Setting {
+  key   String @id
+  value Json
+}
