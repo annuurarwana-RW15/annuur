@@ -29,4 +29,9 @@ describe('can(role, action)', () => {
       })
     }
   }
+
+  it('mengembalikan false (tidak melempar) untuk role yang tidak dikenal', () => {
+    expect(can('SALES' as Role, 'manage_users')).toBe(false)
+    expect(can('' as Role, 'view_analytics')).toBe(false)
+  })
 })

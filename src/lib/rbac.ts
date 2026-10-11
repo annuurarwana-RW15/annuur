@@ -25,5 +25,5 @@ const MATRIX: Record<Role, readonly Action[]> = {
 }
 
 export function can(role: Role, action: Action): boolean {
-  return MATRIX[role].includes(action)
+  return MATRIX[role]?.includes(action) ?? false
 }

@@ -5,13 +5,7 @@ export async function getSetting<T>(key: string, fallback: T): Promise<T> {
   try {
     const row = await db.setting.findUnique({ where: { key } })
     if (!row) return fallback
-    const value = row.value
-    if (typeof value !== 'string') return value as T
-    try {
-      return JSON.parse(value) as T
-    } catch {
-      return value as T
-    }
+    return row.value as T
   } catch {
     return fallback
   }
