@@ -8,11 +8,12 @@ import { asText } from '@/components/public/content'
 import { ArticleCard } from '@/components/public/ArticleCard'
 import { SectionHeading } from '@/components/public/SectionHeading'
 
-export const revalidate = 60
-
 const PAGE_SIZE = 12
 const DEFAULT_SITE_NAME = 'Masjid An-Nur Arwana'
 
+// CATATAN: route ini dinamis karena pagination server-side membaca `searchParams`
+// — jangan tambahkan `export const revalidate` di sini (inert dan menyesatkan).
+// ISR hanya berlaku di `/berita/[slug]`.
 interface BeritaPageProps {
   searchParams: Promise<{ page?: string | string[] }>
 }
