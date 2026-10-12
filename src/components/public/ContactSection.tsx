@@ -1,6 +1,7 @@
 import type { Section } from '@prisma/client'
 import { readField } from '@/app/admin/(dashboard)/sections/section-content'
 import { asText } from './content'
+import { MapLink } from './MapEmbed'
 import { SectionHeading } from './SectionHeading'
 
 interface ContactRow {
@@ -9,13 +10,30 @@ interface ContactRow {
   href?: string
 }
 
-function mapsHref(query: string): string {
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+export interface ContactFallbacks {
+  alamat?: string
+  telp?: string
 }
 
-export function ContactSection({ section }: { section: Section }) {
-  const alamat = asText(readField(section.content, 'kontak', 'alamat'))
-  const telp = asText(readField(section.content, 'kontak', 'telp'))
+interface ContactSectionProps {
+  section: Section
+  /** Nilai Setting (`site.address` / `site.phone`) bila field section kosong. */
+  fallbacks?: ContactFallbacks
+  /** Level judul section — `h1` bila komponen dipakai sebagai halaman standalone. */
+  headingAs?: 'h1' | 'h2'
+}
+
+export function ContactSection({
+  section,
+  fallbacks,
+  headingAs = 'h2',
+}: ContactSectionProps) {
+  const alamat =
+    asText(readField(section.content, 'kontak', 'alamat')) ||
+    asText(fallbacks?.alamat)
+  const telp =
+    asText(readField(section.content, 'kontak', 'telp')) ||
+    asText(fallbacks?.telp)
   const email = asText(readField(section.content, 'kontak', 'email'))
   const jam = asText(readField(section.content, 'kontak', 'jam'))
   const mapQuery = asText(readField(section.content, 'kontak', 'mapQuery'))
@@ -32,10 +50,14 @@ export function ContactSection({ section }: { section: Section }) {
     { label: 'Jam Layanan', value: jam },
   ].filter((row) => row.value)
 
+  const cardTitleClass = 'font-display text-2xl font-bold'
+
   return (
     <section id="kontak" aria-labelledby="kontak-judul" className="bg-krem">
       <div className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading id="kontak-judul">{section.title}</SectionHeading>
+        <SectionHeading as={headingAs} id="kontak-judul">
+          {section.title || 'Kontak'}
+        </SectionHeading>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_auto]">
           <div className="rounded-2xl border border-emas/30 bg-white p-6 shadow-sm sm:p-8">
@@ -69,21 +91,21 @@ export function ContactSection({ section }: { section: Section }) {
           </div>
 
           <div className="ornament rounded-2xl bg-hijau p-6 text-krem sm:p-8">
-            <h3 className="font-display text-2xl font-bold">Lokasi Masjid</h3>
+            {headingAs === 'h1' ? (
+              <h2 className={cardTitleClass}>Lokasi Masjid</h2>
+            ) : (
+              <h3 className={cardTitleClass}>Lokasi Masjid</h3>
+            )}
             <p className="mt-2 max-w-xs text-sm leading-relaxed text-krem/80">
               {petaQuery
                 ? 'Temukan lokasi masjid pada peta.'
                 : 'Peta lokasi akan segera tersedia.'}
             </p>
             {petaQuery && (
-              <a
-                href={mapsHref(petaQuery)}
-                target="_blank"
-                rel="noopener noreferrer"
+              <MapLink
+                query={petaQuery}
                 className="mt-5 inline-flex items-center rounded-full bg-emas px-5 py-2.5 text-sm font-semibold text-hijau transition hover:bg-emas-muda"
-              >
-                Buka di Google Maps
-              </a>
+              />
             )}
           </div>
         </div>

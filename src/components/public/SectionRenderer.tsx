@@ -9,30 +9,8 @@ import { Footer } from './Footer'
 import { GallerySection } from './GallerySection'
 import { Hero } from './Hero'
 import { PrayerSchedule } from './PrayerSchedule'
+import { ProfilSection } from './ProfilSection'
 import { SectionHeading } from './SectionHeading'
-
-function ProfilSection({ section }: { section: Section }) {
-  const text = asText(readField(section.content, 'profil', 'text'))
-
-  return (
-    <section id="profil" aria-labelledby="profil-judul" className="bg-krem">
-      <div className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading id="profil-judul">{section.title}</SectionHeading>
-        <div className="max-w-3xl">
-          <p className="text-lg leading-relaxed text-hijau-tua/85">
-            {text || 'Profil masjid akan segera tersedia.'}
-          </p>
-          <Link
-            href="/profil"
-            className="mt-5 inline-flex font-semibold text-emas-tua transition hover:text-hijau hover:underline"
-          >
-            Selengkapnya tentang masjid →
-          </Link>
-        </div>
-      </div>
-    </section>
-  )
-}
 
 function PengumumanSection({ section }: { section: Section }) {
   const text =

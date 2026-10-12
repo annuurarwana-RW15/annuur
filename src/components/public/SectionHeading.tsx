@@ -16,6 +16,7 @@ interface SectionHeadingProps {
   children: ReactNode
   light?: boolean
   className?: string
+  as?: 'h1' | 'h2'
 }
 
 export function SectionHeading({
@@ -23,17 +24,23 @@ export function SectionHeading({
   children,
   light = false,
   className = '',
+  as = 'h2',
 }: SectionHeadingProps) {
+  const textClass = `font-display text-3xl font-bold leading-tight sm:text-4xl ${
+    light ? 'text-krem' : 'text-hijau'
+  }`
+
   return (
     <div className={className}>
-      <h2
-        id={id}
-        className={`font-display text-3xl font-bold leading-tight sm:text-4xl ${
-          light ? 'text-krem' : 'text-hijau'
-        }`}
-      >
-        {children}
-      </h2>
+      {as === 'h1' ? (
+        <h1 id={id} className={textClass}>
+          {children}
+        </h1>
+      ) : (
+        <h2 id={id} className={textClass}>
+          {children}
+        </h2>
+      )}
       <div className="mt-3 flex items-center gap-3 text-emas" aria-hidden="true">
         <StarGlyph />
         <span className="h-px w-24 bg-current opacity-70" />
