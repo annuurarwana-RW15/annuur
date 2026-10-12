@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Amiri, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -20,6 +21,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Masjid An-Nur Arwana",
   description: "Website resmi Masjid An-Nur Arwana",
 };

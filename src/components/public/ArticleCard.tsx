@@ -8,6 +8,7 @@ export interface ArticleCardData {
   coverImage: string | null
   publishedAt: Date | null
   category?: string | null
+  authorName?: string | null
 }
 
 export function ArticleCard({
@@ -47,6 +48,11 @@ export function ArticleCard({
           >
             {formatDateID(article.publishedAt)}
           </time>
+        )}
+        {article.authorName && (
+          <span className="mt-1 text-xs text-hijau-tua/60">
+            Oleh {article.authorName}
+          </span>
         )}
         <span className="mt-2 font-display text-xl font-bold leading-snug text-hijau">
           {article.title}

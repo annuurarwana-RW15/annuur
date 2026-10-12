@@ -3,6 +3,8 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { getSetting } from '@/lib/settings'
+import { jsonLd, orgLd } from '@/lib/seo'
+import { asText } from '@/components/public/content'
 import { Footer } from '@/components/public/Footer'
 import { PUBLIC_NAV } from '@/components/public/nav'
 import { Tracker } from '@/components/public/Tracker'
@@ -37,9 +39,18 @@ function DomeMark() {
 }
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const siteName = await getSetting('site.name', 'Masjid An-Nur Arwana')
-  const name = siteName.trim() || 'Masjid An-Nur Arwana'
-  const footer = await db.section.findUnique({ where: { key: 'footer' } })
+  const [siteName, address, phone, footer] = await Promise.all([
+    getSetting('site.name', 'Masjid An-Nur Arwana'),
+    getSetting('site.address', ''),
+    getSetting('site.phone', ''),
+    db.section.findUnique({ where: { key: 'footer' } }),
+  ])
+  const name = asText(siteName, 'Masjid An-Nur Arwana')
+  const org = orgLd({
+    name,
+    address: asText(address),
+    phone: asText(phone),
+  })
 
   return (
     <div className="flex min-h-screen flex-col bg-krem text-hijau-tua">
@@ -86,6 +97,10 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       </main>
 
       {(!footer || footer.isVisible) && <Footer section={footer} siteName={name} />}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(org) }}
+      />
       <Tracker />
     </div>
   )
