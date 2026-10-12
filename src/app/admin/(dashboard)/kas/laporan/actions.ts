@@ -27,6 +27,14 @@ export async function exportKasReport(
   })
   if (!period) return { ok: false, error: 'Periode tidak ditemukan' }
 
+  if (params.categoryId) {
+    const category = await db.category.findUnique({
+      where: { id: params.categoryId },
+      select: { id: true },
+    })
+    if (!category) return { ok: false, error: 'Kategori tidak ditemukan' }
+  }
+
   try {
     const report = await buildKasReport({
       periodId: params.periodId,

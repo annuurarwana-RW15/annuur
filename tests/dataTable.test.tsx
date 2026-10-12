@@ -67,6 +67,14 @@ describe('DataTable', () => {
     expect(screen.getByRole('button', { name: 'Print' })).toBeInTheDocument()
   })
 
+  it('hideBuiltinActions -> tombol Export & Print bawaan hilang, search tetap ada', () => {
+    renderTable({ hideBuiltinActions: true })
+    expect(screen.queryByRole('button', { name: 'Export' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Print' })).not.toBeInTheDocument()
+    expect(screen.getByRole('searchbox')).toBeInTheDocument()
+    expect(screen.getByText('Menampilkan 1–2 dari 2')).toBeInTheDocument()
+  })
+
   it('pagination menampilkan total, nomor halaman, dan selector ukuran', () => {
     renderTable({ total: 45, page: 2, pageSize: 20 })
     expect(screen.getByText('Menampilkan 21–40 dari 45')).toBeInTheDocument()

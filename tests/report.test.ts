@@ -7,6 +7,7 @@ const h = vi.hoisted(() => ({
   periodFindUniqueMock: vi.fn(),
   txGroupByMock: vi.fn(),
   categoryFindManyMock: vi.fn(),
+  categoryFindUniqueMock: vi.fn(),
   settingFindUniqueMock: vi.fn(),
 }))
 
@@ -22,7 +23,10 @@ vi.mock('@/lib/db', () => ({
     user: { findUnique: h.userFindUniqueMock },
     period: { findUnique: h.periodFindUniqueMock },
     transaction: { groupBy: h.txGroupByMock },
-    category: { findMany: h.categoryFindManyMock },
+    category: {
+      findMany: h.categoryFindManyMock,
+      findUnique: h.categoryFindUniqueMock,
+    },
     setting: { findUnique: h.settingFindUniqueMock },
   },
 }))
@@ -80,6 +84,7 @@ beforeEach(() => {
   h.periodFindUniqueMock.mockResolvedValue(PERIOD)
   h.txGroupByMock.mockResolvedValue(GROUPED)
   h.categoryFindManyMock.mockResolvedValue(CATEGORIES)
+  h.categoryFindUniqueMock.mockResolvedValue({ id: 'c-infaq', name: 'Infak' })
 })
 
 describe('buildKasReport', () => {
@@ -230,6 +235,18 @@ describe('reportToExcelHtml', () => {
     expect(html).toContain('TOTAL')
     expect(html).not.toContain('Rp ')
   })
+
+  it('guard formula sel kategori: `=EVIL` diprefiks apostrof (mirip escapeCell)', () => {
+    const html = reportToExcelHtml({
+      title: 'LAPORAN KEUANGAN MASJID',
+      periodLabel: 'Periode 2026',
+      rows: [{ kategori: '=EVIL()', masuk: 1000, keluar: 0, saldo: 1000 }],
+      total: { masuk: 1000, keluar: 0, saldo: 1000 },
+    })
+
+    expect(html).toContain(`'=EVIL()`)
+    expect(html).not.toContain('<td>=EVIL')
+  })
 })
 
 describe('exportKasReport', () => {
@@ -243,6 +260,7 @@ describe('exportKasReport', () => {
     expect(h.periodFindUniqueMock).not.toHaveBeenCalled()
     expect(h.txGroupByMock).not.toHaveBeenCalled()
     expect(h.categoryFindManyMock).not.toHaveBeenCalled()
+    expect(h.categoryFindUniqueMock).not.toHaveBeenCalled()
   })
 
   it('BENDAHARA -> {ok:true} CSV: filename laporan-kas-2026.csv, mime csv, content BOM+TOTAL', async () => {
@@ -283,6 +301,15 @@ describe('exportKasReport', () => {
     expect(h.txGroupByMock).toHaveBeenCalledWith(
       expect.objectContaining({ where: { periodId: 'p-2026', categoryId: 'c-infaq' } }),
     )
+  })
+
+  it('categoryId asing -> {ok:false, Kategori tidak ditemukan} tanpa query agregat', async () => {
+    h.categoryFindUniqueMock.mockResolvedValue(null)
+
+    const result = await exportKasReport('csv', { periodId: 'p-2026', categoryId: 'c-hilang' })
+
+    expect(result).toEqual({ ok: false, error: 'Kategori tidak ditemukan' })
+    expect(h.txGroupByMock).not.toHaveBeenCalled()
   })
 
   it('periode tidak ditemukan -> {ok:false, error:Periode tidak ditemukan}', async () => {

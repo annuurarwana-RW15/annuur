@@ -109,16 +109,22 @@ function escapeHtml(text: string): string {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
+/** Sel teks Excel: guard formula (`=`, `+`, `-`, `@` → `'`) lalu escape HTML. */
+function excelText(text: string): string {
+  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+  return escapeHtml(safe)
+}
+
 /** HTML table untuk Blob `application/vnd.ms-excel` — kop laporan di baris pertama. */
 export function reportToExcelHtml(report: KasReport): string {
   const head =
-    `<tr><th colspan="4" style="text-align:left">${escapeHtml(report.title)}</th></tr>` +
-    `<tr><td colspan="4">${escapeHtml(report.periodLabel)}</td></tr>` +
+    `<tr><th colspan="4" style="text-align:left">${excelText(report.title)}</th></tr>` +
+    `<tr><td colspan="4">${excelText(report.periodLabel)}</td></tr>` +
     '<tr><th>Kategori</th><th>Masuk</th><th>Keluar</th><th>Saldo</th></tr>'
   const body = report.rows
     .map(
       (row) =>
-        `<tr><td>${escapeHtml(row.kategori)}</td><td>${row.masuk}</td><td>${row.keluar}</td><td>${row.saldo}</td></tr>`,
+        `<tr><td>${excelText(row.kategori)}</td><td>${row.masuk}</td><td>${row.keluar}</td><td>${row.saldo}</td></tr>`,
     )
     .join('')
   const foot = `<tr><td>TOTAL</td><td>${report.total.masuk}</td><td>${report.total.keluar}</td><td>${report.total.saldo}</td></tr>`

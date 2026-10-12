@@ -134,6 +134,7 @@ export function LaporanTable({
         exportFilename="laporan-kas"
         basePath={BASE_PATH}
         toolbarExtra={toolbarExtra}
+        hideBuiltinActions
       />
     </div>
   )

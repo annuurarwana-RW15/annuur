@@ -23,6 +23,8 @@ export interface DataTableProps<T> {
   searchPlaceholder?: string
   exportFilename?: string
   toolbarExtra?: React.ReactNode
+  /** Sembunyikan Export dropdown & Print bawaan (toolbar punya aksi sendiri). */
+  hideBuiltinActions?: boolean
   basePath: string
 }
 
@@ -78,6 +80,7 @@ export function DataTable<T>(props: DataTableProps<T>): React.JSX.Element {
     searchPlaceholder = 'Cari…',
     exportFilename = 'export',
     toolbarExtra,
+    hideBuiltinActions = false,
   } = props
 
   const router = useRouter()
@@ -103,10 +106,14 @@ export function DataTable<T>(props: DataTableProps<T>): React.JSX.Element {
       <div className="no-print flex flex-wrap items-center gap-2 py-3">
         <SearchInput placeholder={searchPlaceholder} href={href} />
         {toolbarExtra}
-        <ExportMenu columns={columns} data={data} filename={exportFilename} />
-        <button type="button" onClick={() => window.print()} className={toolbarButtonClass}>
-          Print
-        </button>
+        {hideBuiltinActions ? null : (
+          <>
+            <ExportMenu columns={columns} data={data} filename={exportFilename} />
+            <button type="button" onClick={() => window.print()} className={toolbarButtonClass}>
+              Print
+            </button>
+          </>
+        )}
       </div>
 
       <table className="w-full border-collapse text-sm">
