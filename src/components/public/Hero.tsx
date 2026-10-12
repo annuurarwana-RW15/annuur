@@ -1,14 +1,16 @@
 import type { Section } from '@prisma/client'
 import Link from 'next/link'
 import { readField } from '@/app/admin/(dashboard)/sections/section-content'
-import { asText } from './content'
+import { asText, safeHref } from './content'
 import { StarGlyph } from './SectionHeading'
 
 export function Hero({ section }: { section: Section }) {
   const subjudul = asText(readField(section.content, 'hero', 'subjudul'))
   const imageUrl = asText(readField(section.content, 'hero', 'imageUrl'))
-  const ctaLabel = asText(readField(section.content, 'hero', 'ctaLabel'), 'Donasi Sekarang')
-  const ctaHref = asText(readField(section.content, 'hero', 'ctaHref'), '/donasi')
+  const ctaLabel =
+    asText(readField(section.content, 'hero', 'ctaLabel')) || 'Donasi Sekarang'
+  const ctaHref =
+    safeHref(asText(readField(section.content, 'hero', 'ctaHref'))) || '/donasi'
 
   return (
     <section className="relative isolate overflow-hidden bg-hijau text-krem">

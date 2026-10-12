@@ -1,12 +1,15 @@
 'use client'
 
 import { useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 
 export function Tracker() {
+  const pathname = usePathname()
+
   useEffect(() => {
     try {
       const payload = JSON.stringify({
-        path: window.location.pathname,
+        path: pathname,
         referrer: document.referrer || null,
       })
       navigator.sendBeacon(
@@ -16,7 +19,7 @@ export function Tracker() {
     } catch {
       // pelacakan fire-and-forget: kegagalan (mis. rute belum ada) tidak boleh mengganggu halaman
     }
-  }, [])
+  }, [pathname])
 
   return null
 }

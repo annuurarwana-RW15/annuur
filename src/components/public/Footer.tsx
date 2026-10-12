@@ -1,7 +1,7 @@
 import type { Section } from '@prisma/client'
 import Link from 'next/link'
 import { readField } from '@/app/admin/(dashboard)/sections/section-content'
-import { asText, socialLinks } from './content'
+import { asText, safeHref, socialLinks } from './content'
 import { PUBLIC_NAV } from './nav'
 
 interface FooterProps {
@@ -25,17 +25,35 @@ export function Footer({ section, siteName = 'Masjid An-Nur Arwana' }: FooterPro
           </div>
           {socials.length > 0 && (
             <nav aria-label="Media sosial" className="flex flex-wrap gap-2">
-              {socials.map((social) => (
-                <a
-                  key={`${social.url}-${social.label}`}
-                  href={social.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded-full border border-krem/30 px-4 py-1.5 text-sm transition hover:border-emas hover:text-emas"
-                >
-                  {social.label}
-                </a>
-              ))}
+              {socials.map((social) => {
+                const href = safeHref(social.url)
+                const key = `${social.url}-${social.label}`
+
+                if (!href) {
+                  return (
+                    <span
+                      key={key}
+                      className="rounded-full border border-krem/30 px-4 py-1.5 text-sm"
+                    >
+                      {social.label}
+                    </span>
+                  )
+                }
+
+                const external = href.startsWith('http')
+                return (
+                  <a
+                    key={key}
+                    href={href}
+                    {...(external
+                      ? { target: '_blank', rel: 'noopener noreferrer' }
+                      : {})}
+                    className="rounded-full border border-krem/30 px-4 py-1.5 text-sm transition hover:border-emas hover:text-emas"
+                  >
+                    {social.label}
+                  </a>
+                )
+              })}
             </nav>
           )}
         </div>

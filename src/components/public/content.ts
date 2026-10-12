@@ -4,6 +4,20 @@ export function asText(value: unknown, fallback = ''): string {
   return fallback
 }
 
+const SAFE_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:'])
+
+export function safeHref(value: string): string | null {
+  const url = value.trim()
+  if (!url) return null
+  if (url.startsWith('/') && !url.startsWith('//')) return url
+  try {
+    const parsed = new URL(url)
+    return SAFE_PROTOCOLS.has(parsed.protocol) ? url : null
+  } catch {
+    return null
+  }
+}
+
 export interface GalleryItem {
   url: string
   caption: string

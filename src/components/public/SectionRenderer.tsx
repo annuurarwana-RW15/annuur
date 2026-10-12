@@ -35,10 +35,9 @@ function ProfilSection({ section }: { section: Section }) {
 }
 
 function PengumumanSection({ section }: { section: Section }) {
-  const text = asText(
-    readField(section.content, 'pengumuman', 'text'),
-    'Ikuti kabar kegiatan dan pengumuman terbaru dari Masjid An-Nur Arwana.',
-  )
+  const text =
+    asText(readField(section.content, 'pengumuman', 'text')) ||
+    'Ikuti kabar kegiatan dan pengumuman terbaru dari Masjid An-Nur Arwana.'
 
   return (
     <section
