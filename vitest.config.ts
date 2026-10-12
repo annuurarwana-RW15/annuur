@@ -21,6 +21,7 @@ export default defineConfig({
           name: 'node',
           environment: 'node',
           include: ['**/*.test.ts'],
+          server: { deps: { inline: ['next-auth', '@auth/core'] } },
         },
       },
     ],
