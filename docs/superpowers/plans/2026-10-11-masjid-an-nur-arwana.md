@@ -20,6 +20,7 @@
 - **Semua tabel list admin WAJIB memakai `src/components/admin/DataTable.tsx`** (search debounce→URL, export CSV/Excel, print berkop, pagination server-side, sortable). Tidak ada tabel custom.
 - Tracker tanpa cookie, hanya `{path, referrer}`.
 - `.env.example`: `DATABASE_URL`, `AUTH_SECRET`, `R2_ACCOUNT_ID/R2_ACCESS_KEY_ID/R2_SECRET_ACCESS_KEY/R2_BUCKET`, `NEXT_PUBLIC_SITE_URL`, `GA4_MEASUREMENT_ID?`.
+- **SEMUA halaman admin wajib di `src/app/admin/(dashboard)/`** (route group dari Task 6: shell layout + guard ada di sana); `admin/login/` tetap di luar group. Path `src/app/admin/...` pada task berikutnya dibaca sebagai `src/app/admin/(dashboard)/...`; Task 20 mengganti placeholder `(dashboard)/page.tsx`, bukan membuat `admin/page.tsx` baru (bentrok route).
 
 ---
 
