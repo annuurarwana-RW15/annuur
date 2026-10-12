@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { CredentialsSignin } from 'next-auth'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { AuthError, CredentialsSignin } from 'next-auth'
 
 const { signInMock } = vi.hoisted(() => ({ signInMock: vi.fn() }))
 
@@ -29,8 +29,15 @@ async function captureError(promise: Promise<unknown>): Promise<unknown> {
 }
 
 describe('login server action', () => {
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>
+
   beforeEach(() => {
     signInMock.mockReset()
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore()
   })
 
   it('mengembalikan error umum saat kredensial salah', async () => {
@@ -44,6 +51,29 @@ describe('login server action', () => {
       password: 'salah',
       redirect: false,
     })
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      '[auth] login error',
+      expect.any(CredentialsSignin),
+    )
+  })
+
+  it('mencatat AuthError non-kredensial (mis. infra) tanpa membocorkan detail ke pengguna', async () => {
+    const infraError = new AuthError('Callback route error')
+    signInMock.mockRejectedValue(infraError)
+
+    const state = await login({}, formData('admin@an-nur.local', 'Admin123!'))
+
+    expect(state).toEqual({ error: 'Email atau password salah' })
+    expect(consoleErrorSpy).toHaveBeenCalledWith('[auth] login error', infraError)
+  })
+
+  it('melempar ulang error non-AuthError', async () => {
+    const error = new Error('gagal total')
+    signInMock.mockRejectedValue(error)
+
+    await expect(
+      login({}, formData('admin@an-nur.local', 'Admin123!')),
+    ).rejects.toThrow('gagal total')
   })
 
   it('redirect ke /admin saat login berhasil', async () => {

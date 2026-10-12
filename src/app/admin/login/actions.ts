@@ -25,6 +25,7 @@ export async function login(
     await signIn('credentials', { email, password, redirect: false })
   } catch (error) {
     if (error instanceof AuthError) {
+      console.error('[auth] login error', error)
       return { error: 'Email atau password salah' }
     }
     throw error

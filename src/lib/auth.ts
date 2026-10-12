@@ -11,6 +11,9 @@ export interface SessionUser {
   role: Role
 }
 
+const DUMMY_HASH =
+  '$2b$10$9urc.hqF9cFZ7kWzq3qs/OPh829.h6xhD99P2PtscLcWcNTDG7qzu'
+
 export const { auth, handlers, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
@@ -27,10 +30,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         if (!email || !password) return null
 
         const user = await db.user.findUnique({ where: { email } })
-        if (!user) return null
-
-        const valid = await compare(password, user.passwordHash)
-        if (!valid || !user.isActive) return null
+        const valid = await compare(password, user?.passwordHash ?? DUMMY_HASH)
+        if (!user || !valid || !user.isActive) return null
 
         return {
           id: user.id,
