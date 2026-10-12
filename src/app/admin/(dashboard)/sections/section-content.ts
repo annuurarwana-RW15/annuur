@@ -1,7 +1,20 @@
 /**
- * Bentuk konten section: kunci kanonik = kunci bentuk-editor (lihat brief Task 8),
- * dengan alias ke kunci legacy seed (prisma/seed.ts) supaya data lama tetap terbaca
- * dan renderer publik (Task 9) tidak kehilangan isi saat admin menyimpan.
+ * Bentuk konten section.
+ *
+ * KANONIK (ditulis editor): `text`, `alamat`, `telp`, `jam`, `mapQuery`, `social`,
+ * `subjudul`, `imageUrl` — plus `heading` (mirror `section.title` untuk hero;
+ * judul hero TIDAK punya `content.judul`).
+ * LEGACY (prisma/seed.ts): `body`, `address`, `phone`, `hours`, `mapEmbed`,
+ * `socialLinks`, `subheading`, `image`, `heading` — satu-satunya set yang dijamin
+ * ada di semua baris hari ini, karena seed memakai `update: {}` (re-seed tak pernah
+ * menulis kunci kanonik) dan kunci kanonik hanya terisi saat admin menyimpan.
+ *
+ * Pembaca eksternal (renderer publik) WAJIB lewat `readField()` agar jatuh ke kunci
+ * legacy bila kunci kanonik belum pernah ditulis. Bentuk galeri berbeda: seed
+ * `images: string[]` (URL telanjang) vs editor `images: [{url, caption}]` —
+ * pembaca harus menerima keduanya (`[]` valid untuk keduanya).
+ *
+ * Aliasi: kunci kanonik → kunci legacy yang disinkronkan oleh `buildContent`.
  */
 const ALIASES: Record<string, Record<string, string>> = {
   hero: { subjudul: 'subheading', imageUrl: 'image' },
@@ -16,7 +29,12 @@ export function asContentObject(value: unknown): Record<string, unknown> {
     : {}
 }
 
-/** Baca nilai field: kunci kanonik lebih dulu, lalu jatuh ke kunci legacy seed. */
+/**
+ * API baca yang dipublikasikan untuk konsumen di luar editor (mis. renderer publik
+ * Task 9): kunci kanonik lebih dulu, lalu jatuh ke kunci legacy seed.
+ * Jangan membaca `content.<kunci>` langsung — baris yang belum pernah diedit hanya
+ * punya kunci legacy.
+ */
 export function readField(
   content: unknown,
   sectionKey: string,
