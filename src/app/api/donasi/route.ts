@@ -1,18 +1,12 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { hit } from '@/lib/rate-limit'
+import { getClientIp, hit } from '@/lib/rate-limit'
 import { donationSchema } from '@/app/(public)/donasi/schema'
 
 const RATE_LIMIT = 5
 const RATE_WINDOW_MS = 60_000
 /** Percobaan generate `reference` bila bentrok unique (sangat jarang). */
 const MAX_ATTEMPTS = 3
-
-function clientIp(req: Request): string {
-  const forwarded = req.headers.get('x-forwarded-for')
-  const first = forwarded?.split(',')[0]?.trim()
-  return first || 'unknown'
-}
 
 /** `DON-` + 8 karakter base36 uppercase (A–Z, 0–9) — unik via constraint DB. */
 function generateReference(): string {
@@ -47,10 +41,18 @@ function dbError(label: string, err: unknown): NextResponse {
 /**
  * POST /api/donasi — donasi publik tanpa akun.
  * Body: `{donorName, amount, categoryId?, message?, proofImage?}` (zod).
- * Rate-limit in-memory 5/menit per IP; selalu tersimpan dengan status
+ * Rate-limit in-memory 5/menit per IP, dicek SEBELUM body dibaca (spam
+ * malformed JSON ikut makan kuota); selalu tersimpan dengan status
  * MENUNGGU — verifikasi (→ Transaksi) ditangani admin di Task 17.
  */
 export async function POST(req: Request) {
+  if (!hit(`donasi:${getClientIp(req)}`, RATE_LIMIT, RATE_WINDOW_MS)) {
+    return NextResponse.json(
+      { ok: false, error: 'Terlalu banyak permintaan, coba lagi nanti' },
+      { status: 429 },
+    )
+  }
+
   let body: unknown
   try {
     body = await req.json()
@@ -58,13 +60,6 @@ export async function POST(req: Request) {
     return NextResponse.json(
       { ok: false, error: 'Body tidak valid' },
       { status: 400 },
-    )
-  }
-
-  if (!hit(`donasi:${clientIp(req)}`, RATE_LIMIT, RATE_WINDOW_MS)) {
-    return NextResponse.json(
-      { ok: false, error: 'Terlalu banyak permintaan, coba lagi nanti' },
-      { status: 429 },
     )
   }
 

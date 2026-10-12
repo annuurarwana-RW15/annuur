@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getPresignedPutUrl, publicUrl, r2Key } from '@/lib/r2'
-import { hit } from '@/lib/rate-limit'
+import { getClientIp, hit } from '@/lib/rate-limit'
 
 const ALLOWED_TYPES: Record<string, string[]> = {
   'image/jpeg': ['jpg', 'jpeg'],
@@ -14,12 +14,6 @@ const PREFIX = 'donations'
 const RATE_LIMIT = 10
 const RATE_WINDOW_MS = 60_000
 
-function clientIp(req: Request): string {
-  const forwarded = req.headers.get('x-forwarded-for')
-  const first = forwarded?.split(',')[0]?.trim()
-  return first || 'unknown'
-}
-
 /**
  * POST /api/upload-public — bukti donasi (publik, tanpa session).
  * Kontrak sama dengan `/api/upload` (minus auth): `{filename, contentType,
@@ -28,7 +22,7 @@ function clientIp(req: Request): string {
  * (jpg/png/webp ≤5MB, ekstensi cocok, nama tersanitasi oleh `r2Key`).
  */
 export async function POST(req: Request) {
-  if (!hit(`upload-public:${clientIp(req)}`, RATE_LIMIT, RATE_WINDOW_MS)) {
+  if (!hit(`upload-public:${getClientIp(req)}`, RATE_LIMIT, RATE_WINDOW_MS)) {
     return NextResponse.json(
       { error: 'Terlalu banyak permintaan' },
       { status: 429 },

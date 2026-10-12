@@ -15,7 +15,7 @@ vi.mock('@/lib/db', () => ({
 }))
 
 import { POST } from '@/app/api/articles/view/route'
-import { hit, resetRateLimits } from '@/lib/rate-limit'
+import { getClientIp, hit, resetRateLimits } from '@/lib/rate-limit'
 
 function viewRequest(slug: unknown, ip = '203.0.113.10', body?: string): Request {
   return new Request('http://localhost:3000/api/articles/view', {
@@ -139,5 +139,41 @@ describe('hit (rate-limit in-memory)', () => {
     expect(hit('z', 1, 60_000)).toBe(false)
     resetRateLimits()
     expect(hit('z', 1, 60_000)).toBe(true)
+  })
+})
+
+describe('getClientIp', () => {
+  function reqWith(headers: Record<string, string>): Request {
+    return new Request('http://localhost', { headers })
+  }
+
+  it('utamakan x-real-ip; leftmost XFF palsu diabaikan', () => {
+    const req = reqWith({
+      'x-real-ip': '203.0.113.9',
+      'x-forwarded-for': '1.2.3.4, 5.6.7.8',
+    })
+    expect(getClientIp(req)).toBe('203.0.113.9')
+  })
+
+  it('tanpa x-real-ip: hop paling kanan XFF dipakai (bukan leftmost)', () => {
+    const req = reqWith({ 'x-forwarded-for': '1.2.3.4, 203.0.113.9' })
+    expect(getClientIp(req)).toBe('203.0.113.9')
+  })
+
+  it('x-real-ip kosong/ws jatuh ke rightmost XFF', () => {
+    const req = reqWith({
+      'x-real-ip': '   ',
+      'x-forwarded-for': '1.2.3.4, 203.0.113.9',
+    })
+    expect(getClientIp(req)).toBe('203.0.113.9')
+  })
+
+  it('XFF satu hop dipakai apa adanya', () => {
+    const req = reqWith({ 'x-forwarded-for': '203.0.113.9' })
+    expect(getClientIp(req)).toBe('203.0.113.9')
+  })
+
+  it('tanpa header sama sekali → unknown', () => {
+    expect(getClientIp(reqWith({}))).toBe('unknown')
   })
 })

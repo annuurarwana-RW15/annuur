@@ -36,3 +36,25 @@ export function hit(key: string, limit: number, windowMs: number): boolean {
 export function resetRateLimits(): void {
   windows.clear()
 }
+
+/**
+ * IP klien untuk kunci rate-limit. Utamakan `x-real-ip` (di-append proxy
+ * tepercaya, mis. Vercel), lalu hop paling kanan `x-forwarded-for` — hop
+ * kiri paling mudah dipalsukan client sehingga TIDAK dipakai — terakhir
+ * `'unknown'`.
+ */
+export function getClientIp(req: Request): string {
+  const real = req.headers.get('x-real-ip')?.trim()
+  if (real) return real
+
+  const forwarded = req.headers.get('x-forwarded-for')
+  if (forwarded) {
+    const hops = forwarded
+      .split(',')
+      .map((hop) => hop.trim())
+      .filter(Boolean)
+    if (hops.length > 0) return hops[hops.length - 1]
+  }
+
+  return 'unknown'
+}

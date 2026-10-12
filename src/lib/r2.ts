@@ -56,6 +56,13 @@ export function publicUrl(key: string): string {
   return `https://pub-${accountId}.r2.dev/${key}`
 }
 
+/**
+ * Presigned PUT tanpa binding `Content-Length`/`Content-MD5` (rencana plan:
+ * "validasi file saja" di route). Batas ukuran objek karena itu WAJIB di-set
+ * sebagai bucket policy di R2 (mis. max object size 5MB untuk folder
+ * `donations/`) — validasi `size` di route hanya permukaan, bukan pengaman
+ * upload sesungguhnya.
+ */
 export async function getPresignedPutUrl(
   key: string,
   contentType: string,

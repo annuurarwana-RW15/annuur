@@ -85,6 +85,18 @@ describe('POST /api/donasi', () => {
     expect(body.fields.proofImage).toBeTruthy()
   })
 
+  it('proofImage > 2048 karakter → 400 dengan fields.proofImage', async () => {
+    const longUrl = `https://pub-acct123.r2.dev/donations/${'a'.repeat(3000)}.jpg`
+
+    const res = await POST(donasiRequest({ ...VALID_PAYLOAD, proofImage: longUrl }))
+
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.ok).toBe(false)
+    expect(body.fields.proofImage).toMatch(/panjang/)
+    expect(h.donationCreateMock).not.toHaveBeenCalled()
+  })
+
   it('valid → 200 dengan reference format DON-XXXXXXXX dan status MENUNGGU', async () => {
     const res = await POST(
       donasiRequest({
@@ -176,6 +188,31 @@ describe('POST /api/donasi', () => {
 
     const otherIp = await POST(donasiRequest(VALID_PAYLOAD, '198.51.100.7'))
     expect(otherIp.status).toBe(200)
+  })
+
+  it('limit dicek sebelum baca body: malformed JSON pada request ke-6 → 429', async () => {
+    for (let i = 1; i <= 5; i += 1) {
+      const res = await POST(donasiRequest(VALID_PAYLOAD))
+      expect(res.status).toBe(200)
+    }
+
+    const blocked = await POST(
+      donasiRequest(undefined, '203.0.113.10', '{"donorName": "Ahmad'),
+    )
+    expect(blocked.status).toBe(429)
+    expect(await blocked.json()).toEqual({
+      ok: false,
+      error: 'Terlalu banyak permintaan, coba lagi nanti',
+    })
+  })
+
+  it('malformed JSON request pertama dalam window → 400 (bukan 429)', async () => {
+    const res = await POST(
+      donasiRequest(undefined, '203.0.113.11', '{"donorName": "Ahmad'),
+    )
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ ok: false, error: 'Body tidak valid' })
   })
 
   it('bentrok unique reference (P2002) → retry dan sukses', async () => {

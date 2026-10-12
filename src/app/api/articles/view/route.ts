@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { hit } from '@/lib/rate-limit'
+import { getClientIp, hit } from '@/lib/rate-limit'
 
 /** Slug hasil `slugify`: huruf kecil ASCII dan angka dipisah satu dash. */
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
@@ -9,12 +9,6 @@ const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const MAX_BODY_BYTES = 1024
 const VIEW_LIMIT = 30
 const VIEW_WINDOW_MS = 60_000
-
-function clientIp(req: Request): string {
-  const forwarded = req.headers.get('x-forwarded-for')
-  const first = forwarded?.split(',')[0]?.trim()
-  return first || req.headers.get('x-real-ip') || 'unknown'
-}
 
 /**
  * POST /api/articles/view { slug } → tambah viewCount artikel PUBLISHED.
@@ -50,7 +44,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Slug tidak valid' }, { status: 400 })
   }
 
-  if (!hit(`articles:view:${clientIp(req)}:${slug}`, VIEW_LIMIT, VIEW_WINDOW_MS)) {
+  if (
+    !hit(
+      `articles:view:${getClientIp(req)}:${slug}`,
+      VIEW_LIMIT,
+      VIEW_WINDOW_MS,
+    )
+  ) {
     return new NextResponse(null, { status: 204 })
   }
 

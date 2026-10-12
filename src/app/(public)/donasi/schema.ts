@@ -7,6 +7,7 @@ export const MAX_DONATION_AMOUNT = 1e12
 const proofImageSchema = z
   .string()
   .trim()
+  .max(2048, 'Bukti transfer terlalu panjang')
   .refine((value) => /^https?:\/\//i.test(value), {
     error: 'Bukti transfer harus berupa URL http(s)',
   })
