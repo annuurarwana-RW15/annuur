@@ -41,6 +41,9 @@ export interface TransactionRow {
   receiptImage: string | null
   createdAt: Date
   category: { id: string; name: string; color: string | null } | null
+  /** Field flat untuk export CSV/Excel (kolom `category` berisi object → empty cell). */
+  categoryName: string | null
+  categoryColor: string | null
 }
 
 export interface TxListParams extends TableParams {
@@ -48,6 +51,8 @@ export interface TxListParams extends TableParams {
   categoryId?: string
   from?: string
   to?: string
+  /** Opsional: periode sudah diketahui pemanggil (kartu saldo & tabel satu lookup). */
+  periodId?: string
 }
 
 function orderByClause(
@@ -87,18 +92,22 @@ function mapRow(row: {
     receiptImage: row.receiptImage,
     createdAt: row.createdAt,
     category: row.category,
+    categoryName: row.category?.name ?? null,
+    categoryColor: row.category?.color ?? null,
   }
 }
 
 /**
  * Daftar transaksi periode AKTIF dengan filter & paginasi server.
+ * `periodId` opsional menghindari lookup ganda bila pemanggil sudah punya
+ * periode aktif (kartu saldo & tabel konsisten satu query).
  * Tanpa periode aktif -> daftar kosong (periode DITUTUP memblokir semua mutasi).
  */
 export async function listTransactions(
   p: TxListParams,
 ): Promise<{ rows: TransactionRow[]; total: number }> {
-  const period = await getActivePeriod()
-  if (!period) return { rows: [], total: 0 }
+  const periodId = p.periodId ?? (await getActivePeriod())?.id
+  if (!periodId) return { rows: [], total: 0 }
 
   const needle = p.q.trim()
   const clauses: Prisma.TransactionWhereInput[] = []
@@ -121,7 +130,7 @@ export async function listTransactions(
   }
 
   const where: Prisma.TransactionWhereInput = {
-    periodId: period.id,
+    periodId,
     AND: clauses,
   }
 

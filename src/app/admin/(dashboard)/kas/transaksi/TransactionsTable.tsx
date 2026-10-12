@@ -82,7 +82,9 @@ export function TransactionsTable({
       ),
     },
     {
-      key: 'category',
+      // key flat `categoryName` agar cell export CSV/Excel ikut terisi
+      // (object `category` jatuh ke '' di `DataTable.exportCell`).
+      key: 'categoryName',
       label: 'Kategori',
       render: (row) =>
         row.category ? (

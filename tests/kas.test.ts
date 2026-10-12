@@ -45,7 +45,7 @@ import {
   deleteTransaction,
   updateTransaction,
 } from '@/app/admin/(dashboard)/kas/transaksi/actions'
-import { getPeriodBalance } from '@/lib/kas'
+import { getPeriodBalance, listTransactions } from '@/lib/kas'
 
 function loginAs(role: Role): void {
   h.authMock.mockResolvedValue({
@@ -331,5 +331,66 @@ describe('deleteTransaction', () => {
     await expect(deleteTransaction('tx-1')).rejects.toThrow('Akses ditolak')
     expect(h.txFindUniqueMock).not.toHaveBeenCalled()
     expect(h.txDeleteMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('listTransactions', () => {
+  const DB_ROW = {
+    id: 'tx-1',
+    type: 'MASUK' as const,
+    // Prisma Decimal tiruan — valueOf mengembalikan string numerik.
+    amount: { valueOf: () => '100000' },
+    date: new Date('2026-03-01'),
+    description: 'Infak jamaah Jumat',
+    receiptImage: null,
+    createdAt: new Date('2026-03-01T01:00:00Z'),
+    category: { id: 'c-infaq', name: 'Infak', color: '#0f4c3a' },
+  }
+
+  const PARAMS = { q: '', page: 1, size: 20 } as const
+
+  it('row memuat categoryName/categoryColor flat (untuk cell export CSV/Excel)', async () => {
+    h.txCountMock.mockResolvedValue(2)
+    h.txFindManyMock.mockResolvedValue([
+      DB_ROW,
+      { ...DB_ROW, id: 'tx-2', category: null },
+    ])
+
+    const { rows, total } = await listTransactions({ ...PARAMS, periodId: 'p-2026' })
+
+    expect(total).toBe(2)
+    expect(rows[0].categoryName).toBe('Infak')
+    expect(rows[0].categoryColor).toBe('#0f4c3a')
+    expect(rows[0].amount).toBe(100000) // Decimal -> number
+    expect(rows[0].category).toEqual(DB_ROW.category) // object render tetap ada
+    expect(rows[1].categoryName).toBeNull()
+    expect(rows[1].categoryColor).toBeNull()
+    // periodId dipass pemanggil -> tanpa lookup periode aktif ganda
+    expect(h.periodFindFirstMock).not.toHaveBeenCalled()
+    expect(h.txFindManyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ periodId: 'p-2026' }) }),
+    )
+  })
+
+  it('tanpa periodId -> fallback ke periode AKTIF dari database', async () => {
+    h.periodFindFirstMock.mockResolvedValue(ACTIVE_PERIOD)
+    h.txCountMock.mockResolvedValue(1)
+    h.txFindManyMock.mockResolvedValue([DB_ROW])
+
+    const { rows } = await listTransactions(PARAMS)
+
+    expect(h.periodFindFirstMock).toHaveBeenCalledTimes(1)
+    expect(h.txFindManyMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: expect.objectContaining({ periodId: 'p-2026' }) }),
+    )
+    expect(rows[0].categoryName).toBe('Infak')
+  })
+
+  it('tanpa periodId & tanpa periode aktif -> daftar kosong tanpa query transaksi', async () => {
+    const result = await listTransactions(PARAMS)
+
+    expect(result).toEqual({ rows: [], total: 0 })
+    expect(h.txCountMock).not.toHaveBeenCalled()
+    expect(h.txFindManyMock).not.toHaveBeenCalled()
   })
 })

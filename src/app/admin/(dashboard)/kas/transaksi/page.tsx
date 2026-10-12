@@ -197,7 +197,20 @@ export default async function TransaksiKasPage({ searchParams }: PageProps) {
 
   const [balance, { rows, total }, categories] = await Promise.all([
     getPeriodBalance(period.id),
-    listTransactions({ q, page, size, sort, dir, type, categoryId, from, to }),
+    // periodId dipass agar tabel memakai periode yang sama dengan kartu saldo
+    // tanpa lookup aktif ganda.
+    listTransactions({
+      q,
+      page,
+      size,
+      sort,
+      dir,
+      type,
+      categoryId,
+      from,
+      to,
+      periodId: period.id,
+    }),
     db.category.findMany({
       orderBy: { name: 'asc' },
       select: { id: true, name: true },
