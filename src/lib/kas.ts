@@ -1,0 +1,140 @@
+import type { Prisma } from '@prisma/client'
+import { db } from '@/lib/db'
+import type { TableParams } from '@/lib/table-query'
+
+/** Periode berstatus AKTIF (satu-satunya target transaksi baru). */
+export async function getActivePeriod() {
+  return db.period.findFirst({
+    where: { status: 'AKTIF' },
+    orderBy: { startDate: 'desc' },
+  })
+}
+
+export interface PeriodBalance {
+  masuk: number
+  keluar: number
+  saldo: number
+}
+
+/** Agregat SUM(MASUK) − SUM(KELUAR) per periode — saldo tidak pernah disimpan di kolom. */
+export async function getPeriodBalance(periodId: string): Promise<PeriodBalance> {
+  const grouped = await db.transaction.groupBy({
+    by: ['type'],
+    where: { periodId },
+    _sum: { amount: true },
+  })
+  const totals = new Map(
+    grouped.map((row) => [row.type, Number(row._sum.amount ?? 0)]),
+  )
+  const masuk = totals.get('MASUK') ?? 0
+  const keluar = totals.get('KELUAR') ?? 0
+  return { masuk, keluar, saldo: masuk - keluar }
+}
+
+/** Baris transaksi dengan Decimal sudah dikonversi ke number (serializable ke client). */
+export interface TransactionRow {
+  id: string
+  type: 'MASUK' | 'KELUAR'
+  amount: number
+  date: Date
+  description: string
+  receiptImage: string | null
+  createdAt: Date
+  category: { id: string; name: string; color: string | null } | null
+}
+
+export interface TxListParams extends TableParams {
+  type?: string
+  categoryId?: string
+  from?: string
+  to?: string
+}
+
+function orderByClause(
+  sort: string | undefined,
+  dir: 'asc' | 'desc' | undefined,
+): Prisma.TransactionOrderByWithRelationInput {
+  const direction = dir === 'asc' ? 'asc' : 'desc'
+  if (sort === 'amount') return { amount: direction }
+  if (sort === 'createdAt') return { createdAt: direction }
+  return { date: direction }
+}
+
+function dateOrUndefined(value: string | undefined, endOfDay = false): Date | undefined {
+  if (!value) return undefined
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return undefined
+  if (endOfDay) d.setUTCHours(23, 59, 59, 999)
+  return d
+}
+
+function mapRow(row: {
+  id: string
+  type: 'MASUK' | 'KELUAR'
+  amount: unknown
+  date: Date
+  description: string
+  receiptImage: string | null
+  createdAt: Date
+  category: { id: string; name: string; color: string | null } | null
+}): TransactionRow {
+  return {
+    id: row.id,
+    type: row.type,
+    amount: Number(row.amount),
+    date: row.date,
+    description: row.description,
+    receiptImage: row.receiptImage,
+    createdAt: row.createdAt,
+    category: row.category,
+  }
+}
+
+/**
+ * Daftar transaksi periode AKTIF dengan filter & paginasi server.
+ * Tanpa periode aktif -> daftar kosong (periode DITUTUP memblokir semua mutasi).
+ */
+export async function listTransactions(
+  p: TxListParams,
+): Promise<{ rows: TransactionRow[]; total: number }> {
+  const period = await getActivePeriod()
+  if (!period) return { rows: [], total: 0 }
+
+  const needle = p.q.trim()
+  const clauses: Prisma.TransactionWhereInput[] = []
+
+  if (p.type === 'MASUK' || p.type === 'KELUAR') clauses.push({ type: p.type })
+  if (p.categoryId) clauses.push({ categoryId: p.categoryId })
+
+  const gte = dateOrUndefined(p.from)
+  if (gte) clauses.push({ date: { gte } })
+  const lte = dateOrUndefined(p.to, true)
+  if (lte) clauses.push({ date: { lte } })
+
+  if (needle) {
+    clauses.push({
+      OR: [
+        { description: { contains: needle, mode: 'insensitive' } },
+        { category: { name: { contains: needle, mode: 'insensitive' } } },
+      ],
+    })
+  }
+
+  const where: Prisma.TransactionWhereInput = {
+    periodId: period.id,
+    AND: clauses,
+  }
+
+  const [total, rows] = await Promise.all([
+    db.transaction.count({ where }),
+    db.transaction.findMany({
+      where,
+      include: { category: { select: { id: true, name: true, color: true } } },
+      orderBy: orderByClause(p.sort, p.dir),
+      skip: (p.page - 1) * p.size,
+      take: p.size,
+    }),
+  ])
+
+  return { rows: rows.map(mapRow), total }
+}
