@@ -8,13 +8,21 @@ const ALLOWED_TYPES: Record<string, string[]> = {
   'image/webp': ['webp'],
 }
 
+const MAX_SIZE = 5 * 1024 * 1024
+const PREFIX_RE = /^[a-z0-9-]+(\/[a-z0-9-]+)*$/
+
 export async function POST(req: Request) {
   const session = await auth()
   if (!session) {
     return NextResponse.json({ error: 'Tidak terautentikasi' }, { status: 401 })
   }
 
-  let body: { filename?: string; contentType?: string; prefix?: string }
+  let body: {
+    filename?: string
+    contentType?: string
+    prefix?: string
+    size?: number
+  }
   try {
     body = await req.json()
   } catch {
@@ -24,6 +32,7 @@ export async function POST(req: Request) {
   const filename = String(body.filename ?? '').trim()
   const contentType = String(body.contentType ?? '').trim()
   const prefix = String(body.prefix ?? 'uploads').trim() || 'uploads'
+  const size = body.size
 
   const allowedExts = ALLOWED_TYPES[contentType]
   if (!allowedExts) {
@@ -31,6 +40,23 @@ export async function POST(req: Request) {
       { error: 'Tipe file tidak diizinkan' },
       { status: 400 },
     )
+  }
+
+  if (typeof size !== 'number' || !Number.isFinite(size) || size <= 0) {
+    return NextResponse.json(
+      { error: 'Ukuran file tidak valid' },
+      { status: 400 },
+    )
+  }
+  if (size > MAX_SIZE) {
+    return NextResponse.json(
+      { error: 'Ukuran file maksimal 5MB' },
+      { status: 400 },
+    )
+  }
+
+  if (!PREFIX_RE.test(prefix)) {
+    return NextResponse.json({ error: 'Prefix tidak valid' }, { status: 400 })
   }
 
   const ext = filename.includes('.')
@@ -68,7 +94,13 @@ export async function POST(req: Request) {
       key,
     })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Upload gagal'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error(
+      '[upload] gagal membuat URL upload:',
+      err instanceof Error ? err.message : err,
+    )
+    return NextResponse.json(
+      { error: 'Gagal membuat URL upload' },
+      { status: 500 },
+    )
   }
 }

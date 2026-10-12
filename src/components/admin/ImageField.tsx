@@ -44,10 +44,11 @@ export default function ImageField({
         body: JSON.stringify({
           filename: file.name,
           contentType: file.type,
+          size: file.size,
           prefix,
         }),
       })
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         throw new Error(data.error || 'Upload gagal')
       }

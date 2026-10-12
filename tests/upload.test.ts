@@ -66,11 +66,14 @@ beforeEach(() => {
   vi.clearAllMocks()
   setR2Env()
   sessionMock()
+  vi.spyOn(console, 'error').mockImplementation(() => {})
   getSignedUrlMock.mockImplementation(
     async (_client: unknown, command: { input: { Key: string } }) =>
       `https://signed.example/${command.input.Key}?sig=abc`,
   )
 })
+
+const MAX_SIZE = 5 * 1024 * 1024
 
 describe('POST /api/upload', () => {
   it('returns 401 tanpa session', async () => {
@@ -95,7 +98,11 @@ describe('POST /api/upload', () => {
 
   it('returns 400 jika ekstensi tidak cocok dengan contentType', async () => {
     const res = await uploadPost(
-      jsonRequest({ filename: 'foto.png', contentType: 'image/jpeg' }),
+      jsonRequest({
+        filename: 'foto.png',
+        contentType: 'image/jpeg',
+        size: 1024,
+      }),
     )
 
     expect(res.status).toBe(400)
@@ -105,25 +112,70 @@ describe('POST /api/upload', () => {
 
   it('returns 400 jika nama file habis tersanitasi', async () => {
     const res = await uploadPost(
-      jsonRequest({ filename: '   .jpg', contentType: 'image/jpeg' }),
+      jsonRequest({ filename: '   .jpg', contentType: 'image/jpeg', size: 1024 }),
     )
 
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: 'Nama file tidak valid' })
   })
 
+  it('returns 400 bila size melebihi 5MB', async () => {
+    const res = await uploadPost(
+      jsonRequest({
+        filename: 'foto.jpg',
+        contentType: 'image/jpeg',
+        size: MAX_SIZE + 1,
+      }),
+    )
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: 'Ukuran file maksimal 5MB' })
+  })
+
+  it.each([
+    ['tidak dikirim', undefined],
+    ['bukan number', 'besar'],
+    ['nol', 0],
+    ['negatif', -5],
+  ])('returns 400 bila size %s', async (_label, size) => {
+    const res = await uploadPost(
+      jsonRequest({ filename: 'foto.jpg', contentType: 'image/jpeg', size }),
+    )
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: 'Ukuran file tidak valid' })
+  })
+
+  it.each(['../x', 'UPPER', 'a/../../b', 'a b', 'a//b'])(
+    'returns 400 untuk prefix tidak valid: %s',
+    async (prefix) => {
+      const res = await uploadPost(
+        jsonRequest({
+          filename: 'foto.jpg',
+          contentType: 'image/jpeg',
+          size: 1024,
+          prefix,
+        }),
+      )
+
+      expect(res.status).toBe(400)
+      expect(await res.json()).toEqual({ error: 'Prefix tidak valid' })
+    },
+  )
+
   it('returns 200 dengan uploadUrl, key, dan publicUrl', async () => {
     const res = await uploadPost(
       jsonRequest({
         filename: 'Foto Masjid.jpg',
         contentType: 'image/jpeg',
+        size: 2048,
         prefix: 'berita',
       }),
     )
 
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.key).toMatch(/^berita\/\d+-foto-masjid\.jpg$/)
+    expect(body.key).toMatch(/^berita\/\d+-[0-9a-f]{4}-foto-masjid\.jpg$/)
     expect(body.uploadUrl).toBe(`https://signed.example/${body.key}?sig=abc`)
     expect(body.publicUrl).toBe(`https://pub-acct123.r2.dev/${body.key}`)
     expect(getSignedUrlMock).toHaveBeenCalledWith(
@@ -139,11 +191,30 @@ describe('POST /api/upload', () => {
     )
   })
 
+  it('menerima prefix nested yang valid', async () => {
+    const res = await uploadPost(
+      jsonRequest({
+        filename: 'a.png',
+        contentType: 'image/png',
+        size: 100,
+        prefix: 'articles/2026',
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.key).toMatch(/^articles\/2026\/\d+-[0-9a-f]{4}-a\.png$/)
+  })
+
   it('uses R2_PUBLIC_BASE_URL for publicUrl when set', async () => {
     process.env.R2_PUBLIC_BASE_URL = 'https://cdn.an-nur.or.id/'
 
     const res = await uploadPost(
-      jsonRequest({ filename: 'a.png', contentType: 'image/png' }),
+      jsonRequest({
+        filename: 'a.png',
+        contentType: 'image/png',
+        size: 100,
+      }),
     )
 
     expect(res.status).toBe(200)
@@ -151,33 +222,48 @@ describe('POST /api/upload', () => {
     expect(body.publicUrl).toBe(`https://cdn.an-nur.or.id/${body.key}`)
   })
 
-  it('returns clear error ketika env R2 tidak dikonfigurasi', async () => {
+  it('returns error generik (tanpa bocoran detail) ketika env R2 tidak dikonfigurasi', async () => {
     clearR2Env()
 
     const res = await uploadPost(
-      jsonRequest({ filename: 'foto.jpg', contentType: 'image/jpeg' }),
+      jsonRequest({
+        filename: 'foto.jpg',
+        contentType: 'image/jpeg',
+        size: 1024,
+      }),
     )
 
     expect(res.status).toBe(500)
-    const body = await res.json()
-    expect(body.error).toContain('R2 belum dikonfigurasi')
+    expect(await res.json()).toEqual({ error: 'Gagal membuat URL upload' })
+    expect(console.error).toHaveBeenCalledWith(
+      expect.stringContaining('[upload]'),
+      expect.stringContaining('R2 belum dikonfigurasi'),
+    )
   })
 })
 
 describe('r2Key', () => {
-  it('menyusun prefix + timestamp + nama sanitasi', () => {
+  it('menyusun prefix + timestamp + suffix acak + nama sanitasi', () => {
     const key = r2Key('berita', 'Foto Syiar Ramadhan.JPG')
-    expect(key).toMatch(/^berita\/\d+-foto-syiar-ramadhan\.jpg$/)
+    expect(key).toMatch(/^berita\/\d+-[0-9a-f]{4}-foto-syiar-ramadhan\.jpg$/)
+  })
+
+  it('menghasilkan suffix berbeda antar panggilan (anti-collision)', () => {
+    const a = r2Key('berita', 'sama.jpg')
+    const b = r2Key('berita', 'sama.jpg')
+    expect(a).not.toBe(b)
   })
 
   it('menghapus spasi & karakter tak aman, lowercase', () => {
     const key = r2Key('pengumuman', 'Iftar & Buka Puasa #2 (VIP).png')
-    expect(key).toMatch(/^pengumuman\/\d+-iftar-buka-puasa-2-vip\.png$/)
+    expect(key).toMatch(
+      /^pengumuman\/\d+-[0-9a-f]{4}-iftar-buka-puasa-2-vip\.png$/,
+    )
   })
 
   it('menghasilkan timestamp meski nama habis tersanitasi', () => {
     const key = r2Key('x', '!!!')
-    expect(key).toMatch(/^x\/\d+-$/)
+    expect(key).toMatch(/^x\/\d+-[0-9a-f]{4}-$/)
   })
 })
 

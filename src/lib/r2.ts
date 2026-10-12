@@ -44,8 +44,9 @@ export function r2Key(prefix: string, filename: string): string {
     ? filename.slice(filename.lastIndexOf('.') + 1).toLowerCase()
     : ''
   const timestamp = Date.now()
+  const rand = Math.random().toString(16).slice(2, 6).padEnd(4, '0')
   const name = ext ? `${base}.${ext}` : base
-  return `${prefix.replace(/^\/+|\/+$/g, '')}/${timestamp}-${name}`
+  return `${prefix.replace(/^\/+|\/+$/g, '')}/${timestamp}-${rand}-${name}`
 }
 
 export function publicUrl(key: string): string {
