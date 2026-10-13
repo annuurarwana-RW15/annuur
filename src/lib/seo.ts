@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 
-export const DEFAULT_SITE_NAME = 'Masjid An-Nur Arwana'
+export const DEFAULT_SITE_NAME = 'Masjid An-nuur Arwana'
 
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'

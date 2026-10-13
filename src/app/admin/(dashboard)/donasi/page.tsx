@@ -6,7 +6,7 @@ import { getTableParams } from '@/lib/table-query'
 import { DonationsTable, type DonationRow } from './DonationsTable'
 
 export const metadata: Metadata = {
-  title: 'Donasi — Admin Masjid An-Nur Arwana',
+  title: 'Donasi — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

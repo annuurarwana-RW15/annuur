@@ -22,8 +22,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Masjid An-Nur Arwana",
-  description: "Website resmi Masjid An-Nur Arwana",
+  title: "Masjid An-nuur Arwana",
+  description: "Website resmi Masjid An-nuur Arwana",
 };
 
 export default function RootLayout({

@@ -10,7 +10,7 @@ import { TransactionForm } from './TransactionForm'
 import { TransactionsTable } from './TransactionsTable'
 
 export const metadata: Metadata = {
-  title: 'Transaksi Kas — Admin Masjid An-Nur Arwana',
+  title: 'Transaksi Kas — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

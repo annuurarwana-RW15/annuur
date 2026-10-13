@@ -6,7 +6,7 @@ import { ArticleForm } from '../ArticleForm'
 import { listArticleCategories } from '../categories'
 
 export const metadata: Metadata = {
-  title: 'Edit Artikel — Admin Masjid An-Nur Arwana',
+  title: 'Edit Artikel — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

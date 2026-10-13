@@ -42,10 +42,10 @@ describe('getSetting', () => {
   it('mengembalikan nilai string sebagai string apa adanya', async () => {
     findUnique.mockResolvedValueOnce({
       key: 'site.name',
-      value: 'Masjid An-Nur Arwana',
+      value: 'Masjid An-nuur Arwana',
     })
     await expect(getSetting('site.name', 'fallback')).resolves.toBe(
-      'Masjid An-Nur Arwana',
+      'Masjid An-nuur Arwana',
     )
   })
 

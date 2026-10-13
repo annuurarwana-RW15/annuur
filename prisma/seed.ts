@@ -9,12 +9,12 @@ const prisma = new PrismaClient({ adapter });
 const SECTIONS = [
   {
     key: 'hero',
-    title: 'Masjid An-Nur Arwana',
+    title: 'Masjid An-nuur Arwana',
     order: 0,
     content: {
-      heading: 'Masjid An-Nur Arwana',
+      heading: 'Masjid An-nuur Arwana',
       subheading: 'Masjid yang nyaman untuk beribadah dan berkembangnya umat',
-      image: null,
+      image: '/images/hero-masjid.jpg',
       ctaLabel: 'Donasi Sekarang',
       ctaHref: '/donasi',
     },
@@ -24,7 +24,7 @@ const SECTIONS = [
     title: 'Profil Masjid',
     order: 1,
     content: {
-      body: 'Masjid An-Nur Arwana merupakan masjid kelolaan DKM yang melayani kebutuhan umat di wilayah Arwana.',
+      body: 'Masjid An-nuur Arwana merupakan masjid kelolaan DKM yang melayani kebutuhan umat di wilayah Arwana.',
     },
   },
   {
@@ -37,9 +37,22 @@ const SECTIONS = [
     },
   },
   {
+    key: 'jumat',
+    title: 'Jadwal Khotib Sholat Jumat',
+    order: 3,
+    content: {
+      items: [
+        { tanggal: '2026-10-16', khatib: 'Ust. Ahmad Fauzi', imam: 'Ust. Abdul Rahman' },
+        { tanggal: '2026-10-23', khatib: 'Ust. Muhammad Siddiq', imam: 'Ust. Ibrahim Hakim' },
+        { tanggal: '2026-10-30', khatib: 'Dr. H. Hasan Basri, M.A.', imam: 'Ust. Yusuf Maulana' },
+        { tanggal: '2026-11-06', khatib: 'Ust. Fatullah Ansari', imam: 'Ust. Ahmad Fauzi' },
+      ] as { tanggal: string; khatib: string; imam: string }[],
+    },
+  },
+  {
     key: 'pengumuman',
     title: 'Pengumuman & Kegiatan',
-    order: 3,
+    order: 4,
     content: {
       limit: 3,
     },
@@ -47,15 +60,63 @@ const SECTIONS = [
   {
     key: 'galeri',
     title: 'Galeri',
-    order: 4,
+    order: 5,
     content: {
-      images: [] as string[],
+      images: [
+        { url: '/images/galeri-01.jpg', caption: 'Senja di atas kubah masjid' },
+        { url: '/images/galeri-02.jpg', caption: 'Ornamen bintang delapan (girih)' },
+        { url: '/images/galeri-03.jpg', caption: 'Lengkung mihrab berlapis' },
+        { url: '/images/galeri-04.jpg', caption: 'Lampu gantung masjid' },
+        { url: '/images/galeri-05.jpg', caption: 'Pintu lattice mashrabiya' },
+        { url: '/images/galeri-06.jpg', caption: 'Medali ornamen klasik' },
+        { url: '/images/galeri-07.jpg', caption: 'Skyline menara menjelang maghrib' },
+        { url: '/images/galeri-08.jpg', caption: 'Bulan sabit di malam yang tenang' },
+      ] as { url: string; caption: string }[],
+    },
+  },
+  {
+    key: 'testimoni',
+    title: 'Apa Kata Jamaah',
+    order: 9,
+    content: {
+      items: [
+        {
+          nama: 'Budi Santoso',
+          peran: 'Jamaah rutin',
+          teks: 'Sejak pindah ke Arwana, Masjid An-nuur Arwana jadi rumah kedua keluarga kami. Suasananya tenang, jamaahnya ramah, dan pengurusnya sigap.',
+          rating: 5,
+        },
+        {
+          nama: 'Siti Aminah',
+          peran: 'Donatur',
+          teks: 'Donasi lewat website mudah sekali. Transfer, unggah bukti, dan konfirmasinya cepat. Laporan kasnya juga transparan.',
+          rating: 5,
+        },
+        {
+          nama: 'Ust. Abdul Rahman',
+          peran: 'Guru TPQ',
+          teks: 'Alhamdulillah program TPQ di masjid ini makin terorganisir. Anak-anak betah belajar dan orang tua mudah memantau kegiatan.',
+          rating: 5,
+        },
+        {
+          nama: 'H. M. Ridwan',
+          peran: 'Jamaah Jumat',
+          teks: 'Khutbah Jumat di sini selalu menyentuh dan aplikatif. Jadwal khotibnya jelas, jamaahnya pun tertib.',
+          rating: 4,
+        },
+        {
+          nama: 'Dewi Lestari',
+          peran: 'Warga sekitar',
+          teks: 'Masjidnya bersih dan terawat. Jadwal sholat akurat membuat kami tidak pernah ketinggalan waktu sholat.',
+          rating: 5,
+        },
+      ] as { nama: string; peran: string; teks: string; rating: number }[],
     },
   },
   {
     key: 'kontak',
     title: 'Kontak',
-    order: 5,
+    order: 7,
     content: {
       address: '',
       phone: '',
@@ -67,9 +128,9 @@ const SECTIONS = [
   {
     key: 'footer',
     title: 'Footer',
-    order: 6,
+    order: 8,
     content: {
-      text: '© 2026 Masjid An-Nur Arwana. Semua hak dilindungi.',
+      text: '© 2026 Masjid An-nuur Arwana. Semua hak dilindungi.',
       socialLinks: [] as { label: string; url: string }[],
     },
   },
@@ -85,13 +146,13 @@ const CATEGORIES = [
 ];
 
 const SETTINGS: { key: string; value: unknown }[] = [
-  { key: 'site.name', value: 'Masjid An-Nur Arwana' },
+  { key: 'site.name', value: 'Masjid An-nuur Arwana' },
   { key: 'site.address', value: '' },
   { key: 'site.phone', value: '' },
   { key: 'site.city', value: 'Arwana' },
   { key: 'donasi.rekening', value: [] },
-  { key: 'seo.title', value: 'Masjid An-Nur Arwana' },
-  { key: 'seo.description', value: 'Website resmi Masjid An-Nur Arwana' },
+  { key: 'seo.title', value: 'Masjid An-nuur Arwana' },
+  { key: 'seo.description', value: 'Website resmi Masjid An-nuur Arwana' },
   {
     key: 'kas.publicCategories',
     value: ['Infak', 'Sedekah', 'Zakat', 'Infaq Pembangunan'],

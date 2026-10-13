@@ -81,8 +81,9 @@ describe('login server action', () => {
 
     const error = await captureError(login({}, formData('admin@an-nur.local', 'Admin123!')))
 
-    expect(String((error as Error).digest)).toContain('NEXT_REDIRECT')
-    expect(String((error as Error).digest)).toContain('/admin')
+    const digest = (error as Error & { digest?: string }).digest ?? ''
+    expect(String(digest)).toContain('NEXT_REDIRECT')
+    expect(String(digest)).toContain('/admin')
   })
 
   it('menolak input kosong tanpa memanggil signIn', async () => {

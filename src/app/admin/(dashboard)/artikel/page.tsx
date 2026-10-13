@@ -7,7 +7,7 @@ import { getTableParams } from '@/lib/table-query'
 import { ArticlesTable } from './ArticlesTable'
 
 export const metadata: Metadata = {
-  title: 'Artikel — Admin Masjid An-Nur Arwana',
+  title: 'Artikel — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

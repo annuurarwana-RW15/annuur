@@ -1,18 +1,66 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
+import { dailyPageviews } from '@/lib/analytics'
+import { db } from '@/lib/db'
+import { formatRupiah } from '@/lib/format'
+import { getActivePeriod, getPeriodBalance } from '@/lib/kas'
+import { requireRole } from '@/lib/rbac'
 
 export const metadata: Metadata = {
-  title: 'Dashboard — Admin Masjid An-Nur Arwana',
+  title: 'Dashboard — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 
-const PLACEHOLDER_CARDS = [
-  { label: 'Saldo', hint: 'Saldo kas terkini' },
-  { label: 'Donasi Menunggu', hint: 'Menunggu verifikasi' },
-  { label: 'Pageview', hint: '7 hari terakhir' },
-  { label: 'Artikel', hint: 'Total artikel' },
-]
+export default async function AdminDashboardPage() {
+  await requireRole('ADMIN', 'BENDAHARA', 'KONTEN')
 
-export default function AdminDashboardPage() {
+  const [period, donationByStatus, articleCount, activeUserCount, daily] =
+    await Promise.all([
+      getActivePeriod(),
+      db.donation.groupBy({ by: ['status'], _count: { _all: true } }),
+      db.article.count(),
+      db.user.count({ where: { isActive: true } }),
+      dailyPageviews(7),
+    ])
+
+  const balance = period ? await getPeriodBalance(period.id) : null
+  const pendingDonations =
+    donationByStatus.find((row) => row.status === 'MENUNGGU')?._count._all ?? 0
+  const views7 = daily.reduce((sum, day) => sum + day.views, 0)
+
+  const cards = [
+    {
+      label: 'Saldo Kas',
+      value: balance ? formatRupiah(balance.saldo) : '—',
+      hint: period ? `Periode ${period.name}` : 'Tidak ada periode aktif',
+      href: '/admin/kas/laporan',
+    },
+    {
+      label: 'Donasi Menunggu',
+      value: String(pendingDonations),
+      hint: 'Menunggu verifikasi',
+      href: '/admin/donasi',
+    },
+    {
+      label: 'Pageview',
+      value: String(views7),
+      hint: '7 hari terakhir',
+      href: '/admin/analitik',
+    },
+    {
+      label: 'Artikel',
+      value: String(articleCount),
+      hint: 'Total artikel',
+      href: '/admin/artikel',
+    },
+    {
+      label: 'Pengguna Aktif',
+      value: String(activeUserCount),
+      hint: 'Akun aktif',
+      href: '/admin/pengguna',
+    },
+  ]
+
   return (
     <div>
       <h1 className="text-2xl font-semibold text-neutral-900">Dashboard</h1>
@@ -20,17 +68,19 @@ export default function AdminDashboardPage() {
         Ringkasan aktivitas masjid.
       </p>
 
-      {/* data kartu diisi Task 20 */}
-      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {PLACEHOLDER_CARDS.map((card) => (
-          <div
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
+        {cards.map((card) => (
+          <Link
             key={card.label}
-            className="rounded-xl border border-black/10 bg-white p-4 shadow-sm"
+            href={card.href}
+            className="rounded-xl border border-black/10 bg-white p-4 shadow-sm transition hover:border-green-900/30 hover:shadow"
           >
             <p className="text-sm text-neutral-500">{card.label}</p>
-            <p className="mt-2 text-3xl font-semibold tabular-nums text-neutral-900">—</p>
+            <p className="mt-2 text-3xl font-semibold tabular-nums text-neutral-900">
+              {card.value}
+            </p>
             <p className="mt-1 text-xs text-neutral-400">{card.hint}</p>
-          </div>
+          </Link>
         ))}
       </div>
     </div>

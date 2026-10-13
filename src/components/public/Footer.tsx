@@ -9,7 +9,7 @@ interface FooterProps {
   siteName?: string
 }
 
-export function Footer({ section, siteName = 'Masjid An-Nur Arwana' }: FooterProps) {
+export function Footer({ section, siteName = 'Masjid An-nuur Arwana' }: FooterProps) {
   const rawText = section ? asText(readField(section.content, 'footer', 'text')) : ''
   const text =
     rawText || `© ${new Date().getFullYear()} ${siteName}. Semua hak dilindungi.`

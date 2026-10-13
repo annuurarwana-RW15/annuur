@@ -9,7 +9,7 @@ import { KategoriTable } from './KategoriTable'
 import { CategoryForm } from './form'
 
 export const metadata: Metadata = {
-  title: 'Kategori Kas — Admin Masjid An-Nur Arwana',
+  title: 'Kategori Kas — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

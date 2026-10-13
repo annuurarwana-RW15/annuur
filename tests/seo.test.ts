@@ -8,7 +8,7 @@ import {
   orgLd,
 } from '@/lib/seo'
 
-const SITE_NAME = 'Masjid An-Nur Arwana'
+const SITE_NAME = 'Masjid An-nuur Arwana'
 
 afterEach(() => {
   vi.unstubAllEnvs()
@@ -194,14 +194,14 @@ describe('breadcrumbLd', () => {
 describe('orgLd', () => {
   it('nama + alamat lengkap -> @type Mosque dengan PostalAddress', () => {
     const ld = orgLd({
-      name: 'Masjid An-Nur Arwana',
+      name: 'Masjid An-nuur Arwana',
       address: 'Jl. Raya Arwana No. 1',
       phone: '0812-3456-7890',
     })
 
     expect(ld['@context']).toBe('https://schema.org')
     expect(ld['@type']).toBe('Mosque')
-    expect(ld.name).toBe('Masjid An-Nur Arwana')
+    expect(ld.name).toBe('Masjid An-nuur Arwana')
     expect(ld.address).toEqual({
       '@type': 'PostalAddress',
       streetAddress: 'Jl. Raya Arwana No. 1',
@@ -211,11 +211,11 @@ describe('orgLd', () => {
   })
 
   it('alamat kosong -> @type Organization dan telephone ikut kosong', () => {
-    const ld = orgLd({ name: 'Masjid An-Nur Arwana', address: '', phone: '' })
+    const ld = orgLd({ name: 'Masjid An-nuur Arwana', address: '', phone: '' })
 
     expect(ld['@type']).toBe('Organization')
     expect(ld.address).toBeUndefined()
     expect(ld.telephone).toBeUndefined()
-    expect(ld.name).toBe('Masjid An-Nur Arwana')
+    expect(ld.name).toBe('Masjid An-nuur Arwana')
   })
 })

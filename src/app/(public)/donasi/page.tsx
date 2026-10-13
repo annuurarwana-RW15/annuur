@@ -8,7 +8,7 @@ import { DonationForm } from '@/components/public/DonationForm'
 
 export const revalidate = 60
 
-const DEFAULT_SITE_NAME = 'Masjid An-Nur Arwana'
+const DEFAULT_SITE_NAME = 'Masjid An-nuur Arwana'
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteName = await getSetting('site.name', DEFAULT_SITE_NAME)
@@ -16,7 +16,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
     title: 'Donasi & Infaq',
     description:
-      'Donasi, infaq, dan sedekah untuk kelanjutan Masjid An-Nur Arwana. Transfer ke rekening resmi lalu unggah bukti transfer.',
+      'Donasi, infaq, dan sedekah untuk kelanjutan Masjid An-nuur Arwana. Transfer ke rekening resmi lalu unggah bukti transfer.',
     path: '/donasi',
     // openGraph eksplisit menimpa og:image warisan root (lihat berita/page.tsx)
     image: '/opengraph-image',
@@ -69,7 +69,7 @@ export default async function DonasiPage() {
 
         <p className="mt-6 max-w-2xl text-sm leading-relaxed text-hijau-tua/80 sm:text-base">
           Donasi dan infaq Anda menjadi amal jariyah yang menopang
-          operasional serta pembangunan Masjid An-Nur Arwana. Transfer ke
+          operasional serta pembangunan Masjid An-nuur Arwana. Transfer ke
           rekening resmi di bawah ini, lalu unggah bukti transfer agar
           pengurus dapat memverifikasi.
         </p>
@@ -109,7 +109,7 @@ export default async function DonasiPage() {
                       {item.no}
                     </p>
                     <p className="mt-1 text-sm text-hijau-tua/80">
-                      a.n. {item.atasNama || 'Masjid An-Nur Arwana'}
+                      a.n. {item.atasNama || 'Masjid An-nuur Arwana'}
                       {item.link && (
                         <>
                           {' · '}

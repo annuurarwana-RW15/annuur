@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/db'
@@ -12,8 +13,8 @@ import { Tracker } from '@/components/public/Tracker'
 export const revalidate = 60
 
 export const metadata: Metadata = {
-  title: { default: 'Masjid An-Nur Arwana', template: '%s — Masjid An-Nur Arwana' },
-  description: 'Website resmi Masjid An-Nur Arwana',
+  title: { default: 'Masjid An-nuur Arwana', template: '%s — Masjid An-nuur Arwana' },
+  description: 'Website resmi Masjid An-nuur Arwana',
 }
 
 function DomeMark() {
@@ -40,12 +41,12 @@ function DomeMark() {
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
   const [siteName, address, phone, footer] = await Promise.all([
-    getSetting('site.name', 'Masjid An-Nur Arwana'),
+    getSetting('site.name', 'Masjid An-nuur Arwana'),
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
     db.section.findUnique({ where: { key: 'footer' } }),
   ])
-  const name = asText(siteName, 'Masjid An-Nur Arwana')
+  const name = asText(siteName, 'Masjid An-nuur Arwana')
   const org = orgLd({
     name,
     address: asText(address),
@@ -102,6 +103,12 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         dangerouslySetInnerHTML={{ __html: jsonLd(org) }}
       />
       <Tracker />
+
+      {(() => {
+        const ga4Id = getSetting('ga4.id', '')
+        if (!ga4Id) return null
+        return <Script id="ga4" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments)}; gtag('js', new Date()); gtag('config', '${ga4Id}');` }} />
+      })()}
     </div>
   )
 }

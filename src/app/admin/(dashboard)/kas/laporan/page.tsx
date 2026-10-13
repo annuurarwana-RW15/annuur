@@ -11,7 +11,7 @@ import { getTableParams, PAGE_SIZES } from '@/lib/table-query'
 import { LaporanTable } from './LaporanTable'
 
 export const metadata: Metadata = {
-  title: 'Laporan Kas — Admin Masjid An-Nur Arwana',
+  title: 'Laporan Kas — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 
@@ -41,7 +41,7 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
   const [periods, categories, siteNameRaw] = await Promise.all([
     db.period.findMany({ orderBy: { startDate: 'desc' } }),
     db.category.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
-    getSetting('site.name', 'Masjid An-Nur Arwana'),
+    getSetting('site.name', 'Masjid An-nuur Arwana'),
   ])
 
   // id periode/kategori tak dikenal -> 404 (bukan laporan senyap untuk filter salah).
@@ -55,7 +55,7 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
     ? categories.find((item) => item.id === categoryParam)
     : undefined
 
-  const siteName = asText(siteNameRaw, 'Masjid An-Nur Arwana')
+  const siteName = asText(siteNameRaw, 'Masjid An-nuur Arwana')
 
   if (!selectedPeriod) {
     return (

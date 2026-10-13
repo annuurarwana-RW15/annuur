@@ -1,9 +1,10 @@
+import type { Section } from '@prisma/client'
 import { db } from '@/lib/db'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
 
-export const revalidate = 60
+export const revalidate = 86400
 
 export default async function BerandaPage() {
   const [sections, articles, period] = await Promise.all([
@@ -41,11 +42,30 @@ export default async function BerandaPage() {
     saldo = (totals.get('MASUK') ?? 0) - (totals.get('KELUAR') ?? 0)
   }
 
+  // Posisi tetap di luar urutan DB:
+  // - Laporan Keuangan tepat setelah section `jumat` (bila jumat disembunyikan → setelah semua section).
+  // - Testimoni selalu block terakhir sebelum footer.
+  const testimoni = sections.find((s) => s.key === 'testimoni') ?? null
+  const mainSections = sections.filter((s) => s.key !== 'testimoni')
+  const jumatIndex = mainSections.findIndex((s) => s.key === 'jumat')
+
+  let beforeFinance: Section[]
+  let afterFinance: Section[]
+  if (jumatIndex >= 0) {
+    beforeFinance = mainSections.slice(0, jumatIndex + 1)
+    afterFinance = mainSections.slice(jumatIndex + 1)
+  } else {
+    beforeFinance = mainSections
+    afterFinance = []
+  }
+
   return (
     <>
-      <SectionRenderer sections={sections} />
-      <LatestNews articles={articles} />
+      <SectionRenderer sections={beforeFinance} />
       <FinanceSummary saldo={saldo} />
+      <SectionRenderer sections={afterFinance} />
+      <LatestNews articles={articles} />
+      {testimoni && <SectionRenderer sections={[testimoni]} />}
     </>
   )
 }

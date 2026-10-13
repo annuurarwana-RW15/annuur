@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server'
-import type { Request } from 'express'
 import { hit } from '@/lib/rate-limit'
 import { getClientIp } from '@/lib/rate-limit'
 import { db } from '@/lib/db'

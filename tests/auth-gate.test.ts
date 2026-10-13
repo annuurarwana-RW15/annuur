@@ -73,8 +73,9 @@ describe('requireRole', () => {
     const error = await captureError(requireRole('ADMIN'))
 
     expect(error).toBeInstanceOf(Error)
-    expect(String((error as Error).digest)).toContain('NEXT_REDIRECT')
-    expect(String((error as Error).digest)).toContain('/admin/login')
+    const digest = (error as Error & { digest?: string }).digest ?? ''
+    expect(String(digest)).toContain('NEXT_REDIRECT')
+    expect(String(digest)).toContain('/admin/login')
     expect(userFindUniqueMock).not.toHaveBeenCalled()
   })
 
@@ -83,7 +84,8 @@ describe('requireRole', () => {
 
     const error = await captureError(requireRole('ADMIN'))
 
-    expect(String((error as Error).digest)).toContain('/admin/login')
+    const digest = (error as Error & { digest?: string }).digest ?? ''
+    expect(String(digest)).toContain('/admin/login')
     expect(userFindUniqueMock).not.toHaveBeenCalled()
   })
 

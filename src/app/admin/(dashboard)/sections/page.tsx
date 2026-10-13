@@ -7,7 +7,7 @@ import { SectionsTable } from './SectionsTable'
 import { asContentObject } from './section-content'
 
 export const metadata: Metadata = {
-  title: 'Sections — Admin Masjid An-Nur Arwana',
+  title: 'Sections — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

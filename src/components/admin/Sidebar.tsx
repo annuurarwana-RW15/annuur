@@ -42,7 +42,7 @@ export function Sidebar({ items, user }: SidebarProps): React.JSX.Element {
     <aside className="no-print flex flex-col border-b border-black/10 bg-[#0F4C3A] md:sticky md:top-0 md:h-screen md:w-64 md:shrink-0 md:overflow-y-auto md:border-b-0 md:border-r">
       <div className="px-4 py-4 md:py-6">
         <p className="text-sm font-semibold tracking-wide text-white">
-          Masjid An-Nur Arwana
+          Masjid An-nuur Arwana
         </p>
         <p className="mt-0.5 text-xs text-[#F5EFE2]/70">Panel Admin</p>
       </div>

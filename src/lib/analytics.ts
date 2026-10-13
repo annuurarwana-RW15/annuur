@@ -1,4 +1,3 @@
-import type { Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 
 export interface DailyPageview {
@@ -19,12 +18,6 @@ export interface ReferrerStats {
 export interface HourlyView {
   hour: number
   views: number
-}
-
-export interface KasMonthlyEntry {
-  month: string
-  masuk: number
-  keluar: number
 }
 
 /**
@@ -117,12 +110,8 @@ export async function topReferrers(days: number, limit: number): Promise<Referre
   const rows = await db.track.groupBy({
     by: ['referrer'],
     where: {
-      createdAt: {
-        gte: cutoff,
-        referrer: {
-          not: null,
-        },
-      },
+      createdAt: { gte: cutoff },
+      referrer: { not: null },
     },
     _count: { referrer: true },
     orderBy: { _count: { referrer: 'desc' } },
@@ -131,7 +120,7 @@ export async function topReferrers(days: number, limit: number): Promise<Referre
 
   return rows.map((row) => ({
     referrer: row.referrer ?? 'direct',
-    views: row._count.referrer,
+    views: row._count?.referrer ?? 0,
   }))
 }
 
@@ -169,68 +158,4 @@ export async function hourlyViews(days: number): Promise<HourlyView[]> {
   return result
 }
 
-/**
- * Kas 6 bulan mundur: {month:string, masuk:number, keluar:number}[]
- * Dari Transaction model (type MASUK/KELUAR, grouped by month).
- * Jika tidak ada data, fallback zeros.
- * @param referenceDate tanggal referensi (default: now). Digunakan untuk testing.
- */
-export async function kasMonthly(
-  referenceDate?: Date,
-): KasMonthlyEntry[] {
-  const now = referenceDate ?? new Date()
-  const sixMonthsAgo = new Date()
-  sixMonthsAgo.setMonth(now.getMonth() - 6)
-
-  const rows = await db.transaction.groupBy({
-    by: ['type', {
-      month: {
-        gt: sixMonthsAgo,
-        lte: now,
-      },
-    }],
-    _sum: {
-      amount: true,
-    },
-    where: {
-      date: {
-        gte: sixMonthsAgo,
-        lte: now,
-      },
-    },
-  })
-
-  const grouped = new Map<string, { masuk: number; keluar: number }>()
-  for (let m = 6; m >= 0; m--) {
-    const monthDate = new Date()
-    monthDate.setMonth(now.getMonth() - m)
-    const monthKey = monthDate.toISOString().split('T')[0].slice(0, 7)
-    grouped.set(monthKey, { masuk: 0, keluar: 0 })
-  }
-
-  for (const row of rows) {
-    const monthKey = new Date(row.createdAt).toISOString().split('T')[0].slice(0, 7)
-    if (!grouped.has(monthKey)) continue
-    const current = grouped.get(monthKey)!
-    if (row.type === 'MASUK') {
-      grouped.set(monthKey, { ...current, masuk: (current.masuk ?? 0) + Number(row._sum.amount ?? 0) })
-    } else {
-      grouped.set(monthKey, { ...current, keluar: (current.keluar ?? 0) + Number(row._sum.amount ?? 0) })
-    }
-  }
-
-  const result: KasMonthlyEntry[] = []
-  for (let m = 0; m < 6; m++) {
-    const monthDate = new Date()
-    monthDate.setMonth(now.getMonth() - m)
-    const monthKey = monthDate.toISOString().split('T')[0].slice(0, 7)
-    const entry = grouped.get(monthKey) ?? { masuk: 0, keluar: 0 }
-    const monthName = monthDate.toLocaleString('id-ID', { month: 'short' })
-    result.push({
-      month: monthName,
-      masuk: entry.masuk,
-      keluar: entry.keluar,
-    })
-  }
-  return result
-}
+export type { KasMonth as KasMonthlyEntry } from '@/lib/kas'

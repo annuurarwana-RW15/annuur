@@ -65,3 +65,57 @@ export function socialLinks(value: unknown): SocialLink[] {
   }
   return links
 }
+
+export interface JumatItem {
+  tanggal: string
+  khatib: string
+  imam: string
+}
+
+/** Normalisasi daftar jadwal khotib Jumat: wajib `tanggal` + `khatib`, `imam` opsional. */
+export function jumatItems(value: unknown): JumatItem[] {
+  if (!Array.isArray(value)) return []
+
+  const items: JumatItem[] = []
+  for (const raw of value) {
+    if (raw && typeof raw === 'object') {
+      const record = raw as Record<string, unknown>
+      const tanggal = asText(record.tanggal)
+      const khatib = asText(record.khatib)
+      if (tanggal && khatib) {
+        items.push({ tanggal, khatib, imam: asText(record.imam) })
+      }
+    }
+  }
+  return items
+}
+
+export interface TestimoniItem {
+  nama: string
+  peran: string
+  teks: string
+  rating: number | null
+}
+
+/** Normalisasi daftar testimoni: wajib `nama` + `teks`; `peran`/`rating` opsional (rating 1–5). */
+export function testimoniItems(value: unknown): TestimoniItem[] {
+  if (!Array.isArray(value)) return []
+
+  const items: TestimoniItem[] = []
+  for (const raw of value) {
+    if (raw && typeof raw === 'object') {
+      const record = raw as Record<string, unknown>
+      const nama = asText(record.nama)
+      const teks = asText(record.teks)
+      if (!nama || !teks) continue
+
+      const ratingNum =
+        typeof record.rating === 'number' ? record.rating : Number(asText(record.rating))
+      const rating =
+        Number.isFinite(ratingNum) && ratingNum >= 1 && ratingNum <= 5 ? ratingNum : null
+
+      items.push({ nama, peran: asText(record.peran), teks, rating })
+    }
+  }
+  return items
+}

@@ -253,7 +253,7 @@ describe('buildContent', () => {
     const out = buildContent(
       'hero',
       { heading: 'Lama', subheading: 'S', image: null },
-      'Masjid An-Nur',
+      'Masjid An-nuur',
       {
         subjudul: 'Sub baru',
         imageUrl: 'https://cdn.test/hero.jpg',
@@ -263,7 +263,7 @@ describe('buildContent', () => {
     )
 
     expect(out).toMatchObject({
-      heading: 'Masjid An-Nur',
+      heading: 'Masjid An-nuur',
       subjudul: 'Sub baru',
       subheading: 'Sub baru',
       imageUrl: 'https://cdn.test/hero.jpg',

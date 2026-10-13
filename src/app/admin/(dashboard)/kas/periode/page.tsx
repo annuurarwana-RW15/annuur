@@ -6,7 +6,7 @@ import { getTableParams } from '@/lib/table-query'
 import { PeriodeTable } from './PeriodeTable'
 
 export const metadata: Metadata = {
-  title: 'Periode Kas — Admin Masjid An-Nur Arwana',
+  title: 'Periode Kas — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

@@ -20,7 +20,7 @@ export function PrintHeader({
           // eslint-disable-next-line @next/next/no-img-element -- kop cetak, di luar alur image optimizer
           <img src={logoUrl} alt="Logo masjid" className="h-14 w-14 object-contain" />
         ) : null}
-        <p className="text-base font-bold uppercase tracking-wide">Masjid An-Nur Arwana</p>
+        <p className="text-base font-bold uppercase tracking-wide">Masjid An-nuur Arwana</p>
       </div>
       <h1 className="mt-2 text-xl font-semibold">{title}</h1>
       {subtitle ? <p className="text-sm">{subtitle}</p> : null}

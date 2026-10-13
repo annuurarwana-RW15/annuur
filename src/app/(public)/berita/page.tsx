@@ -9,7 +9,7 @@ import { ArticleCard } from '@/components/public/ArticleCard'
 import { SectionHeading } from '@/components/public/SectionHeading'
 
 const PAGE_SIZE = 12
-const DEFAULT_SITE_NAME = 'Masjid An-Nur Arwana'
+const DEFAULT_SITE_NAME = 'Masjid An-nuur Arwana'
 
 // CATATAN: route ini dinamis karena pagination server-side membaca `searchParams`
 // — jangan tambahkan `export const revalidate` di sini (inert dan menyesatkan).
@@ -38,7 +38,7 @@ export async function generateMetadata({
     title: 'Berita & Artikel',
     description:
       asText(seoDescription) ||
-      'Berita, pengumuman, dan artikel terbaru dari Masjid An-Nur Arwana',
+      'Berita, pengumuman, dan artikel terbaru dari Masjid An-nuur Arwana',
     path: page > 1 ? `/berita?page=${page}` : '/berita',
     // openGraph eksplisit menimpa og:image warisan root opengraph-image
     // (lihat next resolve-metadata) → pakai gambar OG situs secara eksplisit.

@@ -103,6 +103,40 @@ function mapRow(row: {
  * periode aktif (kartu saldo & tabel konsisten satu query).
  * Tanpa periode aktif -> daftar kosong (periode DITUTUP memblokir semua mutasi).
  */
+export interface KasMonth {
+  month: string
+  masuk: number
+  keluar: number
+}
+
+/** 6 bulan kebelakangan dari transaksi MASUK/KELUAR, mengelompokkan per bulan. */
+export async function kasMonthly(months: number = 6): Promise<KasMonth[]> {
+  const now = new Date()
+  const result: KasMonth[] = []
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date()
+    d.setMonth(now.getMonth() - i)
+    const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1)
+    const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0)
+    const grouped = await db.transaction.groupBy({
+      by: ['type'],
+      where: {
+        date: { gte: startOfMonth, lte: endOfMonth },
+      },
+      _sum: { amount: true },
+    })
+    const totals = new Map(
+      grouped.map((row) => [row.type, Number(row._sum.amount ?? 0)]),
+    )
+    result.push({
+      month: startOfMonth.toLocaleString('id-ID', { month: 'long' }),
+      masuk: totals.get('MASUK') ?? 0,
+      keluar: totals.get('KELUAR') ?? 0,
+    })
+  }
+  return result
+}
+
 export async function listTransactions(
   p: TxListParams,
 ): Promise<{ rows: TransactionRow[]; total: number }> {

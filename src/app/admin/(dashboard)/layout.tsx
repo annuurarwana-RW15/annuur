@@ -7,7 +7,7 @@ import { ADMIN_NAV } from '@/components/admin/nav'
 import { Sidebar } from '@/components/admin/Sidebar'
 
 export const metadata: Metadata = {
-  title: 'Admin — Masjid An-Nur Arwana',
+  title: 'Admin — Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 

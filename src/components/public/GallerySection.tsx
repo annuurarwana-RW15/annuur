@@ -53,7 +53,7 @@ function galleryAlt(item: GalleryItem): string {
   } catch {
     /* URL tak terbaca → fallback */
   }
-  return 'Foto galeri Masjid An-Nur Arwana'
+  return 'Foto galeri Masjid An-nuur Arwana'
 }
 
 export function GallerySection({ section }: { section: Section }) {

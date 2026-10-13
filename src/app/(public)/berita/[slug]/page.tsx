@@ -11,7 +11,7 @@ import { ViewCounter } from '@/components/public/ViewCounter'
 
 export const revalidate = 60
 
-const DEFAULT_SITE_NAME = 'Masjid An-Nur Arwana'
+const DEFAULT_SITE_NAME = 'Masjid An-nuur Arwana'
 
 interface ArtikelPageProps {
   params: Promise<{ slug: string }>

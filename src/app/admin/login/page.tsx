@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { LoginForm } from './login-form'
 
 export const metadata: Metadata = {
-  title: 'Masuk — Admin Masjid An-Nur Arwana',
+  title: 'Masuk — Admin Masjid An-nuur Arwana',
   robots: { index: false, follow: false },
 }
 
@@ -15,7 +15,7 @@ export default function LoginPage() {
             AN
           </div>
           <h1 className="text-xl font-semibold text-neutral-900">
-            Masjid An-Nur Arwana
+            Masjid An-nuur Arwana
           </h1>
           <p className="mt-1 text-sm text-neutral-500">Masuk ke panel admin</p>
         </div>

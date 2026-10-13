@@ -28,6 +28,16 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
   jadwal: [
     { name: 'text', label: 'Keterangan', widget: 'textarea', rows: 4 },
   ],
+  jumat: [
+    {
+      name: 'items',
+      label: 'Daftar jadwal khotib (JSON)',
+      widget: 'json',
+      rows: 8,
+      helper:
+        'Array objek { "tanggal": "2026-10-16", "khatib": "Ust. …", "imam": "Ust. …" }. tanggal format YYYY-MM-DD.',
+    },
+  ],
   pengumuman: [
     { name: 'text', label: 'Keterangan', widget: 'textarea', rows: 4 },
   ],
@@ -38,6 +48,16 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
       widget: 'json',
       rows: 8,
       helper: 'Array objek { "url": "…", "caption": "…" }. Url diunggah lewat ImageField pada hero atau tempel hasil upload.',
+    },
+  ],
+  testimoni: [
+    {
+      name: 'items',
+      label: 'Daftar testimoni (JSON)',
+      widget: 'json',
+      rows: 10,
+      helper:
+        'Array objek { "nama": "…", "peran": "Jamaah", "teks": "…", "rating": 5 }. rating opsional 1–5.',
     },
   ],
   kontak: [

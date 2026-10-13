@@ -8,14 +8,16 @@ import { ContactSection } from './ContactSection'
 import { Footer } from './Footer'
 import { GallerySection } from './GallerySection'
 import { Hero } from './Hero'
+import { JumatSection } from './JumatSection'
 import { PrayerSchedule } from './PrayerSchedule'
 import { ProfilSection } from './ProfilSection'
 import { SectionHeading } from './SectionHeading'
+import { TestimoniSection } from './TestimoniSection'
 
 function PengumumanSection({ section }: { section: Section }) {
   const text =
     asText(readField(section.content, 'pengumuman', 'text')) ||
-    'Ikuti kabar kegiatan dan pengumuman terbaru dari Masjid An-Nur Arwana.'
+    'Ikuti kabar kegiatan dan pengumuman terbaru dari Masjid An-nuur Arwana.'
 
   return (
     <section
@@ -43,8 +45,10 @@ const RENDERERS: Record<string, (section: Section) => ReactNode> = {
   hero: (section) => <Hero section={section} />,
   profil: (section) => <ProfilSection section={section} />,
   jadwal: (section) => <PrayerSchedule section={section} />,
+  jumat: (section) => <JumatSection section={section} />,
   pengumuman: (section) => <PengumumanSection section={section} />,
   galeri: (section) => <GallerySection section={section} />,
+  testimoni: (section) => <TestimoniSection section={section} />,
   kontak: (section) => <ContactSection section={section} />,
   footer: (section) => <Footer section={section} />,
 }
