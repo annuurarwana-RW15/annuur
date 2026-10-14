@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {
+  applyTableControls,
+  type PublicLaporanRow,
+} from '@/app/(public)/laporan-kas/rows'
 
 const h = vi.hoisted(() => ({
   getActivePeriodMock: vi.fn(),
@@ -110,11 +114,122 @@ describe('Laporan Kas Publik', () => {
     expect(true).toBe(true)
   })
 
-  it('DataTable pagination dan empty state', () => {
-    expect(true).toBe(true)
+})
+
+const ROWS: PublicLaporanRow[] = [
+  {
+    categoryId: 'c-infak',
+    categoryName: 'Infak',
+    masuk: 150000,
+    keluar: 0,
+    saldo: 150000,
+    terbarik: '2026-10-02T00:00:00.000Z',
+  },
+  {
+    categoryId: 'c-sedekah',
+    categoryName: 'Sedekah',
+    masuk: 50000,
+    keluar: 10000,
+    saldo: 40000,
+    terbarik: null,
+  },
+  {
+    categoryId: 'c-zakat',
+    categoryName: 'Zakat',
+    masuk: 0,
+    keluar: 25000,
+    saldo: -25000,
+    terbarik: '2026-10-01T00:00:00.000Z',
+  },
+]
+
+describe('applyTableControls (search/sort/pagination /laporan-kas)', () => {
+  const base = { q: '', page: 1, size: 20 }
+
+  it('tanpa kontrol → semua baris, total = panjang', () => {
+    const result = applyTableControls(ROWS, base)
+    expect(result.rows).toHaveLength(3)
+    expect(result.total).toBe(3)
   })
 
-  it('disclaimer text present', () => {
-    expect(true).toBe(true)
+  it('search q memfilter kategori case-insensitive + total terfilter', () => {
+    const result = applyTableControls(ROWS, { ...base, q: 'ZAK' })
+    expect(result.rows.map((r) => r.categoryId)).toEqual(['c-zakat'])
+    expect(result.total).toBe(1)
+  })
+
+  it('search tanpa hasil → rows kosong, total 0', () => {
+    const result = applyTableControls(ROWS, { ...base, q: 'tidak ada' })
+    expect(result.rows).toEqual([])
+    expect(result.total).toBe(0)
+  })
+
+  it('sort kolom angka desc/asc', () => {
+    const desc = applyTableControls(ROWS, {
+      ...base,
+      sort: 'saldo',
+      dir: 'desc',
+    })
+    expect(desc.rows.map((r) => r.categoryId)).toEqual([
+      'c-infak',
+      'c-sedekah',
+      'c-zakat',
+    ])
+
+    const asc = applyTableControls(ROWS, {
+      ...base,
+      sort: 'masuk',
+      dir: 'asc',
+    })
+    expect(asc.rows.map((r) => r.categoryId)).toEqual([
+      'c-zakat',
+      'c-sedekah',
+      'c-infak',
+    ])
+  })
+
+  it('sort nama kategori asc + null terbarik di akhir', () => {
+    const byName = applyTableControls(ROWS, {
+      ...base,
+      sort: 'categoryName',
+      dir: 'asc',
+    })
+    expect(byName.rows.map((r) => r.categoryName)).toEqual([
+      'Infak',
+      'Sedekah',
+      'Zakat',
+    ])
+
+    const byDate = applyTableControls(ROWS, {
+      ...base,
+      sort: 'terbarik',
+      dir: 'desc',
+    })
+    expect(byDate.rows.map((r) => r.categoryId)).toEqual([
+      'c-infak',
+      'c-zakat',
+      'c-sedekah',
+    ])
+  })
+
+  it('sort key tak dikenal diabaikan (urutan asli dipertahankan)', () => {
+    const result = applyTableControls(ROWS, {
+      ...base,
+      sort: 'aksi',
+      dir: 'desc',
+    })
+    expect(result.rows.map((r) => r.categoryId)).toEqual([
+      'c-infak',
+      'c-sedekah',
+      'c-zakat',
+    ])
+  })
+
+  it('pagination: size 20 → semua muat; page di luar rentang → rows kosong', () => {
+    expect(applyTableControls(ROWS, { ...base, size: 20 }).rows).toHaveLength(3)
+    expect(applyTableControls(ROWS, { ...base, page: 2, size: 20 })).toEqual({
+      rows: [],
+      total: 3,
+    })
   })
 })

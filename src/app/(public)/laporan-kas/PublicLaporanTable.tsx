@@ -3,18 +3,16 @@
 import Link from 'next/link'
 import { DataTable, type Column } from '@/components/admin/DataTable'
 import { formatRupiah } from '@/lib/format'
+import type { PublicLaporanRow } from './rows'
 
-export interface PublicLaporanRow {
-  categoryId: string
-  categoryName: string
-  masuk: number
-  keluar: number
-  saldo: number
-  terbarik: string | null
-}
+export type { PublicLaporanRow } from './rows'
 
 interface PublicLaporanTableProps {
   rows: PublicLaporanRow[]
+  /** Total baris SETELAH search/sort (untuk pagination DataTable). */
+  total: number
+  page: number
+  pageSize: number
   activeCategoryId?: string
 }
 
@@ -22,7 +20,13 @@ interface PublicLaporanTableProps {
  * Pembungkus client untuk laporan kas publik: kolom `render` (fungsi + JSX)
  * tidak bisa diserialisasi dari Server Component ke DataTable.
  */
-export function PublicLaporanTable({ rows, activeCategoryId }: PublicLaporanTableProps) {
+export function PublicLaporanTable({
+  rows,
+  total,
+  page,
+  pageSize,
+  activeCategoryId,
+}: PublicLaporanTableProps) {
   const columns: Column<PublicLaporanRow>[] = [
     {
       key: 'categoryName',
@@ -83,9 +87,9 @@ export function PublicLaporanTable({ rows, activeCategoryId }: PublicLaporanTabl
     <DataTable
       columns={columns}
       data={rows}
-      total={rows.length}
-      page={1}
-      pageSize={100}
+      total={total}
+      page={page}
+      pageSize={pageSize}
       searchPlaceholder="Cari kategori…"
       exportFilename="laporan-kas"
       basePath="/laporan-kas"

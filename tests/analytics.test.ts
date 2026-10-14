@@ -1,4 +1,4 @@
-import { dailyPageviews, topPages, topReferrers } from '@/lib/analytics'
+import { dailyPageviews, hourlyViews, topPages, topReferrers } from '@/lib/analytics'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const h = vi.hoisted(() => ({
@@ -100,5 +100,33 @@ describe('topReferrers', () => {
     expect(await topReferrers(0, 5)).toEqual([])
     expect(await topReferrers(7, 0)).toEqual([])
     expect(h.trackGroupByMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('timezone WIB (Asia/Jakarta)', () => {
+  it('dailyPageviews mengelompokkan per tanggal WIB, bukan UTC', async () => {
+    // 2026-10-06 18:00Z = 2026-10-07 01:00 WIB → masuk bucket 07-10, bukan 06-10.
+    h.trackFindManyMock.mockResolvedValue([
+      { createdAt: new Date('2026-10-06T18:00:00Z') },
+    ])
+
+    const result = await dailyPageviews(7)
+
+    expect(result[0]).toEqual({ date: '2026-10-06', views: 0 })
+    expect(result[1]).toEqual({ date: '2026-10-07', views: 1 })
+  })
+
+  it('hourlyViews mengelompokkan jam 0-23 menurut WIB', async () => {
+    h.trackGroupByMock.mockResolvedValue([
+      { createdAt: new Date('2026-10-13T03:00:00Z') }, // 10:00 WIB
+      { createdAt: new Date('2026-10-13T17:00:00Z') }, // 00:00 WIB
+    ])
+
+    const result = await hourlyViews(7)
+
+    expect(result).toHaveLength(24)
+    expect(result[10]).toEqual({ hour: 10, views: 1 })
+    expect(result[0]).toEqual({ hour: 0, views: 1 })
+    expect(result[3]).toEqual({ hour: 3, views: 0 })
   })
 })

@@ -3,7 +3,9 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { getActivePeriod } from '@/lib/kas'
 import { getSetting } from '@/lib/settings'
-import { PublicLaporanTable, type PublicLaporanRow } from './PublicLaporanTable'
+import { getTableParams } from '@/lib/table-query'
+import { applyTableControls, type PublicLaporanRow } from './rows'
+import { PublicLaporanTable } from './PublicLaporanTable'
 
 export const revalidate = 60
 
@@ -72,6 +74,7 @@ function categorySummary(
 export default async function LaporanKasPage({ searchParams }: PageProps) {
   const sp = await searchParams
   const kategoriParam = first(sp.kategori)
+  const tableParams = getTableParams(sp)
 
   const [period, publicCatRaw, allCategories] = await Promise.all([
     getActivePeriod(),
@@ -123,6 +126,7 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
   }))
 
   const rows: PublicLaporanRow[] = summaries
+  const controlled = applyTableControls(rows, tableParams)
 
   return (
     <section className="p-6">
@@ -133,7 +137,13 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
           : ''}
       </h2>
 
-      <PublicLaporanTable rows={rows} activeCategoryId={activeCategoryId} />
+      <PublicLaporanTable
+        rows={controlled.rows}
+        total={controlled.total}
+        page={tableParams.page}
+        pageSize={tableParams.size}
+        activeCategoryId={activeCategoryId}
+      />
 
       {activeCategoryId && (
         <p className="mt-4">

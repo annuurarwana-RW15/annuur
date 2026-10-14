@@ -1,5 +1,31 @@
 import { db } from '@/lib/db'
 
+/** Zona waktu tampilan laporan (WIB) — bucket harian & jam ramai tidak lagi UTC. */
+const APP_TZ = 'Asia/Jakarta'
+
+const dateKeyFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: APP_TZ,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+})
+
+const hourFormatter = new Intl.DateTimeFormat('en-GB', {
+  timeZone: APP_TZ,
+  hour: '2-digit',
+  hourCycle: 'h23',
+})
+
+/** Kunci tanggal `YYYY-MM-DD` menurut APP_TZ (bukan UTC). */
+function tzDateKey(date: Date): string {
+  return dateKeyFormatter.format(date)
+}
+
+/** Jam 0-23 menurut APP_TZ (bukan UTC). */
+function tzHour(date: Date): number {
+  return Number(hourFormatter.format(date))
+}
+
 export interface DailyPageview {
   date: string
   views: number
@@ -21,8 +47,8 @@ export interface HourlyView {
 }
 
 /**
- * Ambil pageview 7/30 hari terakhir dari DB Track.
- * Jika tidak ada data, return fixture default semua nol.
+ * Ambil pageview 7/30 hari terakhir dari DB Track (bucket per hari WIB).
+ * Jika tidak ada data, return deret tanggal semua nol.
  */
 export async function dailyPageviews(days: number): Promise<DailyPageview[]> {
   if (days <= 0) return []
@@ -46,7 +72,7 @@ export async function dailyPageviews(days: number): Promise<DailyPageview[]> {
       const d = new Date(start)
       d.setDate(d.getDate() + i)
       result.push({
-        date: d.toISOString().split('T')[0],
+        date: tzDateKey(d),
         views: 0,
       })
     }
@@ -55,7 +81,7 @@ export async function dailyPageviews(days: number): Promise<DailyPageview[]> {
 
   const grouped = new Map<string, number>()
   for (const row of rows) {
-    const dateKey = row.createdAt.toISOString().split('T')[0]
+    const dateKey = tzDateKey(row.createdAt)
     grouped.set(dateKey, (grouped.get(dateKey) ?? 0) + 1)
   }
 
@@ -64,7 +90,7 @@ export async function dailyPageviews(days: number): Promise<DailyPageview[]> {
   for (let i = 0; i < days; i++) {
     const d = new Date(start)
     d.setDate(d.getDate() + i)
-    const dateKey = d.toISOString().split('T')[0]
+    const dateKey = tzDateKey(d)
     result.push({
       date: dateKey,
       views: grouped.get(dateKey) ?? 0,
@@ -143,7 +169,7 @@ export async function hourlyViews(days: number): Promise<HourlyView[]> {
 
   const grouped = new Map<number, number>()
   for (const row of rows) {
-    const hour = row.createdAt.getUTCHours()
+    const hour = tzHour(row.createdAt)
     grouped.set(hour, (grouped.get(hour) ?? 0) + 1)
   }
 
