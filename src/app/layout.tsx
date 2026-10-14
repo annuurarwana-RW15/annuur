@@ -1,23 +1,38 @@
 import type { Metadata } from "next";
-import { Amiri, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import { SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
-const jakarta = Plus_Jakarta_Sans({
+const jakarta = localFont({
+  src: [
+    { path: "./fonts/plus-jakarta-sans-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/plus-jakarta-sans-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "./fonts/plus-jakarta-sans-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "./fonts/plus-jakarta-sans-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-jakarta",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const amiri = Amiri({
+const amiri = localFont({
+  src: [
+    { path: "./fonts/amiri-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/amiri-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-amiri",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: [
+    {
+      path: "./fonts/geist-mono-latin-wght-normal.woff2",
+      weight: "100 900",
+      style: "normal",
+    },
+  ],
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

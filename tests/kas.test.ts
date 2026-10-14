@@ -135,6 +135,19 @@ describe('createTransaction', () => {
     expect(h.revalidatePathMock).not.toHaveBeenCalled()
   })
 
+  it('tanpa periode aktif tetapi ada periode DITUTUP -> {ok:false, Periode sudah ditutup}', async () => {
+    h.periodFindFirstMock.mockImplementation(
+      async (args: { where?: { status?: string } } = {}) =>
+        args.where?.status === 'DITUTUP' ? { id: 'p-closed' } : null,
+    )
+
+    const result = await createTransaction(VALID_INPUT)
+
+    expect(result).toEqual({ ok: false, error: 'Periode sudah ditutup' })
+    expect(h.txCreateMock).not.toHaveBeenCalled()
+    expect(h.revalidatePathMock).not.toHaveBeenCalled()
+  })
+
   it('periode aktif ada -> create masuk periode itu + createdBy sesi + revalidate', async () => {
     h.periodFindFirstMock.mockResolvedValue(ACTIVE_PERIOD)
     h.txCreateMock.mockResolvedValue({ id: 'tx-1' })

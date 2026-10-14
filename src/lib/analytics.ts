@@ -111,7 +111,6 @@ export async function topReferrers(days: number, limit: number): Promise<Referre
     by: ['referrer'],
     where: {
       createdAt: { gte: cutoff },
-      referrer: { not: null },
     },
     _count: { referrer: true },
     orderBy: { _count: { referrer: 'desc' } },

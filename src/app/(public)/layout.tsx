@@ -40,13 +40,17 @@ function DomeMark() {
 }
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const [siteName, address, phone, footer] = await Promise.all([
+  const [siteName, address, phone, footer, ga4Raw] = await Promise.all([
     getSetting('site.name', 'Masjid An-nuur Arwana'),
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
     db.section.findUnique({ where: { key: 'footer' } }),
+    getSetting('ga4.id', ''),
   ])
   const name = asText(siteName, 'Masjid An-nuur Arwana')
+  const ga4Id = typeof ga4Raw === 'string' && /^G-[A-Z0-9]{4,}$/i.test(ga4Raw.trim())
+    ? ga4Raw.trim()
+    : ''
   const org = orgLd({
     name,
     address: asText(address),
@@ -104,11 +108,21 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       />
       <Tracker />
 
-      {(() => {
-        const ga4Id = getSetting('ga4.id', '')
-        if (!ga4Id) return null
-        return <Script id="ga4" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments)}; gtag('js', new Date()); gtag('config', '${ga4Id}');` }} />
-      })()}
+      {ga4Id && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${ga4Id}`}
+            strategy="afterInteractive"
+          />
+          <Script
+            id="ga4"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments)}; gtag('js', new Date()); gtag('config', '${ga4Id}');`,
+            }}
+          />
+        </>
+      )}
     </div>
   )
 }

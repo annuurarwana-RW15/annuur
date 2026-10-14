@@ -51,8 +51,10 @@ export async function verifyDonation(
       if (!parsed.success) {
         return { ok: false, error: 'Catatan penolakan wajib diisi' }
       }
-      await db.donation.update({
-        where: { id },
+      // Claim atomik: hanya donasi MENUNGGU yang boleh berubah — menangkal
+      // race reject vs confirm bersamaan (DITOLAK + transaksi MASUK ganda).
+      const claimed = await db.donation.updateMany({
+        where: { id, status: 'MENUNGGU' },
         data: {
           status: 'DITOLAK',
           rejectNote: parsed.data,
@@ -60,6 +62,7 @@ export async function verifyDonation(
           verifiedAt: new Date(),
         },
       })
+      if (claimed.count === 0) return { ok: false, error: 'Sudah diproses' }
     } else {
       await db.$transaction(async (tx) => {
         const period = await tx.period.findFirst({
@@ -88,6 +91,18 @@ export async function verifyDonation(
         }
 
         const now = new Date()
+        // Claim atomik di dalam transaksi: jika donasi sudah diproses proses
+        // lain, transaksi ini batal (rollback) dan tidak ada transaksi kas ganda.
+        const claimed = await tx.donation.updateMany({
+          where: { id: donation.id, status: 'MENUNGGU' },
+          data: {
+            status: 'DIKONFIRMASI',
+            verifiedById: user.id,
+            verifiedAt: now,
+          },
+        })
+        if (claimed.count === 0) throw new VerifyError('Sudah diproses')
+
         await tx.transaction.create({
           data: {
             type: 'MASUK',
@@ -98,14 +113,6 @@ export async function verifyDonation(
             periodId: period.id,
             donationId: donation.id,
             createdBy: user.id,
-          },
-        })
-        await tx.donation.update({
-          where: { id: donation.id },
-          data: {
-            status: 'DIKONFIRMASI',
-            verifiedById: user.id,
-            verifiedAt: now,
           },
         })
       })

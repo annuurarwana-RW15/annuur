@@ -1,4 +1,4 @@
-import { dailyPageviews, topPages } from '@/lib/analytics'
+import { dailyPageviews, topPages, topReferrers } from '@/lib/analytics'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const h = vi.hoisted(() => ({
@@ -75,5 +75,30 @@ describe('topPages', () => {
       { path: '/', views: 42 },
       { path: '/donasi', views: 7 },
     ])
+  })
+})
+
+describe('topReferrers', () => {
+  it('trafik direct (referrer null) tetap muncul sebagai "direct"', async () => {
+    h.trackGroupByMock.mockResolvedValue([
+      { referrer: null, _count: { referrer: 12 } },
+      { referrer: 'https://google.com/', _count: { referrer: 5 } },
+    ])
+
+    const result = await topReferrers(7, 8)
+
+    expect(result).toEqual([
+      { referrer: 'direct', views: 12 },
+      { referrer: 'https://google.com/', views: 5 },
+    ])
+    // Jangan buang baris null: tanpa filter referrer, kelompok "direct" ikut terhitung.
+    const args = h.trackGroupByMock.mock.calls[0][0] as { where: Record<string, unknown> }
+    expect(args.where).not.toHaveProperty('referrer')
+  })
+
+  it('days <= 0 atau limit <= 0 -> []', async () => {
+    expect(await topReferrers(0, 5)).toEqual([])
+    expect(await topReferrers(7, 0)).toEqual([])
+    expect(h.trackGroupByMock).not.toHaveBeenCalled()
   })
 })

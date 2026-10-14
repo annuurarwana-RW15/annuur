@@ -25,7 +25,7 @@ function asDays(value: string | string[] | undefined): 7 | 30 | 90 {
 }
 
 export default async function AnalitikPage({ searchParams }: PageProps) {
-  await requireRole('ADMIN', 'BENDAHARA')
+  await requireRole('ADMIN', 'BENDAHARA', 'VIEWER')
 
   const sp = await searchParams
   const days = asDays(sp.periode)

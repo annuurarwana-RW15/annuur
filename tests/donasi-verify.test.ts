@@ -6,6 +6,7 @@ const h = vi.hoisted(() => ({
   userFindUniqueMock: vi.fn(),
   donationFindUniqueMock: vi.fn(),
   donationUpdateMock: vi.fn(),
+  donationUpdateManyMock: vi.fn(),
   transactionMock: vi.fn(), // db.$transaction — menjalankan callback dengan client tx
   periodFindFirstMock: vi.fn(),
   categoryFindUniqueMock: vi.fn(),
@@ -28,6 +29,7 @@ vi.mock('@/lib/db', () => {
     donation: {
       findUnique: h.donationFindUniqueMock,
       update: h.donationUpdateMock,
+      updateMany: h.donationUpdateManyMock,
     },
     period: { findFirst: h.periodFindFirstMock },
     category: {
@@ -96,6 +98,7 @@ beforeEach(() => {
   loginAs('ADMIN')
   h.donationFindUniqueMock.mockResolvedValue(MENUNGGU)
   h.donationUpdateMock.mockResolvedValue({})
+  h.donationUpdateManyMock.mockResolvedValue({ count: 1 })
   h.periodFindFirstMock.mockResolvedValue(ACTIVE_PERIOD)
   h.categoryFindUniqueMock.mockResolvedValue({
     id: 'c-infaq',
@@ -128,8 +131,8 @@ describe('verifyDonation — confirm', () => {
         createdBy: 'u-1',
       },
     })
-    expect(h.donationUpdateMock).toHaveBeenCalledWith({
-      where: { id: 'd-1' },
+    expect(h.donationUpdateManyMock).toHaveBeenCalledWith({
+      where: { id: 'd-1', status: 'MENUNGGU' },
       data: {
         status: 'DIKONFIRMASI',
         verifiedById: 'u-1',
@@ -154,7 +157,17 @@ describe('verifyDonation — confirm', () => {
 
     expect(second).toEqual({ ok: false, error: 'Sudah diproses' })
     expect(h.transactionMock).toHaveBeenCalledTimes(1)
-    expect(h.donationUpdateMock).toHaveBeenCalledTimes(1)
+    expect(h.donationUpdateManyMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('race: claim updateMany count=0 (sudah diproses proses lain) → batal, tanpa transaksi', async () => {
+    h.donationUpdateManyMock.mockResolvedValue({ count: 0 })
+
+    const result = await verifyDonation('d-1', 'confirm')
+
+    expect(result).toEqual({ ok: false, error: 'Sudah diproses' })
+    expect(h.txCreateMock).not.toHaveBeenCalled()
+    expect(h.revalidatePathMock).not.toHaveBeenCalled()
   })
 
   it('tanpa periode aktif → {ok:false,Tidak ada periode aktif} tanpa create transaksi', async () => {
@@ -164,7 +177,7 @@ describe('verifyDonation — confirm', () => {
 
     expect(result).toEqual({ ok: false, error: 'Tidak ada periode aktif' })
     expect(h.txCreateMock).not.toHaveBeenCalled()
-    expect(h.donationUpdateMock).not.toHaveBeenCalled()
+    expect(h.donationUpdateManyMock).not.toHaveBeenCalled()
     expect(h.revalidatePathMock).not.toHaveBeenCalled()
   })
 
@@ -217,7 +230,7 @@ describe('verifyDonation — confirm', () => {
 
     expect(result).toEqual({ ok: false, error: 'Kategori tidak ditemukan' })
     expect(h.txCreateMock).not.toHaveBeenCalled()
-    expect(h.donationUpdateMock).not.toHaveBeenCalled()
+    expect(h.donationUpdateManyMock).not.toHaveBeenCalled()
   })
 
   it('donasi tidak ditemukan → {ok:false,Donasi tidak ditemukan}', async () => {
@@ -251,7 +264,7 @@ describe('verifyDonation — reject', () => {
 
     expect(kosong).toEqual({ ok: false, error: 'Catatan penolakan wajib diisi' })
     expect(pendek).toEqual({ ok: false, error: 'Catatan penolakan wajib diisi' })
-    expect(h.donationUpdateMock).not.toHaveBeenCalled()
+    expect(h.donationUpdateManyMock).not.toHaveBeenCalled()
     expect(h.transactionMock).not.toHaveBeenCalled()
   })
 
@@ -259,8 +272,8 @@ describe('verifyDonation — reject', () => {
     const result = await verifyDonation('d-1', 'reject', 'Transfer tidak cocok')
 
     expect(result).toEqual({ ok: true })
-    expect(h.donationUpdateMock).toHaveBeenCalledWith({
-      where: { id: 'd-1' },
+    expect(h.donationUpdateManyMock).toHaveBeenCalledWith({
+      where: { id: 'd-1', status: 'MENUNGGU' },
       data: {
         status: 'DITOLAK',
         rejectNote: 'Transfer tidak cocok',
@@ -286,7 +299,7 @@ describe('verifyDonation — reject', () => {
     const result = await verifyDonation('d-1', 'reject', 'catatan baru')
 
     expect(result).toEqual({ ok: false, error: 'Sudah diproses' })
-    expect(h.donationUpdateMock).not.toHaveBeenCalled()
+    expect(h.donationUpdateManyMock).not.toHaveBeenCalled()
   })
 })
 
@@ -299,7 +312,7 @@ describe('verifyDonation — RBAC', () => {
     )
 
     expect(h.donationFindUniqueMock).not.toHaveBeenCalled()
-    expect(h.donationUpdateMock).not.toHaveBeenCalled()
+    expect(h.donationUpdateManyMock).not.toHaveBeenCalled()
     expect(h.transactionMock).not.toHaveBeenCalled()
     expect(h.txCreateMock).not.toHaveBeenCalled()
     expect(h.revalidatePathMock).not.toHaveBeenCalled()

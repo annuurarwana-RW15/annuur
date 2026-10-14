@@ -35,10 +35,17 @@ export function getTableParams(
   return { q: q ?? '', page, size, sort: sort || undefined, dir }
 }
 
+/**
+ * Sel yang diawali `=`, `+`, `-`, `@`, TAB, atau CR dievaluasi Excel sebagai
+ * formula → beri prefix `'` (dipakai CSV via buildCsv & export Excel .xls).
+ */
+export function guardFormula(value: string): string {
+  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
+}
+
 function escapeCell(value: string | number): string {
   if (typeof value === 'number') return String(value)
-  const text = String(value)
-  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
+  const safe = guardFormula(String(value))
   return /[";\n\r]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe
 }
 

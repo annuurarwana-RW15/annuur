@@ -36,7 +36,18 @@ export async function createTransaction(input: TxInput): Promise<TxResult> {
   const { type, amount, date, description, categoryId, receiptImage } = parsed.data
 
   const period = await getActivePeriod()
-  if (!period) return { ok: false, error: 'Tidak ada periode aktif' }
+  if (!period) {
+    // Bedakan "periode sudah ditutup" (mutasi diblokir) vs "belum ada periode".
+    const closed = await db.period.findFirst({
+      where: { status: 'DITUTUP' },
+      orderBy: { endDate: 'desc' },
+      select: { id: true },
+    })
+    return {
+      ok: false,
+      error: closed ? 'Periode sudah ditutup' : 'Tidak ada periode aktif',
+    }
+  }
 
   await db.transaction.create({
     data: {

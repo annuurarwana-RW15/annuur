@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { buildCsv, buildTableHref, getPageItems, PAGE_SIZES } from '@/lib/table-query'
+import { buildCsv, buildTableHref, getPageItems, guardFormula, PAGE_SIZES } from '@/lib/table-query'
 import type { HrefPatch } from '@/lib/table-query'
 
 export interface Column<T> {
@@ -386,11 +386,15 @@ function ExportMenu<T>({
   }
 
   const exportExcel = () => {
-    const headerRow = headers.map((label) => `<th>${escapeHtml(label)}</th>`).join('')
+    const headerRow = headers
+      .map((label) => `<th>${escapeHtml(guardFormula(label))}</th>`)
+      .join('')
     const bodyRows = rows
       .map(
         (cells) =>
-          `<tr>${cells.map((cell) => `<td>${escapeHtml(String(cell))}</td>`).join('')}</tr>`,
+          `<tr>${cells
+            .map((cell) => `<td>${escapeHtml(guardFormula(String(cell)))}</td>`)
+            .join('')}</tr>`,
       )
       .join('')
     const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8" /></head><body><table><thead><tr>${headerRow}</tr></thead><tbody>${bodyRows}</tbody></table></body></html>`

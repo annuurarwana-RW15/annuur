@@ -136,14 +136,14 @@ describe('POST /api/upload-public', () => {
     expect(body.publicUrl).toBe(`https://pub-acct123.r2.dev/${body.key}`)
   })
 
-  it('request ke-11 dalam 1 menit diblokir 429 (kuota 10/menit/IP)', async () => {
+  it('request ke-6 dalam 1 menit diblokir 429 (kuota 5/menit/IP)', async () => {
     const payload = {
       filename: 'bukti.jpg',
       contentType: 'image/jpeg',
       size: 1024,
     }
 
-    for (let i = 1; i <= 10; i += 1) {
+    for (let i = 1; i <= 5; i += 1) {
       const res = await uploadPublicPost(jsonRequest(payload))
       expect(res.status).toBe(200)
     }
@@ -159,7 +159,7 @@ describe('POST /api/upload-public', () => {
       contentType: 'image/jpeg',
       size: 1024,
     }
-    for (let i = 1; i <= 10; i += 1) {
+    for (let i = 1; i <= 5; i += 1) {
       await uploadPublicPost(jsonRequest(payload))
     }
     const blocked = await uploadPublicPost(jsonRequest(payload))

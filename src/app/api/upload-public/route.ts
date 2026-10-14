@@ -11,14 +11,14 @@ const ALLOWED_TYPES: Record<string, string[]> = {
 const MAX_SIZE = 5 * 1024 * 1024
 /** Bukti donasi publik selalu disimpan di folder ini — prefix pemanggil diabaikan. */
 const PREFIX = 'donations'
-const RATE_LIMIT = 10
+const RATE_LIMIT = 5
 const RATE_WINDOW_MS = 60_000
 
 /**
  * POST /api/upload-public — bukti donasi (publik, tanpa session).
  * Kontrak sama dengan `/api/upload` (minus auth): `{filename, contentType,
  * size}` → `{uploadUrl, publicUrl, key}` dengan prefix paksa `donations/`.
- * Rate-limit in-memory 10/menit per IP; file divalidasi server-side
+ * Rate-limit in-memory 5/menit per IP (ruling pre-flight T7→T16); file divalidasi server-side
  * (jpg/png/webp ≤5MB, ekstensi cocok, nama tersanitasi oleh `r2Key`).
  */
 export async function POST(req: Request) {

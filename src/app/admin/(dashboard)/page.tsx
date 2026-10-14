@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { dailyPageviews } from '@/lib/analytics'
 import { db } from '@/lib/db'
 import { formatRupiah } from '@/lib/format'
@@ -12,7 +13,13 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminDashboardPage() {
-  await requireRole('ADMIN', 'BENDAHARA', 'KONTEN')
+  const sessionUser = await requireRole(
+    'ADMIN',
+    'BENDAHARA',
+    'KONTEN',
+    'VIEWER'
+  )
+  if (sessionUser.role === 'VIEWER') redirect('/admin/analitik')
 
   const [period, donationByStatus, articleCount, activeUserCount, daily] =
     await Promise.all([
