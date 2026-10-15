@@ -47,7 +47,7 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
       label: 'Daftar gambar (JSON)',
       widget: 'json',
       rows: 8,
-      helper: 'Array objek { "url": "…", "caption": "…" }. Url diunggah lewat ImageField pada hero atau tempel hasil upload.',
+      helper: 'Kelola foto lewat menu Galeri (upload/URL). JSON ini dijaga sinkron — { "url": "…", "caption": "…" } per item.',
     },
   ],
   testimoni: [

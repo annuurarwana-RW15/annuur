@@ -20,6 +20,7 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { label: 'Ringkasan', href: '/admin' },
   { label: 'Analitik', href: '/admin/analitik', action: 'view_analytics' },
   { label: 'Artikel', href: '/admin/artikel', action: 'manage_articles' },
+  { label: 'Galeri', href: '/admin/galeri', action: 'manage_sections' },
   {
     label: 'Kas',
     action: 'manage_transactions',

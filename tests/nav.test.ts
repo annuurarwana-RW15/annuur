@@ -42,6 +42,7 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
     ])
     expect(hrefs(items)).not.toContain('/admin/pengaturan')
     expect(labels(items)).toContain('Artikel')
+    expect(hrefs(items)).toContain('/admin/galeri')
     expect(labels(items)).not.toContain('Kas')
   })
 
