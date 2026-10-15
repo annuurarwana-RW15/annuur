@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/lib/auth'
 import { getPresignedPutUrl, publicUrl, r2Key } from '@/lib/r2'
+import {
+  isR2Configured,
+  localPublicUrl,
+  localUploadUrl,
+} from '@/lib/local-upload'
 
 const ALLOWED_TYPES: Record<string, string[]> = {
   'image/jpeg': ['jpg', 'jpeg'],
@@ -83,6 +88,18 @@ export async function POST(req: Request) {
       { error: 'Nama file tidak valid' },
       { status: 400 },
     )
+  }
+
+  // Fallback lokal bila R2 belum dikonfigurasi (masih `""` di .env): kontrak sama,
+  // file ditulis ke public/uploads lewat PUT /api/upload-local.
+  if (!isR2Configured()) {
+    const key = r2Key(prefix, filename)
+    return NextResponse.json({
+      uploadUrl: localUploadUrl('admin', key),
+      publicUrl: localPublicUrl(key),
+      key,
+      local: true,
+    })
   }
 
   try {

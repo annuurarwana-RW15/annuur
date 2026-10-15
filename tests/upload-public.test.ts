@@ -185,7 +185,7 @@ describe('POST /api/upload-public', () => {
     expect(res.status).toBe(200)
   })
 
-  it('returns error generik 500 ketika env R2 tidak dikonfigurasi', async () => {
+  it('fallback lokal ketika env R2 tidak dikonfigurasi — prefix donasi tetap dipaksa', async () => {
     clearR2Env()
 
     const res = await uploadPublicPost(
@@ -196,11 +196,14 @@ describe('POST /api/upload-public', () => {
       }),
     )
 
-    expect(res.status).toBe(500)
-    expect(await res.json()).toEqual({ error: 'Gagal membuat URL upload' })
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining('[upload-public]'),
-      expect.stringContaining('R2 belum dikonfigurasi'),
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.local).toBe(true)
+    expect(body.key).toMatch(/^donations\/\d+-[0-9a-f]{4}-foto\.jpg$/)
+    expect(body.uploadUrl).toBe(
+      `/api/upload-local?scope=public&key=${encodeURIComponent(body.key)}`,
     )
+    expect(body.publicUrl).toBe(`/uploads/${body.key}`)
+    expect(console.error).not.toHaveBeenCalled()
   })
 })

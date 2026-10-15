@@ -22,6 +22,9 @@
 /.next/
 /out/
 
+# upload lokal (fallback sebelum R2 dikonfigurasi)
+/public/uploads/
+
 # production
 /build
 

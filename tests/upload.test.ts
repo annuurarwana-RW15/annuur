@@ -222,7 +222,7 @@ describe('POST /api/upload', () => {
     expect(body.publicUrl).toBe(`https://cdn.an-nur.or.id/${body.key}`)
   })
 
-  it('returns error generik (tanpa bocoran detail) ketika env R2 tidak dikonfigurasi', async () => {
+  it('fallback lokal ketika env R2 tidak dikonfigurasi — kontrak tetap sama', async () => {
     clearR2Env()
 
     const res = await uploadPost(
@@ -233,12 +233,15 @@ describe('POST /api/upload', () => {
       }),
     )
 
-    expect(res.status).toBe(500)
-    expect(await res.json()).toEqual({ error: 'Gagal membuat URL upload' })
-    expect(console.error).toHaveBeenCalledWith(
-      expect.stringContaining('[upload]'),
-      expect.stringContaining('R2 belum dikonfigurasi'),
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.local).toBe(true)
+    expect(body.key).toMatch(/^uploads\/\d+-[0-9a-f]{4}-foto\.jpg$/)
+    expect(body.uploadUrl).toBe(
+      `/api/upload-local?scope=admin&key=${encodeURIComponent(body.key)}`,
     )
+    expect(body.publicUrl).toBe(`/uploads/${body.key}`)
+    expect(console.error).not.toHaveBeenCalled()
   })
 })
 
