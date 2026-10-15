@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server'
 import { getPresignedPutUrl, publicUrl, r2Key } from '@/lib/r2'
+import {
+  isR2Configured,
+  localPublicUrl,
+  localUploadUrl,
+} from '@/lib/local-upload'
 import { getClientIp, hit } from '@/lib/rate-limit'
 
 const ALLOWED_TYPES: Record<string, string[]> = {
@@ -89,6 +94,18 @@ export async function POST(req: Request) {
       { error: 'Nama file tidak valid' },
       { status: 400 },
     )
+  }
+
+  // Fallback lokal bila R2 belum dikonfigurasi: kontrak sama, file masuk
+  // public/uploads/donations/ lewat PUT /api/upload-local (rate-limit sendiri).
+  if (!isR2Configured()) {
+    const key = r2Key(PREFIX, filename)
+    return NextResponse.json({
+      uploadUrl: localUploadUrl('public', key),
+      publicUrl: localPublicUrl(key),
+      key,
+      local: true,
+    })
   }
 
   try {
