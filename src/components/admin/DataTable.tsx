@@ -69,6 +69,50 @@ function downloadBlob(filename: string, blob: Blob): void {
 const toolbarButtonClass =
   'inline-flex items-center gap-2 rounded-md border border-black/10 bg-white px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-900/40'
 
+/** Tanpa `bg-white` — kelas ini dipakai dengan warna aksen, bukan komposisi. */
+const toolbarPrimaryButtonClass =
+  'inline-flex items-center gap-2 rounded-md border border-green-900 bg-green-900 px-3 py-2 text-sm font-semibold text-white hover:bg-green-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-900/40'
+
+const iconClass = 'h-4 w-4 shrink-0'
+
+function DownloadIcon(): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={iconClass}
+    >
+      <path d="M12 4v11" />
+      <path d="m7 11 5 5 5-5" />
+      <path d="M5 20h14" />
+    </svg>
+  )
+}
+
+function PrinterIcon(): React.JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className={iconClass}
+    >
+      <path d="M7 9V4h10v5" />
+      <path d="M7 18H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2" />
+      <path d="M7 15h10v5H7z" />
+    </svg>
+  )
+}
+
 export function DataTable<T>(props: DataTableProps<T>): React.JSX.Element {
   const {
     columns,
@@ -109,7 +153,12 @@ export function DataTable<T>(props: DataTableProps<T>): React.JSX.Element {
         {hideBuiltinActions ? null : (
           <>
             <ExportMenu columns={columns} data={data} filename={exportFilename} />
-            <button type="button" onClick={() => window.print()} className={toolbarButtonClass}>
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className={toolbarButtonClass}
+            >
+              <PrinterIcon />
               Print
             </button>
           </>
@@ -412,8 +461,9 @@ function ExportMenu<T>({
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((currentOpen) => !currentOpen)}
-        className={`${toolbarButtonClass} border-green-900 bg-green-900 text-white hover:bg-green-800`}
+        className={toolbarPrimaryButtonClass}
       >
+        <DownloadIcon />
         Export
       </button>
       {open ? (
