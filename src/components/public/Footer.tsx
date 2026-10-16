@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { readField } from '@/app/admin/(dashboard)/sections/section-content'
 import { asText, safeHref, socialLinks } from './content'
 import { PUBLIC_NAV } from './nav'
+import { SocialIcon } from './SocialIcon'
+import { detectSocialPlatform, SOCIAL_PLATFORM_LABELS } from './social-platform'
 
 interface FooterProps {
   section: Section | null
@@ -28,14 +30,16 @@ export function Footer({ section, siteName = 'Masjid An-nuur Arwana' }: FooterPr
               {socials.map((social) => {
                 const href = safeHref(social.url)
                 const key = `${social.url}-${social.label}`
+                const platform = detectSocialPlatform(social.label, social.url)
+                const label = social.label || SOCIAL_PLATFORM_LABELS[platform]
+                const chipClass =
+                  'inline-flex items-center gap-2 rounded-full border border-krem/30 bg-krem/5 px-4 py-1.5 text-sm transition'
 
                 if (!href) {
                   return (
-                    <span
-                      key={key}
-                      className="rounded-full border border-krem/30 px-4 py-1.5 text-sm"
-                    >
-                      {social.label}
+                    <span key={key} className={`${chipClass} opacity-70`}>
+                      <SocialIcon platform={platform} />
+                      {label}
                     </span>
                   )
                 }
@@ -48,9 +52,10 @@ export function Footer({ section, siteName = 'Masjid An-nuur Arwana' }: FooterPr
                     {...(external
                       ? { target: '_blank', rel: 'noopener noreferrer' }
                       : {})}
-                    className="rounded-full border border-krem/30 px-4 py-1.5 text-sm transition hover:border-emas hover:text-emas"
+                    className={`${chipClass} hover:border-emas hover:bg-krem/10 hover:text-emas`}
                   >
-                    {social.label}
+                    <SocialIcon platform={platform} />
+                    {label}
                   </a>
                 )
               })}
