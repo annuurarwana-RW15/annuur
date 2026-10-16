@@ -96,7 +96,7 @@ export function PrayerSchedule({ section }: { section?: Section }) {
           )}
         </p>
 
-        <div className="rounded-2xl border border-emas/25 bg-white p-6 shadow-sm sm:p-8">
+        <div className="rounded-2xl border border-emas/25 bg-white p-4 shadow-sm sm:p-5">
           {loading && (
             <p className="py-6 text-center text-hijau-tua/75">
               Memuat jadwal sholat...
@@ -121,36 +121,53 @@ export function PrayerSchedule({ section }: { section?: Section }) {
 
           {times && (
             <>
-              <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {nextInfo && (
+                <div
+                  role="timer"
+                  className="rounded-2xl border border-emas/30 bg-hijau px-4 py-5 text-center"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emas-muda">
+                    Berikutnya &middot; {nextInfo.name}
+                    <span className="ms-2 font-normal normal-case tracking-normal text-krem/70">
+                      {pad(nextInfo.at.getHours())}:{pad(nextInfo.at.getMinutes())}
+                    </span>
+                  </p>
+                  <p className="mt-1 font-mono text-5xl font-bold tabular-nums tracking-[0.06em] text-krem sm:text-6xl">
+                    {(() => {
+                      const [hh, mm, ss] = (countdownDisplay || '00:00:00').split(':')
+                      return (
+                        <>
+                          {hh}
+                          <span className="text-emas-muda/80">:</span>
+                          {mm}
+                          <span className="text-emas-muda/80">:</span>
+                          {ss}
+                        </>
+                      )
+                    })()}
+                  </p>
+                </div>
+              )}
+
+              <ul className="mt-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
                 {PRAYER_NAMES.map((name) => {
                   const time =
                     times[name.toLowerCase() as keyof PrayerTimes] || '—'
                   return (
                     <li
                       key={name}
-                      className="rounded-xl border border-emas/25 bg-krem px-4 py-3 text-center"
+                      className="rounded-lg border border-emas/25 bg-krem px-2 py-1.5 text-center"
                     >
-                      <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emas-tua">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emas-tua">
                         {name}
                       </p>
-                      <p className="mt-1 font-display text-2xl font-bold text-hijau">
+                      <p className="font-mono text-lg font-bold tabular-nums text-hijau">
                         {time}
                       </p>
                     </li>
                   )
                 })}
               </ul>
-
-              {nextInfo && (
-                <div className="mt-6 rounded-2xl border border-emas/20 bg-krem p-4">
-                  <p className="mb-2 text-sm text-emas-tua">
-                    Berikutnya: {nextInfo.name}
-                  </p>
-                  <p className="font-display text-xl font-bold text-hijau">
-                    {countdownDisplay || '00:00:00'}
-                  </p>
-                </div>
-              )}
             </>
           )}
         </div>
