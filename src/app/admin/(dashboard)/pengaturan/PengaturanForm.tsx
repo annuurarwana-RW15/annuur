@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import { setPengaturan, type PengaturanInput } from './actions'
+import { RekeningEditor } from './RekeningEditor'
+import { normalizeRekening, type RekeningRow } from './rekening'
 
 interface PengaturanFormProps {
   initial: PengaturanInput
@@ -16,31 +18,26 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
   const router = useRouter()
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const [busy, startTransition] = useTransition()
+  const [rekeningRows, setRekeningRows] = useState<RekeningRow[]>(() =>
+    initial.donasi.rekening.map((row) => ({
+      bank: row.bank,
+      no: row.no,
+      atasNama: row.atasNama,
+      link: row.link ?? '',
+    })),
+  )
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const formEl = event.currentTarget
     const fd = new FormData(formEl)
 
-    const rekeningRaw = String(fd.get('rekeningJson') ?? '[]').trim()
-    let rekening: PengaturanInput['donasi']['rekening']
-    try {
-      const parsed: unknown = JSON.parse(rekeningRaw || '[]')
-      if (!Array.isArray(parsed)) throw new Error('bukan array')
-      rekening = parsed.flatMap((item) => {
-        if (!item || typeof item !== 'object') return []
-        const rec = item as Record<string, unknown>
-        const bank = String(rec.bank ?? '').trim()
-        const no = String(rec.no ?? '').trim()
-        const atasNama = String(rec.atasNama ?? rec['a.n.'] ?? '').trim()
-        const link = rec.link ? String(rec.link).trim() : undefined
-        if (!bank || !no) return []
-        return [{ bank, no, atasNama, ...(link ? { link } : {}) }]
-      })
-    } catch {
-      setMessage({ ok: false, text: 'JSON Rekening tidak valid' })
+    const normalized = normalizeRekening(rekeningRows)
+    if (!normalized.ok) {
+      setMessage({ ok: false, text: `Rekening: ${normalized.error}` })
       return
     }
+    const rekening: PengaturanInput['donasi']['rekening'] = normalized.rows
 
     startTransition(async () => {
       const result = await setPengaturan({
@@ -138,15 +135,11 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
           Rekening Donasi
         </legend>
         <p className="mt-2 text-sm text-neutral-500">
-          Array JSON: {'[{"bank":"BCA","no":"123","atasNama":"DKM"}]'} — dipakai
-          halaman /donasi.
+          Dipakai halaman /donasi — isi manual bank, nomor, dan atas nama.
         </p>
-        <textarea
-          name="rekeningJson"
-          rows={5}
-          className={`${fieldClass} font-mono`}
-          defaultValue={JSON.stringify(initial.donasi.rekening, null, 2)}
-        />
+        <div className="mt-3">
+          <RekeningEditor rows={rekeningRows} onChange={setRekeningRows} />
+        </div>
       </fieldset>
 
       <fieldset className="mt-8">

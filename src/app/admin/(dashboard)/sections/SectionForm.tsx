@@ -8,11 +8,15 @@ import { updateSection } from './actions'
 import { buildContent, readField } from './section-content'
 import { SocialLinksEditor } from './SocialLinksEditor'
 import { normalizeSocialLinks } from './social-links'
+import { JadwalJumatEditor } from './JadwalJumatEditor'
+import { normalizeJumatItems } from './jumat-items'
+import { TestimoniEditor } from './TestimoniEditor'
+import { normalizeTestimoniItems } from './testimoni-items'
 
 interface FieldDef {
   name: string
   label: string
-  widget?: 'input' | 'textarea' | 'image' | 'json' | 'social'
+  widget?: 'input' | 'textarea' | 'image' | 'social' | 'jumat' | 'testimoni' | 'galeri'
   helper?: string
   rows?: number
 }
@@ -33,11 +37,9 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
   jumat: [
     {
       name: 'items',
-      label: 'Daftar jadwal khotib (JSON)',
-      widget: 'json',
-      rows: 8,
-      helper:
-        'Array objek { "tanggal": "2026-10-16", "khatib": "Ust. …", "imam": "Ust. …" }. tanggal format YYYY-MM-DD.',
+      label: 'Jadwal khotib Jumat',
+      widget: 'jumat',
+      helper: 'Isi manual: tanggal (Jumat), khotib, dan imam (opsional).',
     },
   ],
   pengumuman: [
@@ -46,20 +48,17 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
   galeri: [
     {
       name: 'images',
-      label: 'Daftar gambar (JSON)',
-      widget: 'json',
-      rows: 8,
-      helper: 'Kelola foto lewat menu Galeri (upload/URL). JSON ini dijaga sinkron — { "url": "…", "caption": "…" } per item.',
+      label: 'Foto galeri',
+      widget: 'galeri',
+      helper: 'Kelola foto lewat menu Galeri — upload gambar, judul, dan urutan.',
     },
   ],
   testimoni: [
     {
       name: 'items',
-      label: 'Daftar testimoni (JSON)',
-      widget: 'json',
-      rows: 10,
-      helper:
-        'Array objek { "nama": "…", "peran": "Jamaah", "teks": "…", "rating": 5 }. rating opsional 1–5.',
+      label: 'Testimoni',
+      widget: 'testimoni',
+      helper: 'Isi manual: nama, peran, rating (opsional 1–5), dan teks.',
     },
   ],
   kontak: [
@@ -131,7 +130,7 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
   const galleryPreview = useMemo(() => {
     if (section.key !== 'galeri') return []
     try {
-      const parsed: unknown = JSON.parse(draft.images || '[]')
+      const parsed: unknown = readField(section.content, 'galeri', 'images')
       if (!Array.isArray(parsed)) return []
       return parsed.filter(
         (item): item is GalleryItem =>
@@ -142,7 +141,7 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
     } catch {
       return []
     }
-  }, [draft.images, section.key])
+  }, [section])
 
   function setField(name: string, value: string) {
     setDraft((prev) => ({ ...prev, [name]: value }))
@@ -156,26 +155,29 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
     const fields: Record<string, unknown> = {}
     try {
       for (const def of defs) {
+        if (def.widget === 'galeri') continue // foto kelola via menu Galeri
         const raw = draft[def.name] ?? ''
-        if (def.widget === 'json' || def.widget === 'social') {
+        if (
+          def.widget === 'social' ||
+          def.widget === 'jumat' ||
+          def.widget === 'testimoni'
+        ) {
           let parsed: unknown
           try {
             parsed = JSON.parse(raw || '[]')
           } catch {
-            throw new Error(`${def.label}: JSON tidak valid`)
+            throw new Error(`${def.label}: data tidak valid`)
           }
-          if (def.widget === 'social') {
-            const result = normalizeSocialLinks(parsed)
-            if (!result.ok) {
-              throw new Error(`${def.label}: ${result.error}`)
-            }
-            fields[def.name] = result.rows
-            continue
+          const result =
+            def.widget === 'social'
+              ? normalizeSocialLinks(parsed)
+              : def.widget === 'jumat'
+                ? normalizeJumatItems(parsed)
+                : normalizeTestimoniItems(parsed)
+          if (!result.ok) {
+            throw new Error(`${def.label}: ${result.error}`)
           }
-          if (!Array.isArray(parsed)) {
-            throw new Error(`${def.label}: harus berupa array JSON`)
-          }
-          fields[def.name] = parsed
+          fields[def.name] = result.rows
         } else {
           fields[def.name] = raw
         }
@@ -259,16 +261,55 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
             />
           )
         }
-        if (def.widget === 'textarea' || def.widget === 'json') {
+        if (def.widget === 'jumat') {
+          return (
+            <JadwalJumatEditor
+              key={def.name}
+              value={draft[def.name] ?? ''}
+              onChange={(next) => setField(def.name, next)}
+              helper={def.helper}
+            />
+          )
+        }
+        if (def.widget === 'testimoni') {
+          return (
+            <TestimoniEditor
+              key={def.name}
+              value={draft[def.name] ?? ''}
+              onChange={(next) => setField(def.name, next)}
+              helper={def.helper}
+            />
+          )
+        }
+        if (def.widget === 'galeri') {
+          return (
+            <div key={def.name} className="space-y-2">
+              <span className={labelClass}>{def.label}</span>
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-dashed border-black/15 px-3 py-3">
+                <p className="text-sm text-neutral-600">
+                  Kelola foto lewat menu <strong>Galeri</strong> — upload gambar,
+                  judul, dan urutan.
+                </p>
+                <Link
+                  href="/admin/galeri"
+                  className="rounded-md bg-green-900 px-3 py-2 text-sm font-semibold text-white hover:bg-green-800"
+                >
+                  Buka Galeri
+                </Link>
+              </div>
+              {def.helper ? <p className={helperClass}>{def.helper}</p> : null}
+            </div>
+          )
+        }
+        if (def.widget === 'textarea') {
           return (
             <label key={def.name} className="block space-y-1">
               <span className={labelClass}>{def.label}</span>
               <textarea
                 value={draft[def.name] ?? ''}
                 rows={def.rows ?? 5}
-                spellCheck={def.widget !== 'json'}
                 onChange={(event) => setField(def.name, event.target.value)}
-                className={`${fieldClass} ${def.widget === 'json' ? 'font-mono text-xs' : ''}`}
+                className={fieldClass}
               />
               {def.helper ? <p className={helperClass}>{def.helper}</p> : null}
             </label>
