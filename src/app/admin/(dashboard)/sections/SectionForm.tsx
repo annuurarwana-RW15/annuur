@@ -6,11 +6,13 @@ import { useRouter } from 'next/navigation'
 import ImageField from '@/components/admin/ImageField'
 import { updateSection } from './actions'
 import { buildContent, readField } from './section-content'
+import { SocialLinksEditor } from './SocialLinksEditor'
+import { normalizeSocialLinks } from './social-links'
 
 interface FieldDef {
   name: string
   label: string
-  widget?: 'input' | 'textarea' | 'image' | 'json'
+  widget?: 'input' | 'textarea' | 'image' | 'json' | 'social'
   helper?: string
   rows?: number
 }
@@ -77,10 +79,9 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
     { name: 'text', label: 'Teks', widget: 'textarea', rows: 3 },
     {
       name: 'social',
-      label: 'Social media (JSON)',
-      widget: 'json',
-      rows: 5,
-      helper: 'Array objek { "label": "Instagram", "url": "https://…" }',
+      label: 'Social media',
+      widget: 'social',
+      helper: 'Isi manual tiap baris (nama + URL). Contoh: Instagram → https://instagram.com/…',
     },
   ],
 }
@@ -156,12 +157,20 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
     try {
       for (const def of defs) {
         const raw = draft[def.name] ?? ''
-        if (def.widget === 'json') {
+        if (def.widget === 'json' || def.widget === 'social') {
           let parsed: unknown
           try {
             parsed = JSON.parse(raw || '[]')
           } catch {
             throw new Error(`${def.label}: JSON tidak valid`)
+          }
+          if (def.widget === 'social') {
+            const result = normalizeSocialLinks(parsed)
+            if (!result.ok) {
+              throw new Error(`${def.label}: ${result.error}`)
+            }
+            fields[def.name] = result.rows
+            continue
           }
           if (!Array.isArray(parsed)) {
             throw new Error(`${def.label}: harus berupa array JSON`)
@@ -237,6 +246,16 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
               prefix="sections"
               value={draft[def.name] ?? ''}
               onChange={(url) => setField(def.name, url)}
+            />
+          )
+        }
+        if (def.widget === 'social') {
+          return (
+            <SocialLinksEditor
+              key={def.name}
+              value={draft[def.name] ?? ''}
+              onChange={(next) => setField(def.name, next)}
+              helper={def.helper}
             />
           )
         }
