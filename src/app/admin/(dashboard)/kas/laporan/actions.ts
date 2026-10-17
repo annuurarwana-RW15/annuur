@@ -70,11 +70,6 @@ export async function exportKasReport(
   }
 }
 
-/** Nama file aman `jurnal-kas-<periode>.csv|.xls` — sama dengan fileSlug yang ada. */
-function jurnalSlug(name: string): string {
-  return name.replace(/[^\w.-]+/g, '-').replace(/^[-.]+|[-.]+$/g, '') || 'periode'
-}
-
 function filterNoteOf(
   filter: JournalFilter | undefined,
   categoryName?: string,
@@ -121,7 +116,7 @@ export async function exportJurnal(
     // Invarian spec §2: Saldo Akhir dari buku besar PENUH, bukan subset terfilter.
     const saldoAkhir = saldoAwal + journalTotals(entries).net
     const periodLabel = `Periode ${period.name} (${formatDateID(period.startDate)} – ${formatDateID(period.endDate)})`
-    const slug = jurnalSlug(period.name)
+    const slug = fileSlug(period.name)
     // Baris meta CSV digabung mentah (tanpa buildCsv) → buang baris-baris baru
     // agar `Filter;` tidak terpecah / tidak menyuntik baris formula di Excel.
     const filterNote = filterNoteOf(params.filter, categoryName)?.replace(/[\r\n]+/g, ' ')

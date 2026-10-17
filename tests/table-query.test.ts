@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   buildCsv,
   buildTableHref,
+  escapeHtml,
+  excelText,
   getPageItems,
   getTableParams,
   PAGE_SIZES,
@@ -15,6 +17,12 @@ describe('getTableParams', () => {
       page: 1,
       size: 20,
     })
+  })
+
+  it('q di-trim — hanya spasi dianggap kosong', () => {
+    expect(getTableParams({ q: '   ' }).q).toBe('')
+    expect(getTableParams({ q: '\t\n' }).q).toBe('')
+    expect(getTableParams({ q: '  zakat  ' }).q).toBe('zakat')
   })
 
   it('clamp page >= 1 (0, negatif, bukan angka)', () => {
@@ -83,6 +91,21 @@ describe('buildCsv', () => {
   it('string normal tidak diubah', () => {
     expect(buildCsv(['Ket'], [['Infak']])).toBe('\uFEFFKet\nInfak\n')
     expect(buildCsv(['Ket'], [['Budi (1234567890)']])).toBe('\uFEFFKet\nBudi (1234567890)\n')
+  })
+})
+
+describe('escapeHtml / excelText', () => {
+  it('escapeHtml meng-escape &, <, > (urutan & dulu agar &amp; tidak dobel-escape)', () => {
+    expect(escapeHtml('a & b < c > d')).toBe('a &amp; b &lt; c &gt; d')
+    expect(escapeHtml('a &amp; b')).toBe('a &amp;amp; b')
+    expect(escapeHtml('tanpa karakter khusus')).toBe('tanpa karakter khusus')
+  })
+
+  it('excelText guard formula LALU escape HTML — padanan escapeCell untuk .xls', () => {
+    expect(excelText('=SUM(A1)')).toBe("'=SUM(A1)")
+    expect(excelText('@command')).toBe("'@command")
+    expect(excelText('<b>x</b>')).toBe('&lt;b&gt;x&lt;/b&gt;')
+    expect(excelText('=<x>')).toBe("'=&lt;x&gt;")
   })
 })
 

@@ -17,7 +17,7 @@ function first(value: string | string[] | undefined): string | undefined {
 export function getTableParams(
   sp: Record<string, string | string[] | undefined>,
 ): TableParams {
-  const q = first(sp.q)
+  const q = (first(sp.q) ?? '').trim()
 
   const pageRaw = Number.parseInt(first(sp.page) ?? '', 10)
   const page =
@@ -32,7 +32,7 @@ export function getTableParams(
   const rawDir = first(sp.dir)
   const dir = rawDir === 'asc' || rawDir === 'desc' ? rawDir : undefined
 
-  return { q: q ?? '', page, size, sort: sort || undefined, dir }
+  return { q, page, size, sort: sort || undefined, dir }
 }
 
 /**
@@ -41,6 +41,16 @@ export function getTableParams(
  */
 export function guardFormula(value: string): string {
   return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
+}
+
+/** Escape sel teks HTML (`&`, `<`, `>`) — dipakai export Excel `.xls` (HTML). */
+export function escapeHtml(text: string): string {
+  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+/** Sel teks Excel-HTML: guard formula lalu escape HTML — padanan `escapeCell` untuk `.xls`. */
+export function excelText(text: string): string {
+  return escapeHtml(guardFormula(text))
 }
 
 function escapeCell(value: string | number): string {

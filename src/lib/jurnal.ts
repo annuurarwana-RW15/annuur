@@ -1,4 +1,4 @@
-import { buildCsv, guardFormula } from '@/lib/table-query'
+import { buildCsv, excelText } from '@/lib/table-query'
 import { db } from '@/lib/db'
 
 export interface JournalEntry {
@@ -113,14 +113,6 @@ function isoDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
     d.getDate(),
   ).padStart(2, '0')}`
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-function excelText(text: string): string {
-  return escapeHtml(guardFormula(text))
 }
 
 function saldoAkhirOf(ctx: JournalExportContext): number {

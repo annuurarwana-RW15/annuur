@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { buildCsv, buildTableHref, getPageItems, guardFormula, PAGE_SIZES } from '@/lib/table-query'
+import { buildCsv, buildTableHref, excelText, getPageItems, PAGE_SIZES } from '@/lib/table-query'
 import type { HrefPatch } from '@/lib/table-query'
 
 export interface Column<T> {
@@ -49,10 +49,6 @@ function exportCell(row: unknown, key: string): CellValue {
   if (typeof value === 'boolean') return String(value)
   if (value instanceof Date) return value.toISOString()
   return ''
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 }
 
 function downloadBlob(filename: string, blob: Blob): void {
@@ -436,13 +432,13 @@ function ExportMenu<T>({
 
   const exportExcel = () => {
     const headerRow = headers
-      .map((label) => `<th>${escapeHtml(guardFormula(label))}</th>`)
+      .map((label) => `<th>${excelText(label)}</th>`)
       .join('')
     const bodyRows = rows
       .map(
         (cells) =>
           `<tr>${cells
-            .map((cell) => `<td>${escapeHtml(guardFormula(String(cell)))}</td>`)
+            .map((cell) => `<td>${excelText(String(cell))}</td>`)
             .join('')}</tr>`,
       )
       .join('')

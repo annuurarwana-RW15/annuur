@@ -1,6 +1,6 @@
 import { db } from '@/lib/db'
 import { formatDateID } from '@/lib/format'
-import { buildCsv } from '@/lib/table-query'
+import { buildCsv, excelText } from '@/lib/table-query'
 
 export const KAS_REPORT_TITLE = 'LAPORAN KEUANGAN MASJID'
 
@@ -103,16 +103,6 @@ export function reportToCsv(report: KasReport): string {
       ['TOTAL', report.total.masuk, report.total.keluar, report.total.saldo],
     ],
   )
-}
-
-function escapeHtml(text: string): string {
-  return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-}
-
-/** Sel teks Excel: guard formula (`=`, `+`, `-`, `@` → `'`) lalu escape HTML. */
-function excelText(text: string): string {
-  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
-  return escapeHtml(safe)
 }
 
 /** HTML table untuk Blob `application/vnd.ms-excel` — kop laporan di baris pertama. */
