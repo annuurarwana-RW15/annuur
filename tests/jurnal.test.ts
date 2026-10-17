@@ -92,7 +92,7 @@ describe('filterJournal — invarian saldo', () => {
   })
 
   it('filter rentang tanggal inklusif', () => {
-    // entri memakai tanggal 3..7 Okt 2026 (new Date(2026,9,no))
+    // entri memakai tanggal 1–5 Okt 2026 (new Date(2026,9,no))
     expect(filterJournal(FULL, { dari: '2026-10-04', sampai: '2026-10-06' }).map((r) => r.no)).toEqual([
       4, 5,
     ])
@@ -177,5 +177,16 @@ describe('ekspor', () => {
     })
     expect(html).not.toContain('<script>x</script>')
     expect(html).toContain('&lt;script&gt;')
+  })
+
+  it('Excel meng-guard formula yang diawali =', () => {
+    const html = journalToExcelHtml({
+      saldoAwal: 0,
+      entries: [entry({ no: 1, description: '=SUM(A1)', saldo: 1 })],
+      periodLabel: 'Periode 2026',
+    })
+    // escapeHtml tidak mengubah apostrof → output mentah `'=SUM(A1)`
+    expect(html).toContain("'=SUM(A1)")
+    expect(html).not.toContain('>=SUM(A1)')
   })
 })

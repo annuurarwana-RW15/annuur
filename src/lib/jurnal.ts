@@ -1,4 +1,4 @@
-import { buildCsv } from '@/lib/table-query'
+import { buildCsv, guardFormula } from '@/lib/table-query'
 
 export interface JournalEntry {
   id: string
@@ -113,8 +113,7 @@ function escapeHtml(text: string): string {
 }
 
 function excelText(text: string): string {
-  const safe = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text
-  return escapeHtml(safe)
+  return escapeHtml(guardFormula(text))
 }
 
 function saldoAkhirOf(ctx: JournalExportContext): number {
