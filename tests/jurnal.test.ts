@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
+  buildJurnal,
   filterJournal,
   journalTotals,
   journalToCsv,
@@ -8,6 +9,15 @@ import {
   sortJournal,
   type JournalEntry,
 } from '@/lib/jurnal'
+
+const h = vi.hoisted(() => ({
+  db: {
+    period: { findUnique: vi.fn(), findMany: vi.fn() },
+    transaction: { groupBy: vi.fn(), findMany: vi.fn() },
+  },
+}))
+
+vi.mock('@/lib/db', () => ({ db: h.db }))
 
 function entry(overrides: Partial<JournalEntry> & { no: number }): JournalEntry {
   return {
@@ -188,5 +198,106 @@ describe('ekspor', () => {
     // escapeHtml tidak mengubah apostrof → output mentah `'=SUM(A1)`
     expect(html).toContain("'=SUM(A1)")
     expect(html).not.toContain('>=SUM(A1)')
+  })
+})
+
+describe('buildJurnal', () => {
+  const PERIOD = {
+    id: 'p-2026',
+    name: '2026',
+    startDate: new Date(2026, 0, 1),
+    endDate: new Date(2026, 11, 31),
+  }
+
+  beforeEach(() => {
+    h.db.period.findUnique.mockReset()
+    h.db.period.findMany.mockReset()
+    h.db.transaction.groupBy.mockReset()
+    h.db.transaction.findMany.mockReset()
+    h.db.period.findUnique.mockResolvedValue(PERIOD)
+    h.db.period.findMany.mockResolvedValue([])
+    h.db.transaction.groupBy.mockResolvedValue([])
+    h.db.transaction.findMany.mockResolvedValue([])
+  })
+
+  it('periode tidak ditemukan → throw', async () => {
+    h.db.period.findUnique.mockResolvedValue(null)
+    await expect(buildJurnal('missing')).rejects.toThrow('Periode tidak ditemukan')
+  })
+
+  it('periode pertama (tanpa periode sebelumnya) → saldoAwal 0', async () => {
+    const result = await buildJurnal('p-2026')
+    expect(result.saldoAwal).toBe(0)
+    expect(h.db.period.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { startDate: { lt: PERIOD.startDate } } }),
+    )
+    expect(h.db.transaction.groupBy).not.toHaveBeenCalled()
+  })
+
+  it('carry-forward: saldoAwal = masuk − keluar periode sebelumnya', async () => {
+    h.db.period.findMany.mockResolvedValue([{ id: 'p-2024' }, { id: 'p-2025' }])
+    h.db.transaction.groupBy.mockResolvedValue([
+      { type: 'MASUK', _sum: { amount: 800_000 } },
+      { type: 'KELUAR', _sum: { amount: 300_000 } },
+    ])
+    const result = await buildJurnal('p-2026')
+    expect(result.saldoAwal).toBe(500_000)
+    expect(h.db.transaction.groupBy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        by: ['type'],
+        where: { periodId: { in: ['p-2024', 'p-2025'] } },
+      }),
+    )
+  })
+
+  it('menghitung saldo berjalan & nomor urut 1..N atas urutan kronologis', async () => {
+    h.db.transaction.findMany.mockResolvedValue([
+      {
+        id: 't1',
+        date: new Date(2026, 0, 5),
+        description: 'Infak awal',
+        type: 'MASUK',
+        amount: 100_000,
+        category: { id: 'c1', name: 'Infak' },
+      },
+      {
+        id: 't2',
+        date: new Date(2026, 1, 1),
+        description: 'Beli karpet',
+        type: 'KELUAR',
+        amount: 40_000,
+        category: { id: 'c2', name: 'Sosial' },
+      },
+    ])
+    h.db.transaction.groupBy.mockResolvedValue([
+      { type: 'MASUK', _sum: { amount: 500_000 } },
+      { type: 'KELUAR', _sum: { amount: 0 } },
+    ])
+    h.db.period.findMany.mockResolvedValue([{ id: 'p-2025' }])
+
+    const { saldoAwal, entries } = await buildJurnal('p-2026')
+    expect(saldoAwal).toBe(500_000)
+    expect(entries.map((e) => e.no)).toEqual([1, 2])
+    expect(entries.map((e) => e.saldo)).toEqual([600_000, 560_000])
+    expect(entries[0]).toMatchObject({
+      id: 't1',
+      kategoriId: 'c1',
+      kategori: 'Infak',
+      jenis: 'MASUK',
+      masuk: 100_000,
+      keluar: 0,
+    })
+    expect(entries[1]).toMatchObject({ jenis: 'KELUAR', masuk: 0, keluar: 40_000 })
+  })
+
+  it('query findMany memakai urutan kronologis [date, createdAt, id]', async () => {
+    await buildJurnal('p-2026')
+    expect(h.db.transaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { periodId: 'p-2026' },
+        include: { category: { select: { id: true, name: true } } },
+        orderBy: [{ date: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      }),
+    )
   })
 })

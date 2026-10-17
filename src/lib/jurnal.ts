@@ -1,4 +1,5 @@
 import { buildCsv, guardFormula } from '@/lib/table-query'
+import { db } from '@/lib/db'
 
 export interface JournalEntry {
   id: string
@@ -179,4 +180,63 @@ export function journalToExcelHtml(ctx: JournalExportContext): string {
     `<thead>${head}</thead><tbody>${body}${foot}</tbody>` +
     '</table></body></html>'
   )
+}
+
+/**
+ * Fetch SELURUH transaksi periode, urut kronologis, plus saldoAwal carry-forward.
+ * `entries[i].saldo` = saldo kas SETELAH entri i — invarian terhadap filter.
+ */
+export async function buildJurnal(periodId: string): Promise<{
+  saldoAwal: number
+  entries: JournalEntry[]
+}> {
+  const period = await db.period.findUnique({ where: { id: periodId } })
+  if (!period) throw new Error('Periode tidak ditemukan')
+
+  const priorPeriods = await db.period.findMany({
+    where: { startDate: { lt: period.startDate } },
+    select: { id: true },
+  })
+
+  let saldoAwal = 0
+  if (priorPeriods.length > 0) {
+    const grouped = await db.transaction.groupBy({
+      by: ['type'],
+      where: { periodId: { in: priorPeriods.map((p) => p.id) } },
+      _sum: { amount: true },
+    })
+    for (const row of grouped) {
+      const amount = Number(row._sum.amount ?? 0)
+      if (row.type === 'MASUK') saldoAwal += amount
+      else saldoAwal -= amount
+    }
+  }
+
+  const rows = await db.transaction.findMany({
+    where: { periodId },
+    include: { category: { select: { id: true, name: true } } },
+    orderBy: [{ date: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+  })
+
+  let running = saldoAwal
+  const entries = rows.map((tx, index) => {
+    const amount = Number(tx.amount)
+    const masuk = tx.type === 'MASUK' ? amount : 0
+    const keluar = tx.type === 'KELUAR' ? amount : 0
+    running += masuk - keluar
+    return {
+      id: tx.id,
+      no: index + 1,
+      tanggal: tx.date,
+      description: tx.description,
+      kategoriId: tx.category.id,
+      kategori: tx.category.name,
+      jenis: tx.type,
+      masuk,
+      keluar,
+      saldo: running,
+    }
+  })
+
+  return { saldoAwal, entries }
 }
