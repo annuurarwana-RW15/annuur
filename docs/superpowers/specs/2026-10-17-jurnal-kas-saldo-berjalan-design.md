@@ -92,7 +92,7 @@ saldo[i] = saldo[i−1] + (masuk[i] − keluar[i])
 | Kolom **Saldo** tiap baris | **Tidak** |
 | Kolom **No** (nomor urut) | **Tidak** |
 | Persamaan `Saldo Akhir = Saldo Awal + Total Masuk − Total Keluar` | **Selalu benar** |
-| `Saldo Akhir === entries.at(-1).saldo` | **Selalu benar** |
+| `saldoAwal + journalTotals(entries).net === entries.at(-1).saldo` | **Selalu benar** |
 
 ### Yang memang berubah saat filter aktif
 
@@ -218,6 +218,8 @@ export interface JournalEntry {
   no: number
   tanggal: Date
   description: string
+  /** Dibutuhkan `filterJournal` untuk filter kategori. */
+  kategoriId: string
   kategori: string
   jenis: 'MASUK' | 'KELUAR'
   masuk: number   // 0 bila KELUAR
@@ -229,7 +231,12 @@ export interface JournalEntry {
 export interface JournalTotals {
   totalMasuk: number
   totalKeluar: number
-  saldoAkhir: number
+  /**
+   * totalMasuk − totalKeluar atas himpunan yang diberikan.
+   * TIDAK termasuk `saldoAwal`. Kartu Saldo Akhir di halaman dihitung
+   * `saldoAwal + net`, sehingga invarian `saldoAwal + net === entries.at(-1).saldo`.
+   */
+  net: number
 }
 
 export interface JournalFilter {
@@ -272,7 +279,7 @@ export function journalTotals(entries: JournalEntry[]): JournalTotals
 1. **Carry-forward** — periode berikutnya memakai saldo akhir sebelumnya;
    periode pertama → 0.
 2. **Invarian saldo** — `filterJournal` tidak mengubah `saldo` baris mana pun.
-3. **Invarian akhir** — `journalTotals(entries).saldoAkhir === entries.at(-1).saldo`.
+3. **Invarian akhir** — `saldoAwal + journalTotals(entries).net === entries.at(-1).saldo`.
 4. **Filter** — kategori, jenis, rentang tanggal, search `q` (deskripsi +
    kategori, case-insensitive).
 5. **Sort** — tanggal asc↔desc: nilai *Saldo* identik, hanya urutan berbalik.
