@@ -9,6 +9,7 @@ import { requireRole } from '@/lib/rbac'
 import { getSetting } from '@/lib/settings'
 import { getTableParams, PAGE_SIZES } from '@/lib/table-query'
 import { LaporanTable } from './LaporanTable'
+import { LaporanTabs } from './LaporanTabs'
 
 export const metadata: Metadata = {
   title: 'Laporan Kas — Admin Masjid An-nuur Arwana',
@@ -98,6 +99,9 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
 
   return (
     <div>
+      <div className="no-print">
+        <LaporanTabs />
+      </div>
       <PrintHeader
         title={KAS_REPORT_TITLE}
         subtitle={report.periodLabel}
