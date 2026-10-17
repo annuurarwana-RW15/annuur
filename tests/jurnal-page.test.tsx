@@ -33,10 +33,6 @@ vi.mock('@/lib/rbac', () => ({
   requireRole: vi.fn().mockResolvedValue({ id: 'u1', name: 'Admin', role: 'ADMIN' }),
 }))
 
-vi.mock('@/lib/settings', () => ({
-  getSetting: vi.fn().mockResolvedValue('Masjid An-nuur Arwana'),
-}))
-
 const PERIOD = {
   id: 'p-2026',
   name: '2026',

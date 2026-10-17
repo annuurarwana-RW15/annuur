@@ -3,7 +3,6 @@ import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { formatDateID, formatRupiah } from '@/lib/format'
 import { requireRole } from '@/lib/rbac'
-import { getSetting } from '@/lib/settings'
 import { getTableParams, PAGE_SIZES } from '@/lib/table-query'
 import {
   buildJurnal,
@@ -48,7 +47,6 @@ export default async function JurnalKasPage({ searchParams }: PageProps) {
   const [periods, categories] = await Promise.all([
     db.period.findMany({ orderBy: { startDate: 'desc' } }),
     db.category.findMany({ orderBy: { name: 'asc' }, select: { id: true, name: true } }),
-    getSetting('site.name', 'Masjid An-nuur Arwana'),
   ])
 
   if (periodParam && !periods.some((item) => item.id === periodParam)) notFound()
@@ -103,12 +101,6 @@ export default async function JurnalKasPage({ searchParams }: PageProps) {
   const filterActive = Boolean(
     filter.q || filter.categoryId || filter.jenis || filter.dari || filter.sampai,
   )
-  const filterNoteParts: string[] = []
-  if (filter.q) filterNoteParts.push(`q "${filter.q}"`)
-  if (selectedCategory) filterNoteParts.push(`kategori ${selectedCategory.name}`)
-  if (jenis) filterNoteParts.push(`jenis ${jenis}`)
-  if (dariParam) filterNoteParts.push(`dari ${dariParam}`)
-  if (sampaiParam) filterNoteParts.push(`sampai ${sampaiParam}`)
 
   const generatedAt = formatDateID(new Date())
   const controlClass =
