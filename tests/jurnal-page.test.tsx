@@ -174,6 +174,12 @@ describe('halaman jurnal kas — kartu invarian', () => {
     expect(second.container.textContent).toContain('Menampilkan 1 dari 5 entri')
     expect(second.container.textContent).toContain('Subtotal terfilter')
     expect(second.container.textContent).toContain('Keluar Rp 30.000')
+
+    // Kalimat lengkap spec §7 dipas pada elemen hint-nya sendiri, bukan kontainer.
+    const hint = screen.getByText(/Saldo dihitung dari seluruh buku besar/)
+    expect(hint).toHaveTextContent(
+      'Menampilkan 1 dari 5 entri — Saldo dihitung dari seluruh buku besar.',
+    )
     expect(screen.getByText('Santunan anak yatim')).toBeInTheDocument()
     expect(screen.queryByText('Infak awal')).not.toBeInTheDocument()
 
@@ -190,6 +196,11 @@ describe('halaman jurnal kas — kartu invarian', () => {
     const { container } = await renderPage({ jenis: 'KELUAR' })
     expect(readCards()).toEqual(EXPECTED_CARDS)
     expect(container.textContent).toContain('Menampilkan 2 dari 5 entri')
+    // Kalimat lengkap spec §7 dipas pada elemen hint-nya sendiri, bukan kontainer.
+    const hint = screen.getByText(/Saldo dihitung dari seluruh buku besar/)
+    expect(hint).toHaveTextContent(
+      'Menampilkan 2 dari 5 entri — Saldo dihitung dari seluruh buku besar.',
+    )
     expect(container.textContent).toContain('Masuk Rp 0')
     expect(container.textContent).toContain('Keluar Rp 50.000')
     expect(screen.getByText('Santunan anak yatim')).toBeInTheDocument()

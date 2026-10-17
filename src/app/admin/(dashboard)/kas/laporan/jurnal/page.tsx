@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { PrintHeader } from '@/components/admin/PrintHeader'
 import { db } from '@/lib/db'
 import { formatDateID, formatRupiah } from '@/lib/format'
 import { requireRole } from '@/lib/rbac'
@@ -77,6 +78,8 @@ export default async function JurnalKasPage({ searchParams }: PageProps) {
 
   const { saldoAwal, entries } = await buildJurnal(selectedPeriod.id)
 
+  const periodLabel = `Periode ${selectedPeriod.name} (${formatDateID(selectedPeriod.startDate)} – ${formatDateID(selectedPeriod.endDate)})`
+
   const jenis = jenisParam === 'MASUK' || jenisParam === 'KELUAR' ? jenisParam : undefined
   const filter: JournalFilter = {
     ...(q ? { q } : {}),
@@ -137,10 +140,13 @@ export default async function JurnalKasPage({ searchParams }: PageProps) {
     <div>
       <div className="no-print">
         <LaporanTabs />
+      </div>
+      <PrintHeader title="Jurnal Kas" subtitle={periodLabel} />
 
+      <div className="no-print">
         <h1 className="text-2xl font-semibold text-neutral-900">Jurnal Kas</h1>
         <p className="mt-1 text-sm text-neutral-500">
-          {`Periode ${selectedPeriod.name} (${formatDateID(selectedPeriod.startDate)} – ${formatDateID(selectedPeriod.endDate)})`}
+          {periodLabel}
           {' — dibuat '}
           {generatedAt}
         </p>
