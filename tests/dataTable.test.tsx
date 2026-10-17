@@ -188,6 +188,11 @@ describe('DataTable', () => {
       expect(xls).toContain('Zakat')
       expect(xls).toContain('100000')
       expect(createObjectURL).toHaveBeenCalledTimes(2)
+      // Revoke sengaja ditunda. Memanggilnya sinkron setelah anchor.click()
+      // dapat membatalkan unduhan karena browser belum sempat fetch blob-nya
+      // — regresi yang ditangkap tests/e2e/jurnal-export.spec.ts.
+      expect(revokeObjectURL).not.toHaveBeenCalled()
+      await new Promise((resolve) => setTimeout(resolve, 150))
       expect(revokeObjectURL).toHaveBeenCalledTimes(2)
     } finally {
       clickSpy.mockRestore()

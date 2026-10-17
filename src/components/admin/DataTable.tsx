@@ -59,7 +59,9 @@ function downloadBlob(filename: string, blob: Blob): void {
   document.body.appendChild(anchor)
   anchor.click()
   anchor.remove()
-  URL.revokeObjectURL(url)
+  // Revoke ditunda: mencabut sinkron setelah click() dapat membatalkan
+  // unduhan karena browser belum sempat memulai fetch blob-nya.
+  window.setTimeout(() => URL.revokeObjectURL(url), 100)
 }
 
 const toolbarButtonClass =
