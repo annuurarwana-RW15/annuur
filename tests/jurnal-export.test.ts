@@ -29,7 +29,7 @@ describe('exportJurnal', () => {
       endDate: new Date(2026, 11, 31),
     })
     h.db.category.findUnique.mockReset()
-    h.db.category.findUnique.mockResolvedValue({ id: 'c1' })
+    h.db.category.findUnique.mockResolvedValue({ id: 'c1', name: 'Infak' })
     h.buildJurnal.mockReset()
     h.buildJurnal.mockResolvedValue({
       saldoAwal: 500_000,
@@ -68,22 +68,45 @@ describe('exportJurnal', () => {
     expect(result).toEqual({ ok: false, error: 'Kategori tidak ditemukan' })
   })
 
-  it('csv sukses: filename, mime, konten memuat saldo akhir 600000', async () => {
+  it('csv sukses: filename, mime, kop saldo awal & footer saldo akhir', async () => {
     const result = await exportJurnal('csv', { periodId: 'p1' })
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.filename).toBe('jurnal-kas-2026.csv')
     expect(result.mime).toBe('text/csv;charset=utf-8')
     expect(result.content).toContain('LAPORAN JURNAL KAS')
-    expect(result.content).toContain('600000')
+    // Kop Saldo Awal: label + nilai bersama (bukan sekadar angka).
+    expect(result.content).toContain('Saldo Awal (periode sebelumnya);500000')
+    // Footer SALDO AKHIR baris penuh — must not match a data row (data rows start with no;tanggal).
+    expect(result.content).toContain('SALDO AKHIR;;;;;;;600000')
+    // Tidak ada baris Filter saat tanpa filter.
+    expect(result.content).not.toContain('Filter;')
   })
 
-  it('excel sukses: mime xls', async () => {
+  it('excel sukses: mime xls, kop saldo awal & footer saldo akhir', async () => {
     const result = await exportJurnal('excel', { periodId: 'p1' })
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.filename).toBe('jurnal-kas-2026.xls')
     expect(result.mime).toBe('application/vnd.ms-excel')
+    expect(result.content).toContain(
+      '<tr><td colspan="8">Saldo Awal (periode sebelumnya): 500000</td></tr>',
+    )
+    expect(result.content).toContain(
+      '<tr><td colspan="7">SALDO AKHIR</td><td>600000</td></tr>',
+    )
+  })
+
+  it('filter kategori tercatat di kop ekspor dengan NAMA kategori (csv & excel)', async () => {
+    const csv = await exportJurnal('csv', { periodId: 'p1', filter: { categoryId: 'c1' } })
+    expect(csv.ok).toBe(true)
+    if (!csv.ok) return
+    expect(csv.content).toContain('Filter;kategori Infak')
+
+    const xls = await exportJurnal('excel', { periodId: 'p1', filter: { categoryId: 'c1' } })
+    expect(xls.ok).toBe(true)
+    if (!xls.ok) return
+    expect(xls.content).toContain('Filter: kategori Infak')
   })
 
   it('filter diteruskan ke filterJournal (hanya baris cocok yang diekspor)', async () => {

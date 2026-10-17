@@ -74,13 +74,17 @@ function jurnalSlug(name: string): string {
   return name.replace(/[^\w.-]+/g, '-').replace(/^[-.]+|[-.]+$/g, '') || 'periode'
 }
 
-function filterNoteOf(filter: JournalFilter | undefined): string | undefined {
+function filterNoteOf(
+  filter: JournalFilter | undefined,
+  categoryName?: string,
+): string | undefined {
   if (!filter) return undefined
   const parts: string[] = []
   if (filter.q) parts.push(`q "${filter.q}"`)
   if (filter.jenis) parts.push(`jenis ${filter.jenis}`)
   if (filter.dari) parts.push(`dari ${filter.dari}`)
   if (filter.sampai) parts.push(`sampai ${filter.sampai}`)
+  if (filter.categoryId) parts.push(`kategori ${categoryName ?? filter.categoryId}`)
   return parts.length > 0 ? parts.join('; ') : undefined
 }
 
@@ -100,12 +104,14 @@ export async function exportJurnal(
   })
   if (!period) return { ok: false, error: 'Periode tidak ditemukan' }
 
+  let categoryName: string | undefined
   if (params.filter?.categoryId) {
     const category = await db.category.findUnique({
       where: { id: params.filter.categoryId },
-      select: { id: true },
+      select: { id: true, name: true },
     })
     if (!category) return { ok: false, error: 'Kategori tidak ditemukan' }
+    categoryName = category.name
   }
 
   try {
@@ -113,6 +119,7 @@ export async function exportJurnal(
     const filtered = filterJournal(entries, params.filter ?? {})
     const periodLabel = `Periode ${period.name} (${formatDateID(period.startDate)} – ${formatDateID(period.endDate)})`
     const slug = jurnalSlug(period.name)
+    const filterNote = filterNoteOf(params.filter, categoryName)
 
     if (format === 'excel') {
       return {
@@ -122,7 +129,7 @@ export async function exportJurnal(
           saldoAwal,
           entries: filtered,
           periodLabel,
-          ...(filterNoteOf(params.filter) ? { filterNote: filterNoteOf(params.filter)! } : {}),
+          ...(filterNote ? { filterNote } : {}),
         }),
         mime: 'application/vnd.ms-excel',
       }
@@ -134,7 +141,7 @@ export async function exportJurnal(
         saldoAwal,
         entries: filtered,
         periodLabel,
-        ...(filterNoteOf(params.filter) ? { filterNote: filterNoteOf(params.filter)! } : {}),
+        ...(filterNote ? { filterNote } : {}),
       }),
       mime: 'text/csv;charset=utf-8',
     }
