@@ -4,8 +4,15 @@ import { db } from '@/lib/db'
 import { getActivePeriod } from '@/lib/kas'
 import { getSetting } from '@/lib/settings'
 import { getTableParams } from '@/lib/table-query'
-import { applyTableControls, type PublicLaporanRow } from './rows'
+import {
+  applyTableControls,
+  publicKeterangan,
+  type PublicLaporanRow,
+  type PublicTransactionRow,
+} from './rows'
+import { buildMonthlyTrend } from './trend'
 import { PublicLaporanTable } from './PublicLaporanTable'
+import { KasTrendChart } from './KasTrendChart'
 import { LaporanKasTabs } from './LaporanKasTabs'
 
 export const revalidate = 60
@@ -129,6 +136,19 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
   const rows: PublicLaporanRow[] = summaries
   const controlled = applyTableControls(rows, tableParams)
 
+  // Dipakai grafik tren: transaksi yang sama dengan yang diringkas di atas
+  // (sudah tersaring kategori publik & periode aktif) → konsisten dengan tabel.
+  const txRows: PublicTransactionRow[] = transactions.map((tx) => ({
+    id: tx.id,
+    tanggal: tx.date.toISOString().split('T')[0],
+    jenis: tx.type,
+    kategoriName: tx.category.name,
+    nominal: Number(tx.amount),
+    keterangan: publicKeterangan(tx.description, tx.donationId),
+    receiptImage: tx.receiptImage,
+  }))
+  const trend = buildMonthlyTrend(txRows, 12)
+
   return (
     <section className="p-6">
       <LaporanKasTabs />
@@ -139,6 +159,10 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
           ? ` — ${categoryNames.get(activeCategoryId) ?? ''}`
           : ''}
       </h2>
+
+      <div className="mb-6">
+        <KasTrendChart points={trend} />
+      </div>
 
       <PublicLaporanTable
         rows={controlled.rows}
