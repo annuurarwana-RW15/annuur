@@ -153,6 +153,7 @@ describe('journalTotals', () => {
 describe('ekspor', () => {
   const ctx = {
     saldoAwal: 500_000,
+    saldoAkhir: 640_000, // 500000 + net penuh 140000
     entries: FULL,
     periodLabel: 'Periode 2026 (1 Jan – 31 Des 2026)',
   }
@@ -164,8 +165,17 @@ describe('ekspor', () => {
     expect(csv).toContain('Saldo Awal (periode sebelumnya);500000')
     expect(csv).toContain('No;Tanggal;Keterangan;Kategori;Jenis;Masuk;Keluar;Saldo')
     expect(csv).toContain('SALDO AKHIR')
-    // saldoAkhir = saldoAwal(500000) + net(140000) = 640000
+    // saldoAkhir dari konteks = saldoAwal(500000) + net penuh(140000) = 640000
     expect(csv).toContain('640000')
+  })
+
+  it('footer SALDO AKHIR mengikuti konteks, BUKAN subset entries (invarian spec §2)', () => {
+    const subset = filterJournal(FULL, { jenis: 'KELUAR' })
+    expect(subset.length).toBeLessThan(FULL.length)
+    expect(journalToCsv({ ...ctx, entries: subset })).toContain('SALDO AKHIR;;;;;;;640000')
+    expect(journalToExcelHtml({ ...ctx, entries: subset })).toContain(
+      '<tr><td colspan="7">SALDO AKHIR</td><td>640000</td></tr>',
+    )
   })
 
   it('CSV memuat catatan filter bila ada', () => {
@@ -192,6 +202,7 @@ describe('ekspor', () => {
   it('Excel meng-guard formula yang diawali =', () => {
     const html = journalToExcelHtml({
       saldoAwal: 0,
+      saldoAkhir: 0,
       entries: [entry({ no: 1, description: '=SUM(A1)', saldo: 1 })],
       periodLabel: 'Periode 2026',
     })

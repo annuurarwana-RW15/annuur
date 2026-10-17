@@ -5,6 +5,7 @@ import { formatDateID } from '@/lib/format'
 import {
   buildJurnal,
   filterJournal,
+  journalTotals,
   journalToCsv,
   journalToExcelHtml,
   type JournalFilter,
@@ -117,9 +118,13 @@ export async function exportJurnal(
   try {
     const { saldoAwal, entries } = await buildJurnal(params.periodId)
     const filtered = filterJournal(entries, params.filter ?? {})
+    // Invarian spec §2: Saldo Akhir dari buku besar PENUH, bukan subset terfilter.
+    const saldoAkhir = saldoAwal + journalTotals(entries).net
     const periodLabel = `Periode ${period.name} (${formatDateID(period.startDate)} – ${formatDateID(period.endDate)})`
     const slug = jurnalSlug(period.name)
-    const filterNote = filterNoteOf(params.filter, categoryName)
+    // Baris meta CSV digabung mentah (tanpa buildCsv) → buang baris-baris baru
+    // agar `Filter;` tidak terpecah / tidak menyuntik baris formula di Excel.
+    const filterNote = filterNoteOf(params.filter, categoryName)?.replace(/[\r\n]+/g, ' ')
 
     if (format === 'excel') {
       return {
@@ -127,6 +132,7 @@ export async function exportJurnal(
         filename: `jurnal-kas-${slug}.xls`,
         content: journalToExcelHtml({
           saldoAwal,
+          saldoAkhir,
           entries: filtered,
           periodLabel,
           ...(filterNote ? { filterNote } : {}),
@@ -139,6 +145,7 @@ export async function exportJurnal(
       filename: `jurnal-kas-${slug}.csv`,
       content: journalToCsv({
         saldoAwal,
+        saldoAkhir,
         entries: filtered,
         periodLabel,
         ...(filterNote ? { filterNote } : {}),

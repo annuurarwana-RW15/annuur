@@ -9,6 +9,7 @@ import {
   buildJurnal,
   filterJournal,
   journalTotals,
+  parseISODate,
   sortJournal,
   type JournalFilter,
 } from '@/lib/jurnal'
@@ -81,12 +82,16 @@ export default async function JurnalKasPage({ searchParams }: PageProps) {
   const periodLabel = `Periode ${selectedPeriod.name} (${formatDateID(selectedPeriod.startDate)} – ${formatDateID(selectedPeriod.endDate)})`
 
   const jenis = jenisParam === 'MASUK' || jenisParam === 'KELUAR' ? jenisParam : undefined
+  // Tanggal hanya ikut filter bila VALID — parseISODate mengabaikan yang tidak
+  // valid, jadi nilai yang tidak menyaring tidak boleh menyalakan hint.
+  const dari = parseISODate(dariParam)
+  const sampai = parseISODate(sampaiParam)
   const filter: JournalFilter = {
     ...(q ? { q } : {}),
     ...(selectedCategory ? { categoryId: selectedCategory.id } : {}),
     ...(jenis ? { jenis } : {}),
-    ...(dariParam ? { dari: dariParam } : {}),
-    ...(sampaiParam ? { sampai: sampaiParam } : {}),
+    ...(dari ? { dari: dariParam } : {}),
+    ...(sampai ? { sampai: sampaiParam } : {}),
   }
 
   const filtered = filterJournal(entries, filter)
@@ -142,6 +147,20 @@ export default async function JurnalKasPage({ searchParams }: PageProps) {
         <LaporanTabs />
       </div>
       <PrintHeader title="Jurnal Kas" subtitle={periodLabel} />
+
+      {/* Hanya untuk cetak: ringkasan level periode + penjelasan filter aktif. */}
+      <div className="print-only mb-3 text-sm text-neutral-800">
+        <p>
+          Saldo Awal {formatRupiah(saldoAwal)} · Saldo Akhir {formatRupiah(saldoAkhir)} (seluruh
+          periode)
+        </p>
+        {filterActive ? (
+          <p>
+            Menampilkan {total} dari {entries.length} entri — Saldo dihitung dari seluruh buku
+            besar.
+          </p>
+        ) : null}
+      </div>
 
       <div className="no-print">
         <h1 className="text-2xl font-semibold text-neutral-900">Jurnal Kas</h1>

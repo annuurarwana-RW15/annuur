@@ -35,6 +35,12 @@ export interface JournalFilter {
 
 export interface JournalExportContext {
   saldoAwal: number
+  /**
+   * Saldo akhir SELURUH periode (saldoAwal + net buku besar penuh).
+   * Eksplisit di tipe agar TIDAK pernah diturunkan dari `entries` yang bisa
+   * terfilter — invarian spec §2.
+   */
+  saldoAkhir: number
   entries: JournalEntry[]
   periodLabel: string
   filterNote?: string
@@ -118,7 +124,8 @@ function excelText(text: string): string {
 }
 
 function saldoAkhirOf(ctx: JournalExportContext): number {
-  return ctx.saldoAwal + journalTotals(ctx.entries).net
+  // Invarian: dari konteks, bukan dari ctx.entries (yang bisa terfilter).
+  return ctx.saldoAkhir
 }
 
 const CSV_HEADERS = [
@@ -138,7 +145,9 @@ export function journalToCsv(ctx: JournalExportContext): string {
     'LAPORAN JURNAL KAS',
     ctx.periodLabel,
     `Saldo Awal (periode sebelumnya);${ctx.saldoAwal}`,
-    ...(ctx.filterNote ? [`Filter;${ctx.filterNote}`] : []),
+    ...(ctx.filterNote
+      ? [`Filter;${ctx.filterNote}`, 'Saldo dihitung dari seluruh buku besar.']
+      : []),
     '',
   ]
   const table = buildCsv(CSV_HEADERS as unknown as string[], [
@@ -162,7 +171,8 @@ export function journalToExcelHtml(ctx: JournalExportContext): string {
     `<tr><td colspan="8">${excelText(ctx.periodLabel)}</td></tr>` +
     `<tr><td colspan="8">Saldo Awal (periode sebelumnya): ${ctx.saldoAwal}</td></tr>` +
     (ctx.filterNote
-      ? `<tr><td colspan="8">Filter: ${excelText(ctx.filterNote)}</td></tr>`
+      ? `<tr><td colspan="8">Filter: ${excelText(ctx.filterNote)}</td></tr>` +
+        `<tr><td colspan="8">Saldo dihitung dari seluruh buku besar.</td></tr>`
       : '') +
     `<tr>${CSV_HEADERS.map((h) => `<th>${h}</th>`).join('')}</tr>`
   const body = ctx.entries

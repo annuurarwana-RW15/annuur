@@ -175,11 +175,14 @@ describe('halaman jurnal kas — kartu invarian', () => {
     expect(second.container.textContent).toContain('Subtotal terfilter')
     expect(second.container.textContent).toContain('Keluar Rp 30.000')
 
-    // Kalimat lengkap spec §7 dipas pada elemen hint-nya sendiri, bukan kontainer.
-    const hint = screen.getByText(/Saldo dihitung dari seluruh buku besar/)
-    expect(hint).toHaveTextContent(
-      'Menampilkan 1 dari 5 entri — Saldo dihitung dari seluruh buku besar.',
-    )
+    // Kalimat lengkap spec §7 dipas pada elemen hint-nya sendiri (layar + cetak).
+    const hints = screen.getAllByText(/Saldo dihitung dari seluruh buku besar/)
+    expect(hints.length).toBeGreaterThan(0)
+    for (const hint of hints) {
+      expect(hint).toHaveTextContent(
+        'Menampilkan 1 dari 5 entri — Saldo dihitung dari seluruh buku besar.',
+      )
+    }
     expect(screen.getByText('Santunan anak yatim')).toBeInTheDocument()
     expect(screen.queryByText('Infak awal')).not.toBeInTheDocument()
 
@@ -196,11 +199,14 @@ describe('halaman jurnal kas — kartu invarian', () => {
     const { container } = await renderPage({ jenis: 'KELUAR' })
     expect(readCards()).toEqual(EXPECTED_CARDS)
     expect(container.textContent).toContain('Menampilkan 2 dari 5 entri')
-    // Kalimat lengkap spec §7 dipas pada elemen hint-nya sendiri, bukan kontainer.
-    const hint = screen.getByText(/Saldo dihitung dari seluruh buku besar/)
-    expect(hint).toHaveTextContent(
-      'Menampilkan 2 dari 5 entri — Saldo dihitung dari seluruh buku besar.',
-    )
+    // Kalimat lengkap spec §7 dipas pada elemen hint-nya sendiri (layar + cetak).
+    const hints = screen.getAllByText(/Saldo dihitung dari seluruh buku besar/)
+    expect(hints.length).toBeGreaterThan(0)
+    for (const hint of hints) {
+      expect(hint).toHaveTextContent(
+        'Menampilkan 2 dari 5 entri — Saldo dihitung dari seluruh buku besar.',
+      )
+    }
     expect(container.textContent).toContain('Masuk Rp 0')
     expect(container.textContent).toContain('Keluar Rp 50.000')
     expect(screen.getByText('Santunan anak yatim')).toBeInTheDocument()
@@ -212,6 +218,46 @@ describe('halaman jurnal kas — kartu invarian', () => {
     expect(readCards()).toEqual(EXPECTED_CARDS)
     expect(screen.getByText('Tidak ada data')).toBeInTheDocument()
     expect(container.textContent).toContain('Menampilkan 0 dari 5 entri')
+  })
+
+  it('M2: tanggal tidak valid TIDAK menyalakan hint — filter dianggap tidak aktif', async () => {
+    const { container } = await renderPage({ dari: '2026-02-31', sampai: '2026-13-01' })
+    expect(readCards()).toEqual(EXPECTED_CARDS)
+    expect(container.textContent).not.toContain('Saldo dihitung dari seluruh buku besar')
+    expect(container.textContent).not.toContain('Subtotal terfilter')
+    // Semua baris tetap tampil (tanggal valid apa pun tidak menyaring).
+    expect(screen.getAllByRole('row').slice(1)).toHaveLength(5)
+  })
+
+  it('I1 — cetak: ringkasan periode selalu ikut, hint cetak hanya saat filter aktif', async () => {
+    const { container } = await renderPage({ jenis: 'KELUAR' })
+    const printBlocks = Array.from(container.querySelectorAll<HTMLElement>('.print-only'))
+    const summary = printBlocks.find((el) => (el.textContent ?? '').includes('seluruh periode'))
+    expect(summary).not.toBeNull()
+    expect(summary).toHaveTextContent(
+      'Saldo Awal Rp 400.000 · Saldo Akhir Rp 540.000 (seluruh periode)',
+    )
+    const printHint = printBlocks.find((el) =>
+      (el.textContent ?? '').includes('Saldo dihitung dari seluruh buku besar'),
+    )
+    expect(printHint).toHaveTextContent(
+      'Menampilkan 2 dari 5 entri — Saldo dihitung dari seluruh buku besar.',
+    )
+    // Blok cetak disembunyikan di layar (display:none) → tidak ada di aksesibilitas tree.
+    expect(summary).toHaveClass('print-only')
+  })
+
+  it('I1 — cetak tanpa filter: ringkasan tetap ada, tanpa hint filter', async () => {
+    const { container } = await renderPage()
+    const printBlocks = Array.from(container.querySelectorAll<HTMLElement>('.print-only'))
+    const summary = printBlocks.find((el) => (el.textContent ?? '').includes('seluruh periode'))
+    expect(summary).toHaveTextContent(
+      'Saldo Awal Rp 400.000 · Saldo Akhir Rp 540.000 (seluruh periode)',
+    )
+    const printHint = printBlocks.find((el) =>
+      (el.textContent ?? '').includes('Saldo dihitung dari seluruh buku besar'),
+    )
+    expect(printHint).toBeUndefined()
   })
 
   it('sort tanggal desc: urutan dibalik, saldo per-baris TIDAK dihitung ulang, kartu tetap', async () => {

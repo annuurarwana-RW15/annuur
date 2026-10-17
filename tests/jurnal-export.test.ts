@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { exportJurnal } from '@/app/admin/(dashboard)/kas/laporan/actions'
+import { journalTotals, type JournalEntry } from '@/lib/jurnal'
 
 const h = vi.hoisted(() => ({
   requireRole: vi.fn(),
@@ -128,5 +129,78 @@ describe('exportJurnal', () => {
     if (!result.ok) return
     expect(result.content).toContain('Infak')
     expect(result.content).not.toContain('Sosial')
+  })
+
+  it('KUNCI C1: footer SALDO AKHIR ekspor = kartu Saldo Akhir layar SAAT filter aktif', async () => {
+    // Buku besar penuh 3 entri; net penuh = 100000 − 30000 + 50000 = 120000.
+    const entries: JournalEntry[] = [
+      {
+        id: 'a', no: 1, tanggal: new Date(2026, 9, 1), description: 'Infak awal',
+        kategoriId: 'c1', kategori: 'Infak', jenis: 'MASUK', masuk: 100_000, keluar: 0,
+        saldo: 500_000,
+      },
+      {
+        id: 'b', no: 2, tanggal: new Date(2026, 9, 2), description: 'Sosial',
+        kategoriId: 'c2', kategori: 'Sosial', jenis: 'KELUAR', masuk: 0, keluar: 30_000,
+        saldo: 470_000,
+      },
+      {
+        id: 'c', no: 3, tanggal: new Date(2026, 9, 3), description: 'Infaq jamaah',
+        kategoriId: 'c1', kategori: 'Infak', jenis: 'MASUK', masuk: 50_000, keluar: 0,
+        saldo: 520_000,
+      },
+    ]
+    h.buildJurnal.mockResolvedValue({ saldoAwal: 400_000, entries })
+
+    // Kartu layar = saldoAwal + journalTotals(entries PENUH).net — bukan subset.
+    const card = 400_000 + journalTotals(entries).net
+    expect(card).toBe(520_000)
+
+    // Filter aktif: subset 1 baris (net −30000). Salah baca = 400000 − 30000 = 370000.
+    const filter = { jenis: 'KELUAR' as const }
+
+    const csv = await exportJurnal('csv', { periodId: 'p1', filter })
+    expect(csv.ok).toBe(true)
+    if (!csv.ok) return
+    expect(csv.content).toContain(`SALDO AKHIR;;;;;;;${card}`)
+
+    const xls = await exportJurnal('excel', { periodId: 'p1', filter })
+    expect(xls.ok).toBe(true)
+    if (!xls.ok) return
+    expect(xls.content).toContain(
+      `<tr><td colspan="7">SALDO AKHIR</td><td>${card}</td></tr>`,
+    )
+  })
+
+  it('C1: kop ekspor memuat kalimat spec §7 bila filterNote ada (csv & excel)', async () => {
+    const csv = await exportJurnal('csv', { periodId: 'p1', filter: { jenis: 'KELUAR' } })
+    expect(csv.ok).toBe(true)
+    if (!csv.ok) return
+    expect(csv.content).toContain('Saldo dihitung dari seluruh buku besar.')
+
+    const xls = await exportJurnal('excel', { periodId: 'p1', filter: { jenis: 'KELUAR' } })
+    expect(xls.ok).toBe(true)
+    if (!xls.ok) return
+    expect(xls.content).toContain('Saldo dihitung dari seluruh buku besar.')
+
+    // Tanpa filter → kalimat tidak ikut (tidak ada baris terfilter yang perlu dijelaskan).
+    const plain = await exportJurnal('csv', { periodId: 'p1' })
+    expect(plain.ok).toBe(true)
+    if (!plain.ok) return
+    expect(plain.content).not.toContain('Saldo dihitung dari seluruh buku besar.')
+  })
+
+  it('M1: filterNote ber-baris baru di-strip — baris Filter tetap satu baris CSV', async () => {
+    const result = await exportJurnal('csv', {
+      periodId: 'p1',
+      filter: { q: 'x\n=SUM(A1)' },
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    const lines = result.content.split('\n')
+    const filterLines = lines.filter((line) => line.startsWith('Filter;'))
+    expect(filterLines).toEqual(['Filter;q "x =SUM(A1)"'])
+    // Tidak ada baris yang diinjeksi dari dalam filterNote.
+    expect(lines.some((line) => line.startsWith('='))).toBe(false)
   })
 })
