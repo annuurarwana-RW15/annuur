@@ -6,6 +6,7 @@ import { getSetting } from '@/lib/settings'
 import { getTableParams } from '@/lib/table-query'
 import { applyTableControls, type PublicLaporanRow } from './rows'
 import { PublicLaporanTable } from './PublicLaporanTable'
+import { LaporanKasTabs } from './LaporanKasTabs'
 
 export const revalidate = 60
 
@@ -130,6 +131,8 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
 
   return (
     <section className="p-6">
+      <LaporanKasTabs />
+
       <h2 className="font-display text-2xl font-bold mb-6">
         Laporan Kas Publik
         {activeCategoryId

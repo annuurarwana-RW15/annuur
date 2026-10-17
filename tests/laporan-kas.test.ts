@@ -1,7 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   applyTableControls,
+  applyTransactionControls,
+  publicKeterangan,
   type PublicLaporanRow,
+  type PublicTransactionRow,
 } from '@/app/(public)/laporan-kas/rows'
 
 const h = vi.hoisted(() => ({
@@ -229,6 +232,110 @@ describe('applyTableControls (search/sort/pagination /laporan-kas)', () => {
     expect(applyTableControls(ROWS, { ...base, size: 20 }).rows).toHaveLength(3)
     expect(applyTableControls(ROWS, { ...base, page: 2, size: 20 })).toEqual({
       rows: [],
+      total: 3,
+    })
+  })
+})
+
+describe('publicKeterangan', () => {
+  it('donasi terverifikasi → label generik, nama donatur TIDAK bocor', () => {
+    expect(publicKeterangan('Donasi Ahmad (REF-1)', 'don-1')).toBe(
+      'Donasi terverifikasi',
+    )
+  })
+
+  it('kas manual (donationId null) → description ditampilkan apa adanya', () => {
+    expect(publicKeterangan('Beli karpet', null)).toBe('Beli karpet')
+  })
+
+  it('kas manual kosong/whitespace → null', () => {
+    expect(publicKeterangan('   ', null)).toBeNull()
+    expect(publicKeterangan('', null)).toBeNull()
+  })
+})
+
+describe('applyTransactionControls', () => {
+  const TX_ROWS: PublicTransactionRow[] = [
+    {
+      id: 't1',
+      tanggal: '2026-10-03',
+      jenis: 'KELUAR',
+      kategoriName: 'Sosial',
+      nominal: 25000,
+      keterangan: 'Santunan anak yatim',
+      receiptImage: null,
+    },
+    {
+      id: 't2',
+      tanggal: '2026-10-02',
+      jenis: 'MASUK',
+      kategoriName: 'Infak',
+      nominal: 150000,
+      keterangan: 'Donasi terverifikasi',
+      receiptImage: 'https://cdn.example/kwitansi.jpg',
+    },
+    {
+      id: 't3',
+      tanggal: '2026-10-01',
+      jenis: 'MASUK',
+      kategoriName: 'Zakat',
+      nominal: 50000,
+      keterangan: null,
+      receiptImage: null,
+    },
+  ]
+  const base = { q: '', page: 1, size: 20 }
+
+  it('tanpa kontrol → semua baris dipertahankan', () => {
+    const result = applyTransactionControls(TX_ROWS, base)
+    expect(result.rows).toHaveLength(3)
+    expect(result.total).toBe(3)
+  })
+
+  it('search mencocokkan kategori & keterangan (case-insensitive)', () => {
+    expect(
+      applyTransactionControls(TX_ROWS, { ...base, q: 'yatim' }).rows.map(
+        (r) => r.id,
+      ),
+    ).toEqual(['t1'])
+    expect(
+      applyTransactionControls(TX_ROWS, { ...base, q: 'INFak' }).rows.map(
+        (r) => r.id,
+      ),
+    ).toEqual(['t2'])
+  })
+
+  it('sort nominal desc: 150rb > 50rb > 25rb', () => {
+    const result = applyTransactionControls(TX_ROWS, {
+      ...base,
+      sort: 'nominal',
+      dir: 'desc',
+    })
+    expect(result.rows.map((r) => r.id)).toEqual(['t2', 't3', 't1'])
+  })
+
+  it('sort tanggal desc (ISO leksikografis)', () => {
+    const result = applyTransactionControls(TX_ROWS, {
+      ...base,
+      sort: 'tanggal',
+      dir: 'desc',
+    })
+    expect(result.rows.map((r) => r.id)).toEqual(['t1', 't2', 't3'])
+  })
+
+  it('sort keterangan: null selalu di akhir', () => {
+    const result = applyTransactionControls(TX_ROWS, {
+      ...base,
+      sort: 'keterangan',
+      dir: 'asc',
+    })
+    expect(result.rows.map((r) => r.id)).toEqual(['t2', 't1', 't3'])
+  })
+
+  it('pagination: size 2 → 2 baris; page 2 → sisa', () => {
+    expect(applyTransactionControls(TX_ROWS, { ...base, size: 2 }).rows).toHaveLength(2)
+    expect(applyTransactionControls(TX_ROWS, { ...base, page: 2, size: 2 })).toEqual({
+      rows: [expect.objectContaining({ id: 't3' })],
       total: 3,
     })
   })
