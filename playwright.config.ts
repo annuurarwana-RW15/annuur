@@ -21,6 +21,9 @@ export default defineConfig({
     channel: 'chrome',
   },
   projects: [{ name: 'chrome' }],
+  // Bereskan baris E2E (donasi + transaksi) setiap run — test donasi memakai
+  // endpoint publik sehingga tidak bisa menghapus datanya sendiri lewat UI.
+  globalTeardown: './tests/e2e/global-teardown.ts',
   webServer: {
     command: `npm run start -- -p ${PORT}`,
     url: baseURL,
