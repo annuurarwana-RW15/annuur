@@ -47,6 +47,10 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
           phone: String(fd.get('sitePhone') ?? '').trim(),
           city: String(fd.get('siteCity') ?? '').trim(),
         },
+        seo: {
+          title: String(fd.get('seoTitle') ?? '').trim(),
+          description: String(fd.get('seoDescription') ?? '').trim(),
+        },
         donasi: { rekening },
         ga4: { id: String(fd.get('ga4Id') ?? '').trim() },
       })
@@ -95,17 +99,6 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
             />
           </div>
           <div>
-            <label className={labelClass} htmlFor="siteCity">
-              Kota
-            </label>
-            <input
-              id="siteCity"
-              name="siteCity"
-              defaultValue={initial.site.city}
-              className={fieldClass}
-            />
-          </div>
-          <div>
             <label className={labelClass} htmlFor="siteAddress">
               Alamat
             </label>
@@ -132,6 +125,26 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
 
       <fieldset className="mt-8">
         <legend className="text-base font-semibold text-neutral-900">
+          Lokasi &amp; Sholat
+        </legend>
+        <p className="mt-2 text-sm text-neutral-500">
+          Kota menentukan jadwal sholat di beranda (layanan myquran).
+        </p>
+        <div className="mt-3 max-w-sm">
+          <label className={labelClass} htmlFor="siteCity">
+            Kota
+          </label>
+          <input
+            id="siteCity"
+            name="siteCity"
+            defaultValue={initial.site.city}
+            className={fieldClass}
+          />
+        </div>
+      </fieldset>
+
+      <fieldset className="mt-8">
+        <legend className="text-base font-semibold text-neutral-900">
           Rekening Donasi
         </legend>
         <p className="mt-2 text-sm text-neutral-500">
@@ -139,6 +152,42 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
         </p>
         <div className="mt-3">
           <RekeningEditor rows={rekeningRows} onChange={setRekeningRows} />
+        </div>
+      </fieldset>
+
+      <fieldset className="mt-8">
+        <legend className="text-base font-semibold text-neutral-900">
+          SEO Global
+        </legend>
+        <p className="mt-2 text-sm text-neutral-500">
+          Judul &amp; deskripsi bawaan situs — sumber metadata dan Open Graph
+          seluruh halaman yang tidak menyetel judulnya sendiri.
+        </p>
+        <div className="mt-3 grid gap-4">
+          <div className="max-w-sm">
+            <label className={labelClass} htmlFor="seoTitle">
+              Judul
+            </label>
+            <input
+              id="seoTitle"
+              name="seoTitle"
+              placeholder="Masjid An-nuur Arwana"
+              defaultValue={initial.seo.title}
+              className={fieldClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="seoDescription">
+              Deskripsi
+            </label>
+            <textarea
+              id="seoDescription"
+              name="seoDescription"
+              rows={3}
+              defaultValue={initial.seo.description}
+              className={fieldClass}
+            />
+          </div>
         </div>
       </fieldset>
 

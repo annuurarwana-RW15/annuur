@@ -13,6 +13,7 @@ export interface RekeningInput {
 
 export interface PengaturanInput {
   site: { name: string; address: string; phone: string; city: string }
+  seo: { title: string; description: string }
   donasi: { rekening: RekeningInput[] }
   ga4: { id: string }
 }
@@ -27,8 +28,11 @@ export async function setPengaturan(
     await setSetting('site.address', data.site.address)
     await setSetting('site.phone', data.site.phone)
     await setSetting('site.city', data.site.city)
+    await setSetting('seo.title', data.seo.title)
+    await setSetting('seo.description', data.seo.description)
     await setSetting('donasi.rekening', data.donasi.rekening)
     await setSetting('ga4.id', data.ga4.id)
+    // Metadata root dibaca dari Setting -> seluruh tree harus disegarkan.
     revalidatePath('/', 'layout')
     return { ok: true }
   } catch (error) {

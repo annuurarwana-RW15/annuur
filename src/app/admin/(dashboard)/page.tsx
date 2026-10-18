@@ -4,8 +4,17 @@ import { redirect } from 'next/navigation'
 import { dailyPageviews } from '@/lib/analytics'
 import { db } from '@/lib/db'
 import { formatRupiah } from '@/lib/format'
-import { getActivePeriod, getPeriodBalance } from '@/lib/kas'
+import {
+  getActivePeriod,
+  getDayFlow,
+  getPeriodBalance,
+  listRecentTransactions,
+} from '@/lib/kas'
 import { requireRole } from '@/lib/rbac'
+import { PageviewSparkline } from './PageviewSparkline'
+import { RecentTransactions } from './RecentTransactions'
+
+const RECENT_LIMIT = 5
 
 export const metadata: Metadata = {
   title: 'Dashboard — Admin Masjid An-nuur Arwana',
@@ -21,16 +30,22 @@ export default async function AdminDashboardPage() {
   )
   if (sessionUser.role === 'VIEWER') redirect('/admin/analitik')
 
-  const [period, donationByStatus, articleCount, activeUserCount, daily] =
+  const [period, donationByStatus, draftCount, activeUserCount, daily] =
     await Promise.all([
       getActivePeriod(),
       db.donation.groupBy({ by: ['status'], _count: { _all: true } }),
-      db.article.count(),
+      // Kartu "Artikel" = jumlah DRAFT (yang menunggu tayang), bukan total.
+      db.article.count({ where: { status: 'DRAFT' } }),
       db.user.count({ where: { isActive: true } }),
       dailyPageviews(7),
     ])
 
-  const balance = period ? await getPeriodBalance(period.id) : null
+  const [balance, dayFlow, recent] = await Promise.all([
+    period ? getPeriodBalance(period.id) : Promise.resolve(null),
+    period ? getDayFlow(period.id) : Promise.resolve({ masuk: 0, keluar: 0 }),
+    period ? listRecentTransactions(period.id, RECENT_LIMIT) : Promise.resolve([]),
+  ])
+
   const pendingDonations =
     donationByStatus.find((row) => row.status === 'MENUNGGU')?._count._all ?? 0
   const views7 = daily.reduce((sum, day) => sum + day.views, 0)
@@ -39,7 +54,9 @@ export default async function AdminDashboardPage() {
     {
       label: 'Saldo Kas',
       value: balance ? formatRupiah(balance.saldo) : '—',
-      hint: period ? `Periode ${period.name}` : 'Tidak ada periode aktif',
+      hint: period
+        ? `Hari ini: masuk ${formatRupiah(dayFlow.masuk)} · keluar ${formatRupiah(dayFlow.keluar)}`
+        : 'Tidak ada periode aktif',
       href: '/admin/kas/laporan',
     },
     {
@@ -56,8 +73,8 @@ export default async function AdminDashboardPage() {
     },
     {
       label: 'Artikel',
-      value: String(articleCount),
-      hint: 'Total artikel',
+      value: String(draftCount),
+      hint: 'Draft',
       href: '/admin/artikel',
     },
     {
@@ -72,7 +89,7 @@ export default async function AdminDashboardPage() {
     <div>
       <h1 className="text-2xl font-semibold text-neutral-900">Dashboard</h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Ringkasan aktivitas masjid.
+        Ringkasan aktivitas masjid{period ? ` — Periode ${period.name}.` : '.'}
       </p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5">
@@ -89,6 +106,18 @@ export default async function AdminDashboardPage() {
             <p className="mt-1 text-xs text-neutral-400">{card.hint}</p>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <section className="rounded-xl border border-black/10 bg-white p-5 shadow-sm">
+          <h2 className="text-sm font-semibold text-neutral-900">Pageview 7 hari</h2>
+          <div className="mt-4">
+            <PageviewSparkline data={daily} />
+          </div>
+        </section>
+        <div className="lg:col-span-2">
+          <RecentTransactions rows={recent} />
+        </div>
       </div>
     </div>
   )

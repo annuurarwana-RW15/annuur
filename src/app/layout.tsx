@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { SITE_URL } from "@/lib/seo";
+import { buildRootMetadata } from "@/lib/seo";
+import { getSetting } from "@/lib/settings";
 import "./globals.css";
 
 const jakarta = localFont({
@@ -35,11 +36,14 @@ const geistMono = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
-  title: "Masjid An-nuur Arwana",
-  description: "Website resmi Masjid An-nuur Arwana",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const [seoTitle, seoDescription, siteName] = await Promise.all([
+    getSetting("seo.title", ""),
+    getSetting("seo.description", ""),
+    getSetting("site.name", ""),
+  ]);
+  return buildRootMetadata({ seoTitle, seoDescription, siteName });
+}
 
 export default function RootLayout({
   children,

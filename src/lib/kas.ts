@@ -31,6 +31,40 @@ export async function getPeriodBalance(periodId: string): Promise<PeriodBalance>
   return { masuk, keluar, saldo: masuk - keluar }
 }
 
+export interface DayFlow {
+  masuk: number
+  keluar: number
+}
+
+/**
+ * Total masuk/keluar pada satu hari kalender (rentang UTC [00:00, 00:00+1))
+ * — konsisten dengan `dateOrUndefined` yang memakai `setUTCHours`.
+ *
+ * Dipakai kartu hint "Hari ini" di dashboard. Angka hari ini adalah properti
+ * transaksi hari itu sendiri, bukan sisa dari total periode.
+ */
+export async function getDayFlow(
+  periodId: string,
+  day: Date = new Date(),
+): Promise<DayFlow> {
+  if (!periodId) return { masuk: 0, keluar: 0 }
+
+  const start = new Date(
+    Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate()),
+  )
+  const end = new Date(start.getTime() + 24 * 60 * 60 * 1000)
+
+  const grouped = await db.transaction.groupBy({
+    by: ['type'],
+    where: { periodId, date: { gte: start, lt: end } },
+    _sum: { amount: true },
+  })
+  const totals = new Map(
+    grouped.map((row) => [row.type, Number(row._sum.amount ?? 0)]),
+  )
+  return { masuk: totals.get('MASUK') ?? 0, keluar: totals.get('KELUAR') ?? 0 }
+}
+
 /** Baris transaksi dengan Decimal sudah dikonversi ke number (serializable ke client). */
 export interface TransactionRow {
   id: string
@@ -180,4 +214,23 @@ export async function listTransactions(
   ])
 
   return { rows: rows.map(mapRow), total }
+}
+
+/**
+ * N transaksi terbaru pada periode — untuk tabel ringkas di dashboard.
+ * Urutan sama dengan jurnal (tanggal, lalu createdAt, lalu id) agar stabil.
+ */
+export async function listRecentTransactions(
+  periodId: string,
+  limit: number = 5,
+): Promise<TransactionRow[]> {
+  if (!periodId || limit <= 0) return []
+
+  const rows = await db.transaction.findMany({
+    where: { periodId },
+    include: { category: { select: { id: true, name: true, color: true } } },
+    orderBy: [{ date: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
+    take: limit,
+  })
+  return rows.map(mapRow)
 }

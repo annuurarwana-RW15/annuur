@@ -45,7 +45,12 @@ import {
   deleteTransaction,
   updateTransaction,
 } from '@/app/admin/(dashboard)/kas/transaksi/actions'
-import { getPeriodBalance, listTransactions } from '@/lib/kas'
+import {
+  getDayFlow,
+  getPeriodBalance,
+  listRecentTransactions,
+  listTransactions,
+} from '@/lib/kas'
 
 function loginAs(role: Role): void {
   h.authMock.mockResolvedValue({
@@ -404,6 +409,86 @@ describe('listTransactions', () => {
 
     expect(result).toEqual({ rows: [], total: 0 })
     expect(h.txCountMock).not.toHaveBeenCalled()
+    expect(h.txFindManyMock).not.toHaveBeenCalled()
+  })
+})
+
+describe('getDayFlow (kartu hint "Hari ini" di dashboard)', () => {
+  it('menjumlah masuk & keluar pada hari UTC yang diberikan, dibatasi periode', async () => {
+    h.txGroupByMock.mockResolvedValue([
+      { type: 'MASUK', _sum: { amount: '150000' } },
+      { type: 'KELUAR', _sum: { amount: '50000' } },
+    ])
+
+    const flow = await getDayFlow('p-2026', new Date(Date.UTC(2026, 9, 18, 15, 30)))
+
+    expect(flow).toEqual({ masuk: 150000, keluar: 50000 })
+    // Batas hari harus [00:00, 00:00+1) — konsisten dengan dateOrUndefined (UTC).
+    expect(h.txGroupByMock).toHaveBeenCalledWith({
+      by: ['type'],
+      where: {
+        periodId: 'p-2026',
+        date: {
+          gte: new Date(Date.UTC(2026, 9, 18)),
+          lt: new Date(Date.UTC(2026, 9, 19)),
+        },
+      },
+      _sum: { amount: true },
+    })
+  })
+
+  it('tanpa transaksi hari ini -> nol, bukan NaN atau undefined', async () => {
+    h.txGroupByMock.mockResolvedValue([])
+
+    await expect(getDayFlow('p-2026', new Date(Date.UTC(2026, 9, 18)))).resolves.toEqual({
+      masuk: 0,
+      keluar: 0,
+    })
+  })
+
+  it('hanya tipe yang ada diangkat — tipe lain diabaikan', async () => {
+    h.txGroupByMock.mockResolvedValue([{ type: 'MASUK', _sum: { amount: '75000' } }])
+
+    await expect(getDayFlow('p-2026', new Date(Date.UTC(2026, 9, 18)))).resolves.toEqual({
+      masuk: 75000,
+      keluar: 0,
+    })
+  })
+})
+
+describe('listRecentTransactions (tabel terbaru di dashboard)', () => {
+  const ROW = {
+    id: 'tx-9',
+    type: 'KELUAR' as const,
+    amount: { valueOf: () => '50000' },
+    date: new Date('2026-10-18'),
+    description: 'Santunan anak yatim',
+    receiptImage: null,
+    createdAt: new Date('2026-10-18T02:00:00Z'),
+    category: { id: 'c-sosial', name: 'Sosial', color: '#b91c1c' },
+  }
+
+  it('mengambil N baris terbaru: urut tanggal lalu createdAt, lalu dipetakan ke TransactionRow', async () => {
+    h.txFindManyMock.mockResolvedValue([ROW])
+
+    const rows = await listRecentTransactions('p-2026', 5)
+
+    expect(h.txFindManyMock).toHaveBeenCalledWith({
+      where: { periodId: 'p-2026' },
+      include: { category: { select: { id: true, name: true, color: true } } },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
+      take: 5,
+    })
+    expect(rows).toHaveLength(1)
+    expect(rows[0].amount).toBe(50000) // Decimal -> number
+    expect(rows[0].categoryName).toBe('Sosial')
+    expect(rows[0].categoryColor).toBe('#b91c1c')
+  })
+
+  it('tanpa periode -> daftar kosong tanpa query', async () => {
+    const rows = await listRecentTransactions('', 5)
+
+    expect(rows).toEqual([])
     expect(h.txFindManyMock).not.toHaveBeenCalled()
   })
 })

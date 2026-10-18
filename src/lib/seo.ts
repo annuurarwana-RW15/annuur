@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
 export const DEFAULT_SITE_NAME = 'Masjid An-nuur Arwana'
+export const DEFAULT_DESCRIPTION = 'Website resmi Masjid An-nuur Arwana'
 
 export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
@@ -55,6 +56,51 @@ export function buildMetadata({
       ...(desc ? { description: desc } : {}),
       ...(img ? { images: [img] } : {}),
     },
+  }
+}
+
+export interface SiteMetadataInput {
+  seoTitle?: string | null
+  seoDescription?: string | null
+  siteName?: string | null
+}
+
+function siteTitle({ seoTitle, siteName }: SiteMetadataInput): string {
+  return seoTitle?.trim() || siteName?.trim() || DEFAULT_SITE_NAME
+}
+
+function siteDescription({ seoDescription }: SiteMetadataInput): string {
+  return seoDescription?.trim() || DEFAULT_DESCRIPTION
+}
+
+/**
+ * Metadata layout root (di luar route group `(public)`): judul berupa string
+ * polos **tanpa** `title.template` — halaman admin menyetel judulnya sendiri
+ * sebagai string biasa, sehingga template justru menggandakan nama situs.
+ *
+ * Sumbernya Setting `seo.title` / `seo.description` lewat `generateMetadata`.
+ */
+export function buildRootMetadata(input: SiteMetadataInput = {}): Metadata {
+  return {
+    metadataBase: new URL(SITE_URL),
+    title: siteTitle(input),
+    description: siteDescription(input),
+  }
+}
+
+/**
+ * Metadata untuk layout `(public)` — permukaan SEO yang sesungguhnya.
+ *
+ * Bentuknya berbeda dari `buildRootMetadata`: `default` + `template` membuat
+ * halaman berjudul polos ("Profil", "Kontak", "Galeri", …) ikut menyandang
+ * nama situs, sedangkan halaman yang memakai `buildMetadata` lolos dari
+ * template karena `title.absolute`.
+ */
+export function buildPublicMetadata(input: SiteMetadataInput = {}): Metadata {
+  const name = siteTitle(input)
+  return {
+    title: { default: name, template: `%s — ${name}` },
+    description: siteDescription(input),
   }
 }
 

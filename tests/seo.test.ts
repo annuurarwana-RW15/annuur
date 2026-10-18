@@ -1,9 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
+  DEFAULT_DESCRIPTION,
+  DEFAULT_SITE_NAME,
   SITE_URL,
   articleLd,
   breadcrumbLd,
   buildMetadata,
+  buildPublicMetadata,
+  buildRootMetadata,
   jsonLd,
   orgLd,
 } from '@/lib/seo'
@@ -217,5 +221,79 @@ describe('orgLd', () => {
     expect(ld.address).toBeUndefined()
     expect(ld.telephone).toBeUndefined()
     expect(ld.name).toBe('Masjid An-nuur Arwana')
+  })
+})
+
+describe('buildRootMetadata', () => {
+  it('seo.title & seo.description terisi -> keduanya dipakai', () => {
+    const md = buildRootMetadata({
+      seoTitle: 'Judul SEO Global',
+      seoDescription: 'Deskripsi SEO Global',
+      siteName: 'Nama Situs',
+    })
+
+    expect(md.title).toBe('Judul SEO Global')
+    expect(md.description).toBe('Deskripsi SEO Global')
+    expect(md.metadataBase).toEqual(new URL(SITE_URL))
+  })
+
+  it('seo.title kosong / hanya spasi -> jatuh ke site.name (di-trim)', () => {
+    expect(buildRootMetadata({ seoTitle: '   ', siteName: ' Nama Situs ' }).title).toBe(
+      'Nama Situs',
+    )
+  })
+
+  it('site.name juga kosong -> DEFAULT_SITE_NAME; tanpa argumen pun tetap ada judul', () => {
+    expect(buildRootMetadata({ seoTitle: '', siteName: '' }).title).toBe(DEFAULT_SITE_NAME)
+    expect(buildRootMetadata().title).toBe(DEFAULT_SITE_NAME)
+  })
+
+  it('seo.description kosong -> DEFAULT_DESCRIPTION (deskripsi tidak pernah undefined)', () => {
+    expect(buildRootMetadata({ seoDescription: '  ' }).description).toBe(DEFAULT_DESCRIPTION)
+    expect(buildRootMetadata().description).toBe(DEFAULT_DESCRIPTION)
+  })
+})
+
+describe('buildPublicMetadata (layout (public))', () => {
+  it('mempertahankan default + template, diisi dari seo.title & site.name', () => {
+    const md = buildPublicMetadata({
+      seoTitle: 'Judul SEO',
+      siteName: 'Nama Situs',
+      seoDescription: 'Deskripsi SEO',
+    })
+
+    expect(md.title).toEqual({
+      default: 'Judul SEO',
+      template: '%s — Judul SEO',
+    })
+    expect(md.description).toBe('Deskripsi SEO')
+  })
+
+  it('template dipakai halaman berjudul polos ("Kontak") -> "Kontak — <nama situs>"', () => {
+    const md = buildPublicMetadata({ seoTitle: '', siteName: 'Masjid X' })
+    const template = (md.title as { template?: string }).template
+
+    expect(md.title).toEqual({
+      default: 'Masjid X',
+      template: '%s — Masjid X',
+    })
+    expect(template?.replace('%s', 'Kontak')).toBe('Kontak — Masjid X')
+  })
+
+  it('tanpa nilai tersimpan -> nama & deskripsi bawaan (bukan string kosong)', () => {
+    const md = buildPublicMetadata()
+
+    expect(md.title).toEqual({
+      default: DEFAULT_SITE_NAME,
+      template: `%s — ${DEFAULT_SITE_NAME}`,
+    })
+    expect(md.description).toBe(DEFAULT_DESCRIPTION)
+  })
+
+  it('beda dari buildRootMetadata: root tanpa template agar judul admin tak digandakan', () => {
+    const input = { seoTitle: 'X', siteName: 'Y' }
+
+    expect(buildRootMetadata(input).title).toBe('X')
+    expect(buildPublicMetadata(input).title).toMatchObject({ default: 'X' })
   })
 })

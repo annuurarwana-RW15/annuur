@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import Link from 'next/link'
 import { db } from '@/lib/db'
 import { getSetting } from '@/lib/settings'
-import { jsonLd, orgLd } from '@/lib/seo'
+import { buildPublicMetadata, jsonLd, orgLd } from '@/lib/seo'
 import { asText } from '@/components/public/content'
 import { Footer } from '@/components/public/Footer'
 import { PUBLIC_NAV } from '@/components/public/nav'
@@ -12,9 +12,15 @@ import { Tracker } from '@/components/public/Tracker'
 
 export const revalidate = 60
 
-export const metadata: Metadata = {
-  title: { default: 'Masjid An-nuur Arwana', template: '%s — Masjid An-nuur Arwana' },
-  description: 'Website resmi Masjid An-nuur Arwana',
+// Judul & deskripsi berasal dari Setting (grup "SEO Global" di admin),
+// bukan konstanta — `revalidatePath('/', 'layout')` menyegarkannya saat disimpan.
+export async function generateMetadata(): Promise<Metadata> {
+  const [seoTitle, seoDescription, siteName] = await Promise.all([
+    getSetting('seo.title', ''),
+    getSetting('seo.description', ''),
+    getSetting('site.name', ''),
+  ])
+  return buildPublicMetadata({ seoTitle, seoDescription, siteName })
 }
 
 function DomeMark() {

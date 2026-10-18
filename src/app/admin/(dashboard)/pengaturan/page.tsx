@@ -35,6 +35,8 @@ export default async function PengaturanPage() {
     siteAddress,
     sitePhone,
     siteCity,
+    seoTitle,
+    seoDescription,
     rekeningRaw,
     ga4Id,
   ] = await Promise.all([
@@ -42,6 +44,8 @@ export default async function PengaturanPage() {
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
     getSetting('site.city', ''),
+    getSetting('seo.title', ''),
+    getSetting('seo.description', ''),
     getSetting<unknown>('donasi.rekening', []),
     getSetting('ga4.id', ''),
   ])
@@ -53,6 +57,7 @@ export default async function PengaturanPage() {
       phone: sitePhone,
       city: siteCity,
     },
+    seo: { title: seoTitle, description: seoDescription },
     donasi: { rekening: rekeningList(rekeningRaw) },
     ga4: { id: ga4Id },
   }
@@ -61,7 +66,7 @@ export default async function PengaturanPage() {
     <div>
       <h1 className="text-2xl font-semibold text-neutral-900">Pengaturan</h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Identitas masjid, rekening donasi, dan analitik.
+        Identitas, lokasi &amp; jadwal sholat, SEO, rekening donasi, dan analitik.
       </p>
       <div className="mt-6">
         <PengaturanForm initial={initial} />
