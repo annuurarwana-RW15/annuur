@@ -68,6 +68,78 @@ export function applyTableControls(
   return { rows: list.slice(start, start + params.size), total }
 }
 
+/** Satu baris ringkasan per kategori, sebelum `terbarik` diubah jadi ISO string. */
+export interface CategorySummary {
+  categoryId: string
+  categoryName: string
+  masuk: number
+  keluar: number
+  saldo: number
+  terbarik: Date | null
+}
+
+/**
+ * Pilih kategori yang boleh tampil di laporan publik.
+ *
+ * Setting `kas.publicCategories` bisa berisi ID atau nama kategori (fallback
+ * lama memakai nama). Bila kosong → semua kategori MASUK aktif.
+ */
+export function resolvePublicCatIds(
+  configured: string[] | undefined | null,
+  allCategories: { id: string; name: string; type: 'MASUK' | 'KELUAR' }[],
+): string[] {
+  if (!configured || configured.length === 0) {
+    return allCategories.filter((c) => c.type === 'MASUK').map((c) => c.id)
+  }
+  const keys = configured.map((key) => String(key))
+  return allCategories
+    .filter((c) => keys.includes(c.id) || keys.includes(c.name))
+    .map((c) => c.id)
+}
+
+/**
+ * Ringkas transaksi per kategori. Kategori yang dipilih tapi tak punya
+ * transaksi tetap muncul dengan nol — agar tabel tidak berubah drastis
+ * ketika periode masih kosong.
+ */
+export function categorySummary(
+  catIds: string[],
+  transactions: {
+    type: 'MASUK' | 'KELUAR'
+    amount: unknown
+    createdAt: Date
+    category: { id: string; name: string }
+  }[],
+  names: Map<string, string>,
+): CategorySummary[] {
+  const map = new Map(
+    catIds.map((id) => [id, { masuk: 0, keluar: 0, terbarik: null as Date | null }]),
+  )
+
+  for (const tx of transactions) {
+    const entry = map.get(tx.category.id)
+    if (!entry) continue
+    const amount = Number(tx.amount)
+    if (tx.type === 'MASUK') entry.masuk += amount
+    else entry.keluar += amount
+    if (!entry.terbarik || tx.createdAt > entry.terbarik) {
+      entry.terbarik = tx.createdAt
+    }
+  }
+
+  return catIds.map((id) => {
+    const entry = map.get(id)!
+    return {
+      categoryId: id,
+      categoryName: names.get(id) ?? '—',
+      masuk: entry.masuk,
+      keluar: entry.keluar,
+      saldo: entry.masuk - entry.keluar,
+      terbarik: entry.terbarik,
+    }
+  })
+}
+
 /** Satu baris daftar transaksi publik (bukan ringkasan kategori). */
 export interface PublicTransactionRow {
   id: string

@@ -6,7 +6,9 @@ import { getSetting } from '@/lib/settings'
 import { getTableParams } from '@/lib/table-query'
 import {
   applyTableControls,
+  categorySummary,
   publicKeterangan,
+  resolvePublicCatIds,
   type PublicLaporanRow,
   type PublicTransactionRow,
 } from './rows'
@@ -32,53 +34,6 @@ function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value
 }
 
-interface CategorySummary {
-  categoryId: string
-  categoryName: string
-  masuk: number
-  keluar: number
-  saldo: number
-  terbarik: Date | null
-}
-
-function categorySummary(
-  catIds: string[],
-  transactions: {
-    type: 'MASUK' | 'KELUAR'
-    amount: unknown
-    createdAt: Date
-    category: { id: string; name: string }
-  }[],
-  names: Map<string, string>,
-): CategorySummary[] {
-  const map = new Map(
-    catIds.map((id) => [id, { masuk: 0, keluar: 0, terbarik: null as Date | null }]),
-  )
-
-  for (const tx of transactions) {
-    const entry = map.get(tx.category.id)
-    if (!entry) continue
-    const amount = Number(tx.amount)
-    if (tx.type === 'MASUK') entry.masuk += amount
-    else entry.keluar += amount
-    if (!entry.terbarik || tx.createdAt > entry.terbarik) {
-      entry.terbarik = tx.createdAt
-    }
-  }
-
-  return catIds.map((id) => {
-    const entry = map.get(id)!
-    return {
-      categoryId: id,
-      categoryName: names.get(id) ?? '—',
-      masuk: entry.masuk,
-      keluar: entry.keluar,
-      saldo: entry.masuk - entry.keluar,
-      terbarik: entry.terbarik,
-    }
-  })
-}
-
 export default async function LaporanKasPage({ searchParams }: PageProps) {
   const sp = await searchParams
   const kategoriParam = first(sp.kategori)
@@ -102,15 +57,7 @@ export default async function LaporanKasPage({ searchParams }: PageProps) {
     )
   }
 
-  let publicCatIds: string[]
-  if (publicCatRaw && publicCatRaw.length > 0) {
-    const keys = publicCatRaw.map((key) => String(key))
-    publicCatIds = allCategories
-      .filter((c) => keys.includes(c.id) || keys.includes(c.name))
-      .map((c) => c.id)
-  } else {
-    publicCatIds = allCategories.filter((c) => c.type === 'MASUK').map((c) => c.id)
-  }
+  const publicCatIds = resolvePublicCatIds(publicCatRaw, allCategories)
 
   const categoryNames = new Map(allCategories.map((c) => [c.id, c.name]))
   const activeCategoryId =

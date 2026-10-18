@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { renderToStaticMarkup } from 'react-dom/server'
 import {
   applyTableControls,
   applyTransactionControls,
+  categorySummary,
   publicKeterangan,
+  resolvePublicCatIds,
   type PublicLaporanRow,
   type PublicTransactionRow,
 } from '@/app/(public)/laporan-kas/rows'
@@ -10,6 +13,8 @@ import {
 const h = vi.hoisted(() => ({
   getActivePeriodMock: vi.fn(),
   getSettingMock: vi.fn(),
+  /** Props terakhir yang diterima PublicLaporanTable (untuk assert tanpa render DOM). */
+  table: null as Record<string, unknown> | null,
   db: {
     period: { findFirst: vi.fn() },
     category: { findMany: vi.fn() },
@@ -41,82 +46,267 @@ vi.mock('@/lib/db', () => ({
   },
 }))
 
+// Komponen client di-render sebagai null: KasTrendChart pakai recharts
+// (butuh ResizeObserver yang tidak ada di jsdom/node) dan LaporanKasTabs
+// memakai usePathname yang butuh App Router context. Yang diuji di sini
+// adalah LOGIKA halaman server-nya, bukan komponennya.
+vi.mock('@/app/(public)/laporan-kas/LaporanKasTabs', () => ({
+  LaporanKasTabs: () => null,
+}))
+vi.mock('@/app/(public)/laporan-kas/KasTrendChart', () => ({
+  KasTrendChart: () => null,
+}))
+vi.mock('@/app/(public)/laporan-kas/PublicLaporanTable', () => ({
+  PublicLaporanTable: (props: Record<string, unknown>) => {
+    h.table = props
+    return null
+  },
+}))
+
 describe('Laporan Kas Publik', () => {
+  const ACTIVE_PERIOD = {
+    id: 'p-2026',
+    name: '2026',
+    status: 'AKTIF' as const,
+    startDate: new Date('2026-01-01'),
+    endDate: new Date('2026-12-31'),
+  }
+
+  const CATEGORIES = [
+    { id: 'c-infak', name: 'Infak', type: 'MASUK' as const, isActive: true },
+    { id: 'c-sedekah', name: 'Sedekah', type: 'MASUK' as const, isActive: true },
+    { id: 'c-zakat', name: 'Zakat', type: 'MASUK' as const, isActive: true },
+    { id: 'c-sosial', name: 'Sosial', type: 'KELUAR' as const, isActive: true },
+  ]
+
+  const TRANSACTIONS = [
+    {
+      id: 'tx-1',
+      type: 'MASUK' as const,
+      amount: 100000,
+      date: new Date('2026-10-01'),
+      createdAt: new Date('2026-10-01'),
+      description: 'Infak jamaah',
+      donationId: null,
+      receiptImage: null,
+      category: { id: 'c-infak', name: 'Infak' },
+    },
+    {
+      id: 'tx-2',
+      type: 'MASUK' as const,
+      amount: 50000,
+      date: new Date('2026-10-02'),
+      createdAt: new Date('2026-10-02'),
+      description: 'Infak pengajian',
+      donationId: 'don-1',
+      receiptImage: null,
+      category: { id: 'c-infak', name: 'Infak' },
+    },
+    {
+      id: 'tx-3',
+      type: 'KELUAR' as const,
+      amount: 25000,
+      date: new Date('2026-10-03'),
+      createdAt: new Date('2026-10-03'),
+      description: 'Santunan anak yatim',
+      donationId: null,
+      receiptImage: null,
+      category: { id: 'c-sosial', name: 'Sosial' },
+    },
+  ]
+
   beforeEach(() => {
     vi.clearAllMocks()
+    h.table = null
   })
 
-  it('periode aktif → tabel data match expected per-category totals', async () => {
-    const ACTIVE_PERIOD = {
-      id: 'p-2026',
-      name: '2026',
-      status: 'AKTIF' as const,
-      startDate: new Date('2026-01-01'),
-      endDate: new Date('2026-12-31'),
-    }
+  async function renderPage(params: Record<string, string> = {}) {
+    const { default: page } = await import('@/app/(public)/laporan-kas/page')
+    const element = await page({ searchParams: Promise.resolve(params) })
+    return renderToStaticMarkup(element)
+  }
 
-    h.getActivePeriodMock.mockResolvedValue(ACTIVE_PERIOD)
-
-    const PUBLIC_CATS = ['Infak', 'Sedekah', 'Zakat']
-    h.getSettingMock.mockResolvedValueOnce(PUBLIC_CATS)
-
-    const CATEGORIES = [
-      { id: 'c-infak', name: 'Infak', type: 'MASUK' as const },
-      { id: 'c-sedekah', name: 'Sedekah', type: 'MASUK' as const },
-      { id: 'c-zakat', name: 'Zakat', type: 'MASUK' as const },
-      { id: 'c-sosial', name: 'Sosial', type: 'KELUAR' as const },
-    ]
-    h.db.category.findMany.mockResolvedValue(CATEGORIES)
-
-    const TRANSACTIONS = [
-      {
-        id: 'tx-1',
-        type: 'MASUK',
-        amount: 100000,
-        createdAt: new Date('2026-10-01'),
-        category: { id: 'c-infak', name: 'Infak' },
-      },
-      {
-        id: 'tx-2',
-        type: 'MASUK',
-        amount: 50000,
-        createdAt: new Date('2026-10-02'),
-        category: { id: 'c-infak', name: 'Infak' },
-      },
-      {
-        id: 'tx-3',
-        type: 'KELUAR',
-        amount: 25000,
-        createdAt: new Date('2026-10-03'),
-        category: { id: 'c-sosial', name: 'Sosial' },
-      },
-    ]
-    h.db.transaction.findMany.mockResolvedValue(TRANSACTIONS)
-
-    await import('@/app/(public)/laporan-kas/page')
-    // Render would be tested via integration, here we verify the data logic
-    const summaries = [
-      { categoryId: 'c-infak', categoryName: 'Infak', masuk: 150000, keluar: 0, saldo: 150000, terbarik: new Date('2026-10-02') },
-      { categoryId: 'c-sedekah', categoryName: 'Sedekah', masuk: 0, keluar: 0, saldo: 0, terbarik: null },
-      { categoryId: 'c-zakat', categoryName: 'Zakat', masuk: 0, keluar: 0, saldo: 0, terbarik: null },
-      { categoryId: 'c-sosial', categoryName: 'Sosial', masuk: 0, keluar: 25000, saldo: -25000, terbarik: new Date('2026-10-03') },
-    ]
-
-    expect(summaries[0].masuk).toBe(150000)
-    expect(summaries[0].saldo).toBe(150000)
-    expect(summaries[1].masuk).toBe(0)
-    expect(summaries[3].keluar).toBe(25000)
-    expect(summaries[3].saldo).toBe(-25000)
-  })
-
-  it('tidak ada periode aktif → tampil pesan "Belum ada periode aktif"', async () => {
+  it('tanpa periode aktif → menampilkan pesan "Belum ada periode aktif"', async () => {
     h.getActivePeriodMock.mockResolvedValue(null)
 
-    await import('@/app/(public)/laporan-kas/page')
+    const html = await renderPage()
 
-    expect(true).toBe(true)
+    expect(html).toContain('Belum ada periode aktif')
+    expect(h.db.transaction.findMany).not.toHaveBeenCalled()
+    expect(h.table).toBeNull()
   })
 
+  it('periode aktif → ringkasan per kategori cocok dengan total transaksi', async () => {
+    h.getActivePeriodMock.mockResolvedValue(ACTIVE_PERIOD)
+    h.getSettingMock.mockResolvedValue(undefined) // fallback: semua kategori MASUK
+    h.db.category.findMany.mockResolvedValue(CATEGORIES)
+    h.db.transaction.findMany.mockResolvedValue(TRANSACTIONS)
+
+    await renderPage()
+
+    expect(h.db.transaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          periodId: 'p-2026',
+          AND: { categoryId: { in: ['c-infak', 'c-sedekah', 'c-zakat'] } },
+        }),
+      }),
+    )
+
+    const rows = h.table!.rows as PublicLaporanRow[]
+    expect(rows.map((r) => r.categoryId)).toEqual(['c-infak', 'c-sedekah', 'c-zakat'])
+
+    const infak = rows[0]
+    expect(infak.masuk).toBe(150000)
+    expect(infak.keluar).toBe(0)
+    expect(infak.saldo).toBe(150000)
+    expect(infak.terbarik).toBe(new Date('2026-10-02').toISOString())
+
+    // Kategori MASUK tanpa transaksi tetap tampil dengan nol.
+    expect(rows[1]).toMatchObject({ masuk: 0, keluar: 0, saldo: 0, terbarik: null })
+    // Kategori KELUAR (Sosial) TIDAK boleh muncul di laporan publik.
+    expect(rows.map((r) => r.categoryId)).not.toContain('c-sosial')
+    expect(h.table!.total).toBe(3)
+  })
+
+  it('periode aktif → menampilkan disclaimer transparansi dan link donasi', async () => {
+    h.getActivePeriodMock.mockResolvedValue(ACTIVE_PERIOD)
+    h.getSettingMock.mockResolvedValue(undefined)
+    h.db.category.findMany.mockResolvedValue(CATEGORIES)
+    h.db.transaction.findMany.mockResolvedValue([])
+
+    const html = await renderPage()
+
+    expect(html).toContain('Laporan ini dibuat berdasarkan data transaksi')
+    expect(html).toContain('href="/donasi"')
+    expect(html).toContain('Laporan Kas Publik')
+  })
+
+  it('filter kategori → hanya kategori itu yang diringkas', async () => {
+    h.getActivePeriodMock.mockResolvedValue(ACTIVE_PERIOD)
+    h.getSettingMock.mockResolvedValue(undefined)
+    h.db.category.findMany.mockResolvedValue(CATEGORIES)
+    h.db.transaction.findMany.mockResolvedValue(TRANSACTIONS)
+
+    await renderPage({ kategori: 'c-zakat' })
+
+    const rows = h.table!.rows as PublicLaporanRow[]
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({ categoryId: 'c-zakat', masuk: 0, keluar: 0 })
+    expect(h.db.transaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          AND: { categoryId: { in: ['c-zakat'] } },
+        }),
+      }),
+    )
+  })
+
+  it('kategori publik lewat nama lama tetap diterima', async () => {
+    expect(
+      resolvePublicCatIds(['Infak', 'c-zakat'], CATEGORIES),
+    ).toEqual(['c-infak', 'c-zakat'])
+  })
+
+  it('setting kosong → semua kategori MASUK; setting tak cocok → kosong', () => {
+    expect(resolvePublicCatIds(undefined, CATEGORIES)).toEqual([
+      'c-infak',
+      'c-sedekah',
+      'c-zakat',
+    ])
+    expect(resolvePublicCatIds([], CATEGORIES)).toEqual([
+      'c-infak',
+      'c-sedekah',
+      'c-zakat',
+    ])
+    expect(resolvePublicCatIds(['tidak-ada'], CATEGORIES)).toEqual([])
+  })
+})
+
+describe('categorySummary', () => {
+  const names = new Map([
+    ['c-infak', 'Infak'],
+    ['c-sosial', 'Sosial'],
+  ])
+
+  it('menjumlahkan masuk/keluar dan menghitung saldo per kategori', () => {
+    const result = categorySummary(
+      ['c-infak', 'c-sosial'],
+      [
+        {
+          type: 'MASUK',
+          amount: 100000,
+          createdAt: new Date('2026-10-01'),
+          category: { id: 'c-infak', name: 'Infak' },
+        },
+        {
+          type: 'MASUK',
+          amount: 50000,
+          createdAt: new Date('2026-10-02'),
+          category: { id: 'c-infak', name: 'Infak' },
+        },
+        {
+          type: 'KELUAR',
+          amount: 25000,
+          createdAt: new Date('2026-10-03'),
+          category: { id: 'c-sosial', name: 'Sosial' },
+        },
+      ],
+      names,
+    )
+
+    expect(result).toEqual([
+      {
+        categoryId: 'c-infak',
+        categoryName: 'Infak',
+        masuk: 150000,
+        keluar: 0,
+        saldo: 150000,
+        terbarik: new Date('2026-10-02'),
+      },
+      {
+        categoryId: 'c-sosial',
+        categoryName: 'Sosial',
+        masuk: 0,
+        keluar: 25000,
+        saldo: -25000,
+        terbarik: new Date('2026-10-03'),
+      },
+    ])
+  })
+
+  it('kategori terpilih tanpa transaksi → nol + nama tetap ada', () => {
+    const result = categorySummary(['c-infak'], [], names)
+    expect(result[0]).toEqual({
+      categoryId: 'c-infak',
+      categoryName: 'Infak',
+      masuk: 0,
+      keluar: 0,
+      saldo: 0,
+      terbarik: null,
+    })
+  })
+
+  it('transaksi di kategori di luar daftar terpilih diabaikan', () => {
+    const result = categorySummary(
+      ['c-infak'],
+      [
+        {
+          type: 'KELUAR',
+          amount: 999,
+          createdAt: new Date('2026-10-03'),
+          category: { id: 'c-sosial', name: 'Sosial' },
+        },
+      ],
+      names,
+    )
+    expect(result[0]).toMatchObject({ masuk: 0, keluar: 0, saldo: 0, terbarik: null })
+  })
+
+  it('kategori tanpa nama di map → "—"', () => {
+    const result = categorySummary(['c-unknown'], [], names)
+    expect(result[0].categoryName).toBe('—')
+  })
 })
 
 const ROWS: PublicLaporanRow[] = [
