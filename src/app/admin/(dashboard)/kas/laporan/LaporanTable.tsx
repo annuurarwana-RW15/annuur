@@ -29,7 +29,9 @@ function download(filename: string, content: string, mime: string): void {
   document.body.appendChild(anchor)
   anchor.click()
   anchor.remove()
-  URL.revokeObjectURL(url)
+  // Cabut tertunda: mencabut sinkron tepat setelah click() membatalkan
+  // unduhan di sebagian browser (Pola sama dengan DataTable & JurnalTable).
+  window.setTimeout(() => URL.revokeObjectURL(url), 100)
 }
 
 /**
