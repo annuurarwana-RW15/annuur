@@ -10,9 +10,12 @@ import { PrismaClient } from '@prisma/client'
  * transaksi yatim di database lokal (terbukti: 4 transaksi + 17 donasi
  * menumpuk dari run-run sebelumnya).
  *
+ * **Konvensi: setiap baris yang dibuat test E2E wajib memuat teks "E2E"** —
+ * test baru harus mengikuti ini, kalau tidak barisnya akan bocor ke database.
+ *
  * Ditebak lewat pola penamaan khas test:
  * - donatur `E2E Donatur *`
- * - marker transaksi `E2E smoke transaksi *`
+ * - marker transaksi `E2E smoke transaksi *`, `E2E ekspor masuk/keluar *`
  * - transaksi hasil konfirmasi donasi (deskripsinya ikut memuat nama donatur)
  */
 export default async function globalTeardown(): Promise<void> {

@@ -83,8 +83,10 @@ test('ekspor jurnal: footer SALDO AKHIR = kartu, dan tetap saat filter aktif', a
   page,
 }) => {
   const stamp = Date.now()
-  const masuk = `Ekspor masuk ${stamp}`
-  const keluar = `Ekspor keluar ${stamp}`
+  // Wajib memuat "E2E" — global-teardown membersihkan baris test berdasarkan
+  // pola ini, sehingga run yang gagal sekalipun tidak meninggalkan sisa.
+  const masuk = `E2E ekspor masuk ${stamp}`
+  const keluar = `E2E ekspor keluar ${stamp}`
 
   await login(page)
   await createTx(page, masuk, '150000', 'MASUK')
