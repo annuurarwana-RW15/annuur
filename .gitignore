@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# lighthouse — JSON mentah, ringkasannya di docs/superpowers/audits/lighthouse.md
+docs/superpowers/audits/*.json
+
 # playwright
 /test-results/
 /playwright-report/
