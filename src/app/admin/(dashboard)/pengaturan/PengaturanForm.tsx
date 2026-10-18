@@ -193,7 +193,7 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
 
       <fieldset className="mt-8">
         <legend className="text-base font-semibold text-neutral-900">
-          Analitik
+          GA4
         </legend>
         <div className="mt-4 max-w-sm">
           <label className={labelClass} htmlFor="ga4Id">
