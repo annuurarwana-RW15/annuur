@@ -119,6 +119,9 @@ model Transaction {
   donationId   String?    @unique
   donation     Donation?  @relation(fields: [donationId], references: [id])
   createdAt    DateTime   @default(now())
+
+  @@index([periodId, date])
+  @@index([date])
 }
 
 model Donation {
