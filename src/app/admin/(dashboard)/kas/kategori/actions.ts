@@ -29,7 +29,11 @@ const categorySchema = z.object({
 export type CategoryInput = z.input<typeof categorySchema>
 
 /** Halaman admin yang menampilkan nama/jenis kategori. */
-const KAS_PATHS = ['/admin/kas/kategori', '/admin/kas/transaksi'] as const
+const KAS_PATHS = [
+  '/admin/kas/kategori',
+  '/admin/kas/transaksi',
+  '/laporan-kas',
+] as const
 
 function revalidateKas(): void {
   for (const path of KAS_PATHS) revalidatePath(path)

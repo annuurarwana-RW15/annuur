@@ -8,7 +8,7 @@ import { txSchema, type TxInput } from './schema'
 
 export type TxResult = { ok: true } | { ok: false; error: string }
 
-const TX_PATHS = ['/admin/kas/transaksi', '/admin'] as const
+const TX_PATHS = ['/admin/kas/transaksi', '/admin', '/laporan-kas', '/'] as const
 
 function revalidateTx(): void {
   for (const path of TX_PATHS) revalidatePath(path)

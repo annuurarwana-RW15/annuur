@@ -42,7 +42,13 @@ export interface OpenPeriodInput {
 }
 
 /** Halaman admin terkait periode & transaksi (transaksi selalu ke periode aktif). */
-const KAS_PATHS = ['/admin/kas/periode', '/admin/kas/transaksi'] as const
+const KAS_PATHS = [
+  '/admin/kas/periode',
+  '/admin/kas/transaksi',
+  '/admin',
+  '/laporan-kas',
+  '/',
+] as const
 
 function revalidateKas(): void {
   for (const path of KAS_PATHS) revalidatePath(path)
