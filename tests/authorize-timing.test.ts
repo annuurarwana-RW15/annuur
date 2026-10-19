@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { resetRateLimits } from '@/lib/rate-limit'
 
 const { capturedConfig, compareMock, findUniqueMock } = vi.hoisted(() => ({
   capturedConfig: { config: null as unknown },
@@ -35,6 +36,7 @@ interface CapturedConfig {
   providers: {
     authorize?: (
       credentials: Record<string, unknown> | undefined,
+      request: Request,
     ) => Promise<unknown>
   }[]
 }
@@ -44,6 +46,12 @@ function authorize(): NonNullable<CapturedConfig['providers'][number]['authorize
   const provider = config.providers[0]
   if (!provider?.authorize) throw new Error('authorize tidak ditemukan')
   return provider.authorize
+}
+
+function req(ip = '203.0.113.50'): Request {
+  return new Request('http://localhost/api/auth/callback/credentials', {
+    headers: { 'x-real-ip': ip },
+  })
 }
 
 function dbUser(overrides: Record<string, unknown> = {}) {
@@ -62,16 +70,20 @@ describe('authorize (Credentials)', () => {
   beforeEach(() => {
     compareMock.mockReset()
     findUniqueMock.mockReset()
+    resetRateLimits()
   })
 
   it('tetap menjalankan bcrypt.compare saat email tidak ditemukan (waktu verifikasi disamakan)', async () => {
     findUniqueMock.mockResolvedValue(null)
     compareMock.mockResolvedValue(false)
 
-    const result = await authorize()({
-      email: 'tidak@ada.local',
-      password: 'kata-sandi',
-    })
+    const result = await authorize()(
+      {
+        email: 'tidak@ada.local',
+        password: 'kata-sandi',
+      },
+      req(),
+    )
 
     expect(result).toBeNull()
     expect(compareMock).toHaveBeenCalledTimes(1)
@@ -85,10 +97,13 @@ describe('authorize (Credentials)', () => {
     findUniqueMock.mockResolvedValue(dbUser({ isActive: false }))
     compareMock.mockResolvedValue(true)
 
-    const result = await authorize()({
-      email: 'admin@an-nur.local',
-      password: 'kata-sandi',
-    })
+    const result = await authorize()(
+      {
+        email: 'admin@an-nur.local',
+        password: 'kata-sandi',
+      },
+      req(),
+    )
 
     expect(result).toBeNull()
     expect(compareMock).toHaveBeenCalledTimes(1)
@@ -99,10 +114,13 @@ describe('authorize (Credentials)', () => {
     findUniqueMock.mockResolvedValue(dbUser())
     compareMock.mockResolvedValue(true)
 
-    const result = await authorize()({
-      email: '  ADMIN@An-Nur.Local ',
-      password: 'kata-sandi',
-    })
+    const result = await authorize()(
+      {
+        email: '  ADMIN@An-Nur.Local ',
+        password: 'kata-sandi',
+      },
+      req(),
+    )
 
     expect(result).toEqual({
       id: 'user-1',
@@ -120,17 +138,20 @@ describe('authorize (Credentials)', () => {
     findUniqueMock.mockResolvedValue(dbUser())
     compareMock.mockResolvedValue(false)
 
-    const result = await authorize()({
-      email: 'admin@an-nur.local',
-      password: 'salah',
-    })
+    const result = await authorize()(
+      {
+        email: 'admin@an-nur.local',
+        password: 'salah',
+      },
+      req(),
+    )
 
     expect(result).toBeNull()
     expect(compareMock).toHaveBeenCalledTimes(1)
   })
 
   it('input kosong tidak memicu query maupun compare', async () => {
-    const result = await authorize()({ email: '', password: '' })
+    const result = await authorize()({ email: '', password: '' }, req())
 
     expect(result).toBeNull()
     expect(findUniqueMock).not.toHaveBeenCalled()

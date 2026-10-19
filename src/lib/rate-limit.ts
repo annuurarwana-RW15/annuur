@@ -37,17 +37,38 @@ export function resetRateLimits(): void {
   windows.clear()
 }
 
+/** Kosongkan satu key (mis. setelah percobaan terakhir berhasil). */
+export function resetHit(key: string): void {
+  windows.delete(key)
+}
+
+/**
+ * true bila `key` masih di bawah `limit` — TANPA menambah hitungan.
+ * Untuk alur yang hanya boleh menghitung kegagalan (mis. login): cek dengan
+ * `canHit`, catat kegagalan dengan `hit`. Jendela mengikuti `hit` pemilik
+ * entry, sehingga `windowMs` tidak perlu diulang di sini.
+ */
+export function canHit(key: string, limit: number): boolean {
+  const now = Date.now()
+  const entry = windows.get(key)
+  if (!entry || now >= entry.resetAt) return true
+  return entry.count < limit
+}
+
+/** Sumber header apa pun yang punya `.get()` (Request.headers, ReadonlyHeaders). */
+type HeaderSource = { get(name: string): string | null }
+
 /**
  * IP klien untuk kunci rate-limit. Utamakan `x-real-ip` (di-append proxy
  * tepercaya, mis. Vercel), lalu hop paling kanan `x-forwarded-for` — hop
  * kiri paling mudah dipalsukan client sehingga TIDAK dipakai — terakhir
  * `'unknown'`.
  */
-export function getClientIp(req: Request): string {
-  const real = req.headers.get('x-real-ip')?.trim()
+export function ipFromHeaders(headers: HeaderSource): string {
+  const real = headers.get('x-real-ip')?.trim()
   if (real) return real
 
-  const forwarded = req.headers.get('x-forwarded-for')
+  const forwarded = headers.get('x-forwarded-for')
   if (forwarded) {
     const hops = forwarded
       .split(',')
@@ -57,4 +78,8 @@ export function getClientIp(req: Request): string {
   }
 
   return 'unknown'
+}
+
+export function getClientIp(req: Request): string {
+  return ipFromHeaders(req.headers)
 }
