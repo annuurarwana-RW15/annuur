@@ -32,7 +32,7 @@ const SECTIONS = [
     title: 'Jadwal Sholat',
     order: 2,
     content: {
-      city: 'Arwana',
+      city: 'Karawang',
       method: 'MWLU',
     },
   },
@@ -149,7 +149,7 @@ const SETTINGS: { key: string; value: unknown }[] = [
   { key: 'site.name', value: 'Masjid An-nuur Arwana' },
   { key: 'site.address', value: '' },
   { key: 'site.phone', value: '' },
-  { key: 'site.city', value: 'Arwana' },
+  { key: 'site.city', value: 'Karawang' },
   { key: 'donasi.rekening', value: [] },
   { key: 'seo.title', value: 'Masjid An-nuur Arwana' },
   { key: 'seo.description', value: 'Website resmi Masjid An-nuur Arwana' },

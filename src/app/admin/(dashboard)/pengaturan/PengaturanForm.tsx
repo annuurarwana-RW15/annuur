@@ -129,6 +129,8 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
         </legend>
         <p className="mt-2 text-sm text-neutral-500">
           Kota menentukan jadwal sholat di beranda (layanan myquran).
+          Default: <strong>Karawang</strong> — kosongkan hanya jika ingin
+          memakai bawaan tersebut.
         </p>
         <div className="mt-3 max-w-sm">
           <label className={labelClass} htmlFor="siteCity">
@@ -138,6 +140,7 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
             id="siteCity"
             name="siteCity"
             defaultValue={initial.site.city}
+            placeholder="Karawang"
             className={fieldClass}
           />
         </div>
