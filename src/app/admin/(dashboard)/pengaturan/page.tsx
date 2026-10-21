@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getSetting } from '@/lib/settings'
+import { parseQris } from '@/lib/qris'
 import { requireRole } from '@/lib/rbac'
 import { PengaturanForm } from './PengaturanForm'
 import type { PengaturanInput } from './actions'
@@ -38,6 +39,7 @@ export default async function PengaturanPage() {
     seoTitle,
     seoDescription,
     rekeningRaw,
+    qrisRaw,
     ga4Id,
   ] = await Promise.all([
     getSetting('site.name', 'Masjid An-nuur Arwana'),
@@ -47,6 +49,7 @@ export default async function PengaturanPage() {
     getSetting('seo.title', ''),
     getSetting('seo.description', ''),
     getSetting<unknown>('donasi.rekening', []),
+    getSetting<unknown>('donasi.qris', null),
     getSetting('ga4.id', ''),
   ])
 
@@ -58,7 +61,10 @@ export default async function PengaturanPage() {
       city: siteCity,
     },
     seo: { title: seoTitle, description: seoDescription },
-    donasi: { rekening: rekeningList(rekeningRaw) },
+    donasi: {
+      rekening: rekeningList(rekeningRaw),
+      qris: parseQris(qrisRaw) ?? { image: '', caption: '' },
+    },
     ga4: { id: ga4Id },
   }
 
@@ -66,7 +72,8 @@ export default async function PengaturanPage() {
     <div>
       <h1 className="text-2xl font-semibold text-neutral-900">Pengaturan</h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Identitas, lokasi &amp; jadwal sholat, SEO, rekening donasi, dan analitik.
+        Identitas, lokasi &amp; jadwal sholat, rekening &amp; QRIS donasi, SEO,
+        dan analitik.
       </p>
       <div className="mt-6">
         <PengaturanForm initial={initial} />

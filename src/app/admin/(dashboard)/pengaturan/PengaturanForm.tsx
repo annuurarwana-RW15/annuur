@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import ImageField from '@/components/admin/ImageField'
 import { setPengaturan, type PengaturanInput } from './actions'
 import { RekeningEditor } from './RekeningEditor'
 import { normalizeRekening, type RekeningRow } from './rekening'
@@ -26,6 +27,8 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
       link: row.link ?? '',
     })),
   )
+  const [qrisImage, setQrisImage] = useState(initial.donasi.qris.image)
+  const [qrisCaption, setQrisCaption] = useState(initial.donasi.qris.caption)
 
   function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -51,7 +54,10 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
           title: String(fd.get('seoTitle') ?? '').trim(),
           description: String(fd.get('seoDescription') ?? '').trim(),
         },
-        donasi: { rekening },
+        donasi: {
+          rekening,
+          qris: { image: qrisImage.trim(), caption: qrisCaption.trim() },
+        },
         ga4: { id: String(fd.get('ga4Id') ?? '').trim() },
       })
       if (result.ok) {
@@ -155,6 +161,40 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
         </p>
         <div className="mt-3">
           <RekeningEditor rows={rekeningRows} onChange={setRekeningRows} />
+        </div>
+      </fieldset>
+
+      <fieldset className="mt-8">
+        <legend className="text-base font-semibold text-neutral-900">
+          Kartu QRIS
+        </legend>
+        <p className="mt-2 text-sm text-neutral-500">
+          Tampil sebagai kartu compact di section Laporan Keuangan beranda.
+          Kosongkan gambar untuk menyembunyikan kartu.
+        </p>
+        <div className="mt-3 grid max-w-2xl gap-4 sm:grid-cols-[max-content_1fr] sm:items-start">
+          <ImageField
+            value={qrisImage}
+            onChange={setQrisImage}
+            prefix="qris"
+            label="Gambar QRIS"
+            accept="image/jpeg,image/png,image/webp"
+          />
+          <div className="max-w-sm">
+            <label className={labelClass} htmlFor="qrisCaption">
+              Nama / keterangan (opsional)
+            </label>
+            <input
+              id="qrisCaption"
+              value={qrisCaption}
+              onChange={(event) => setQrisCaption(event.target.value)}
+              placeholder="Masjid An-nuur Arwana"
+              className={fieldClass}
+            />
+            <p className="mt-1 text-xs text-neutral-500">
+              Tercetak di bawah judul &ldquo;Donasi via QRIS&rdquo; pada kartu.
+            </p>
+          </div>
         </div>
       </fieldset>
 

@@ -1,15 +1,18 @@
 import Link from 'next/link'
 import { formatRupiah } from '@/lib/format'
 import type { DailyMonthSeries } from '@/lib/kas-daily'
+import type { QrisInfo } from '@/lib/qris'
 import { FinanceChart } from './FinanceChart'
 import { SectionHeading } from './SectionHeading'
 
 export function FinanceSummary({
   saldo,
   daily,
+  qris,
 }: {
   saldo: number | null
   daily: DailyMonthSeries
+  qris: QrisInfo | null
 }) {
   return (
     <section
@@ -35,6 +38,33 @@ export function FinanceSummary({
             >
               Lihat laporan lengkap
             </Link>
+
+            {qris && (
+              <figure className="mt-6 flex w-fit max-w-full items-center gap-3 rounded-2xl bg-krem px-4 py-3 text-hijau shadow-sm ring-1 ring-black/5">
+                {/* eslint-disable-next-line @next/next/no-img-element -- gambar hasil upload admin (R2/lokal), next/image tidak cocok */}
+                <img
+                  src={qris.image}
+                  alt="Kode QRIS donasi"
+                  width={64}
+                  height={64}
+                  loading="lazy"
+                  className="h-16 w-16 shrink-0 rounded-lg bg-white object-contain p-1"
+                />
+                <figcaption className="min-w-0">
+                  <p className="text-sm font-bold leading-tight">
+                    Donasi via QRIS
+                  </p>
+                  {qris.caption && (
+                    <p className="mt-0.5 truncate text-xs text-hijau/75">
+                      {qris.caption}
+                    </p>
+                  )}
+                  <p className="mt-0.5 text-[11px] text-hijau/60">
+                    Pindai untuk berdonasi
+                  </p>
+                </figcaption>
+              </figure>
+            )}
           </div>
 
           <FinanceChart points={daily.points} bulan={daily.bulan} />

@@ -1,6 +1,7 @@
 import type { Section } from '@prisma/client'
 import { db } from '@/lib/db'
 import { buildDailyMonthSeries } from '@/lib/kas-daily'
+import { getQris } from '@/lib/qris'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
@@ -8,7 +9,7 @@ import { SectionRenderer } from '@/components/public/SectionRenderer'
 export const revalidate = 86400
 
 export default async function BerandaPage() {
-  const [sections, articles, period] = await Promise.all([
+  const [sections, articles, period, qris] = await Promise.all([
     db.section.findMany({
       where: { isVisible: true, key: { not: 'footer' } },
       orderBy: { order: 'asc' },
@@ -30,6 +31,7 @@ export default async function BerandaPage() {
       orderBy: { startDate: 'desc' },
       select: { id: true },
     }),
+    getQris(),
   ])
 
   let saldo: number | null = null
@@ -79,7 +81,7 @@ export default async function BerandaPage() {
   return (
     <>
       <SectionRenderer sections={beforeFinance} />
-      <FinanceSummary saldo={saldo} daily={daily} />
+      <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
       <SectionRenderer sections={afterFinance} />
       <LatestNews articles={articles} />
       {testimoni && <SectionRenderer sections={[testimoni]} />}

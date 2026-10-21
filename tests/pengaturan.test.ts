@@ -34,7 +34,13 @@ const INPUT: PengaturanInput = {
     city: 'Arwana',
   },
   seo: { title: 'Judul SEO Global', description: 'Deskripsi SEO Global' },
-  donasi: { rekening: [{ bank: 'BSI', no: '123', atasNama: 'DKM' }] },
+  donasi: {
+    rekening: [{ bank: 'BSI', no: '123', atasNama: 'DKM' }],
+    qris: {
+      image: 'https://cdn.example.com/qris.png',
+      caption: 'Masjid An-nuur Arwana',
+    },
+  },
   ga4: { id: 'G-ABC1234567' },
 }
 
@@ -76,8 +82,41 @@ describe('setPengaturan', () => {
       'seo.title',
       'seo.description',
       'donasi.rekening',
+      'donasi.qris',
       'ga4.id',
     ])
+  })
+
+  it('nilai donasi.qris tersimpan persis (gambar + keterangan)', async () => {
+    await setPengaturan(INPUT)
+
+    const qris = h.settingUpsertMock.mock.calls.find(
+      (call) => (call[0] as { where: { key: string } }).where.key === 'donasi.qris',
+    )
+    expect(qris).toBeDefined()
+    expect(qris?.[0]).toMatchObject({
+      update: {
+        value: {
+          image: 'https://cdn.example.com/qris.png',
+          caption: 'Masjid An-nuur Arwana',
+        },
+      },
+      create: { key: 'donasi.qris' },
+    })
+  })
+
+  it('qris kosong (tanpa gambar) tetap tersimpan agar kartu disembunyikan', async () => {
+    await setPengaturan({
+      ...INPUT,
+      donasi: { ...INPUT.donasi, qris: { image: '', caption: '' } },
+    })
+
+    const qris = h.settingUpsertMock.mock.calls.find(
+      (call) => (call[0] as { where: { key: string } }).where.key === 'donasi.qris',
+    )
+    expect(qris?.[0]).toMatchObject({
+      update: { value: { image: '', caption: '' } },
+    })
   })
 
   it('nilai seo tersimpan persis apa adanya (bukan di-trim ulang oleh aksi)', async () => {

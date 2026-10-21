@@ -11,10 +11,15 @@ export interface RekeningInput {
   link?: string
 }
 
+export interface QrisInput {
+  image: string
+  caption: string
+}
+
 export interface PengaturanInput {
   site: { name: string; address: string; phone: string; city: string }
   seo: { title: string; description: string }
-  donasi: { rekening: RekeningInput[] }
+  donasi: { rekening: RekeningInput[]; qris: QrisInput }
   ga4: { id: string }
 }
 
@@ -31,6 +36,7 @@ export async function setPengaturan(
     await setSetting('seo.title', data.seo.title)
     await setSetting('seo.description', data.seo.description)
     await setSetting('donasi.rekening', data.donasi.rekening)
+    await setSetting('donasi.qris', data.donasi.qris)
     await setSetting('ga4.id', data.ga4.id)
     // Metadata root dibaca dari Setting -> seluruh tree harus disegarkan.
     revalidatePath('/', 'layout')
