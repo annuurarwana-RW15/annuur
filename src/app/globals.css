@@ -57,3 +57,155 @@ summary:focus-visible {
     display: block !important;
   }
 }
+
+/* ——— Konten artikel kaya (HTML dari editor) — halaman publik & editor admin ———
+   Mirroring renderer markdown lama: H2 hijau font-display, paragraf 17px,
+   marker daftar emas, gambar rounded, link underline hijau. */
+.article-body {
+  font-size: 17px;
+  line-height: 1.7;
+  color: rgb(10 51 39 / 0.9);
+}
+
+.article-body > * + * {
+  margin-top: 1rem;
+}
+
+.article-body h2,
+.article-body h3,
+.article-body h4 {
+  font-family: var(--font-amiri, 'Amiri'), Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  color: #0f4c3a;
+  padding-top: 1rem;
+  line-height: 1.375;
+}
+
+.article-body h2 {
+  font-size: 1.5rem;
+}
+
+.article-body h3 {
+  font-size: 1.25rem;
+}
+
+.article-body h4 {
+  font-size: 1.125rem;
+}
+
+.article-body strong {
+  font-weight: 600;
+  color: #0f4c3a;
+}
+
+.article-body u {
+  text-decoration: underline;
+}
+
+.article-body s {
+  text-decoration: line-through;
+}
+
+.article-body ul,
+.article-body ol {
+  padding-left: 1.5rem;
+}
+
+.article-body ul {
+  list-style: disc;
+}
+
+.article-body ol {
+  list-style: decimal;
+}
+
+.article-body li + li {
+  margin-top: 0.5rem;
+}
+
+.article-body li::marker {
+  color: #c9a227;
+}
+
+.article-body a {
+  color: #0f4c3a;
+  text-decoration: underline;
+}
+
+.article-body blockquote {
+  border-left: 3px solid #c9a227;
+  padding-left: 1rem;
+  font-style: italic;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid rgb(201 162 39 / 0.55);
+  margin: 1.5rem 0;
+}
+
+.article-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.25rem 0;
+  border-radius: 1rem;
+  border: 1px solid rgb(0 0 0 / 0.08);
+}
+
+.article-body figure {
+  margin: 0;
+}
+
+.article-body figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+  color: rgb(10 51 39 / 0.7);
+}
+
+.article-body code {
+  font-family: var(--font-geist-mono, ui-monospace, monospace);
+  font-size: 0.875em;
+  background: rgb(10 51 39 / 0.07);
+  padding: 0.1rem 0.3rem;
+  border-radius: 0.25rem;
+}
+
+.article-body pre {
+  background: #0a3327;
+  color: #faf7f0;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+}
+
+.article-body pre code {
+  background: none;
+  padding: 0;
+  color: inherit;
+}
+
+/* ——— Area tulis Tiptap (admin) memakai class yang sama ——— */
+.article-body .ProseMirror {
+  outline: none;
+  min-height: 22rem;
+  padding: 0.75rem;
+}
+
+.article-body .ProseMirror > *:first-child {
+  margin-top: 0;
+}
+
+.article-body .ProseMirror img.ProseMirror-selectednode {
+  outline: 2px solid #0f4c3a;
+  outline-offset: 2px;
+}
+
+.article-body .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: #9ca3af;
+}

@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { Article } from '@prisma/client'
 import ImageField from '@/components/admin/ImageField'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
+import { isEmptyHtml, isRichHtml, markdownToHtml } from '@/lib/article-html'
 import { slugify } from '@/lib/slugify'
 import { saveArticle } from './actions'
 import { ARTICLE_STATUSES, type ArticleStatus } from './status'
@@ -92,7 +94,13 @@ export function ArticleForm({ article, categories }: ArticleFormProps) {
   const [slugTouched, setSlugTouched] = useState(isEdit)
   const [excerpt, setExcerpt] = useState(article?.excerpt ?? '')
   const [coverImage, setCoverImage] = useState(article?.coverImage ?? '')
-  const [body, setBody] = useState(article?.body ?? '')
+  // Mode edit: konten lama berupa markdown mini → konversi sekali ke HTML setara
+  // agar WYSIWYG; simpan berikutnya otomatis menyimpan HTML.
+  const [body, setBody] = useState(() => {
+    const initial = article?.body ?? ''
+    if (!initial) return ''
+    return isRichHtml(initial) ? initial : markdownToHtml(initial)
+  })
   const [category, setCategory] = useState(article?.category ?? '')
   const [status, setStatus] = useState<ArticleStatus>(article?.status ?? 'DRAFT')
   const [seo, setSeo] = useState<SeoValues>({
@@ -121,7 +129,8 @@ export function ArticleForm({ article, categories }: ArticleFormProps) {
         slug,
         excerpt,
         coverImage,
-        body,
+        // Editor kosong menghasilkan "<p></p>" — buang agar validasi "wajib diisi" tetap jalan.
+        body: isEmptyHtml(body) ? '' : body,
         category,
         status,
         seoTitle: seo.seoTitle,
@@ -244,13 +253,12 @@ export function ArticleForm({ article, categories }: ArticleFormProps) {
         </div>
 
         <div className="sm:col-span-2">
-          <TextAreaField
+          <RichTextEditor
             label="Isi artikel"
             value={body}
             onChange={setBody}
-            rows={14}
             placeholder="Tulis isi artikel di sini…"
-            helper="Didukung markdown ringan: ## judul, **tebal**, *miring*, - daftar, [teks](https://…)."
+            helper="Sisipkan gambar lewat tombol gambar (unggah file atau tautan URL), atau langsung paste/drag gambar ke area tulis."
           />
         </div>
       </div>

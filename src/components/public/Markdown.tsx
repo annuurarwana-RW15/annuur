@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { isRichHtml } from '@/lib/article-html'
+import { sanitizeArticleHtml } from '@/lib/sanitize-content'
 
 export type MarkdownBlock =
   | { type: 'heading'; level: 2 | 3; text: string }
@@ -101,6 +103,18 @@ export function Markdown({
   text: string
   className?: string
 }) {
+  // Body HTML kaya (dari editor) → sanitasi allowlist lalu render sebagai HTML.
+  // Komponen ini hanya dipakai server component (berita/[slug]) sehingga
+  // sanitize + dangerouslySetInnerHTML aman dari XSS.
+  if (isRichHtml(text)) {
+    return (
+      <div
+        className={`article-body ${className}`}
+        dangerouslySetInnerHTML={{ __html: sanitizeArticleHtml(text) }}
+      />
+    )
+  }
+
   const blocks = parseMarkdown(text)
 
   return (

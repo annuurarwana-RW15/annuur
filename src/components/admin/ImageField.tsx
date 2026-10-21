@@ -1,9 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-
-const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
-const MAX_SIZE = 5 * 1024 * 1024
+import { uploadImage, validateImageFile } from '@/lib/upload-image'
 
 interface ImageFieldProps {
   value?: string
@@ -27,42 +25,16 @@ export default function ImageField({
   async function handleFile(file: File) {
     setError(null)
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      setError('Tipe file tidak diizinkan. Gunakan JPG, PNG, atau WebP.')
-      return
-    }
-    if (file.size > MAX_SIZE) {
-      setError('Ukuran file maksimal 5MB.')
+    const validationError = validateImageFile(file)
+    if (validationError) {
+      setError(validationError)
       return
     }
 
     setUploading(true)
     try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          filename: file.name,
-          contentType: file.type,
-          size: file.size,
-          prefix,
-        }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok) {
-        throw new Error(data.error || 'Upload gagal')
-      }
-
-      const putRes = await fetch(data.uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': file.type },
-        body: file,
-      })
-      if (!putRes.ok) {
-        throw new Error('Upload ke penyimpanan gagal')
-      }
-
-      onChange(data.publicUrl)
+      const publicUrl = await uploadImage(file, prefix)
+      onChange(publicUrl)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload gagal')
     } finally {
