@@ -1,5 +1,6 @@
 import type { Section } from '@prisma/client'
 import { db } from '@/lib/db'
+import { buildDailyMonthSeries } from '@/lib/kas-daily'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
@@ -32,14 +33,30 @@ export default async function BerandaPage() {
   ])
 
   let saldo: number | null = null
+  // Deret harian bulan berjalan selalu tersedia (seri kosong bila tanpa periode)
+  // agar kartu chart tetap tampil dengan empty state yang benar.
+  let daily = buildDailyMonthSeries([])
   if (period) {
-    const grouped = await db.transaction.groupBy({
-      by: ['type'],
-      where: { periodId: period.id },
-      _sum: { amount: true },
-    })
+    const [grouped, txRows] = await Promise.all([
+      db.transaction.groupBy({
+        by: ['type'],
+        where: { periodId: period.id },
+        _sum: { amount: true },
+      }),
+      db.transaction.findMany({
+        where: { periodId: period.id },
+        select: { date: true, type: true, amount: true },
+      }),
+    ])
     const totals = new Map(grouped.map((row) => [row.type, Number(row._sum.amount ?? 0)]))
     saldo = (totals.get('MASUK') ?? 0) - (totals.get('KELUAR') ?? 0)
+    daily = buildDailyMonthSeries(
+      txRows.map((row) => ({
+        date: row.date,
+        type: row.type,
+        amount: Number(row.amount),
+      })),
+    )
   }
 
   // Posisi tetap di luar urutan DB:
@@ -62,7 +79,7 @@ export default async function BerandaPage() {
   return (
     <>
       <SectionRenderer sections={beforeFinance} />
-      <FinanceSummary saldo={saldo} />
+      <FinanceSummary saldo={saldo} daily={daily} />
       <SectionRenderer sections={afterFinance} />
       <LatestNews articles={articles} />
       {testimoni && <SectionRenderer sections={[testimoni]} />}

@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { formatRupiah } from '@/lib/format'
+import { formatRupiah, formatRupiahCompact } from '@/lib/format'
 import type { PublicTrendPoint } from './trend'
 
 const HIJAU = '#0f4c3a'
@@ -21,22 +21,6 @@ const SALDO = '#334155'
 
 const WINDOWS = [6, 12] as const
 type WindowMonths = (typeof WINDOWS)[number]
-
-/** Format ringkas untuk sumbu Y (angka rupiah bisa sangat besar). */
-function compactRupiah(value: number | string): string {
-  const num = Number(value)
-  const abs = Math.abs(num)
-  if (abs >= 1_000_000_000) {
-    return `${(num / 1_000_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} M`
-  }
-  if (abs >= 1_000_000) {
-    return `${(num / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 })} jt`
-  }
-  if (abs >= 1_000) {
-    return `${(num / 1_000).toLocaleString('id-ID', { maximumFractionDigits: 0 })} rb`
-  }
-  return num.toLocaleString('id-ID')
-}
 
 /**
  * Grafik tren kas publik: batang Masuk/Keluar + garis saldo kumulatif.
@@ -84,7 +68,7 @@ export function KasTrendChart({ points }: { points: PublicTrendPoint[] }) {
             <ComposedChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e5e5" />
               <XAxis dataKey="bulan" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 12 }} tickFormatter={compactRupiah} />
+              <YAxis tick={{ fontSize: 12 }} tickFormatter={formatRupiahCompact} />
               <Tooltip
                 formatter={(value) => formatRupiah(Number(value))}
                 labelFormatter={(label) => `Bulan ${label}`}
