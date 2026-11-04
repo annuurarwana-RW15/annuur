@@ -28,9 +28,15 @@ export default async function PublicLayout({ children }: { children: ReactNode }
     getSetting('site.name', 'Masjid An-nuur Arwana'),
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
-    db.section.findUnique({ where: { key: 'footer' } }),
+    db.section.findUnique({ where: { key: 'footer' } }).catch((err) => {
+      console.warn('[PublicLayout] gagal memuat footer:', err)
+      return null
+    }),
     getSetting('ga4.id', ''),
-    auth(),
+    auth().catch((err) => {
+      console.warn('[PublicLayout] auth check failed:', err)
+      return null
+    }),
   ])
   const name = asText(siteName, 'Masjid An-nuur Arwana')
   const user = session?.user

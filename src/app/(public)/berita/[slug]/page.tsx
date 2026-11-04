@@ -37,48 +37,65 @@ export async function generateMetadata({
   params,
 }: ArtikelPageProps): Promise<Metadata> {
   const { slug } = await params
-  const [article, siteNameRaw] = await Promise.all([
-    db.article.findUnique({
-      where: { slug },
-      select: {
-        title: true,
-        excerpt: true,
-        seoTitle: true,
-        seoDescription: true,
-        seoImage: true,
-        coverImage: true,
-        status: true,
-      },
-    }),
-    getSetting('site.name', DEFAULT_SITE_NAME),
-  ])
-  if (!article || article.status !== 'PUBLISHED') return {}
+  try {
+    const [article, siteNameRaw] = await Promise.all([
+      db.article.findUnique({
+        where: { slug },
+        select: {
+          title: true,
+          excerpt: true,
+          seoTitle: true,
+          seoDescription: true,
+          seoImage: true,
+          coverImage: true,
+          status: true,
+        },
+      }),
+      getSetting('site.name', DEFAULT_SITE_NAME),
+    ])
+    if (!article || article.status !== 'PUBLISHED') return {}
 
-  return buildMetadata({
-    title: article.seoTitle || article.title,
-    description: article.seoDescription || article.excerpt,
-    image: article.seoImage || article.coverImage,
-    path: `/berita/${slug}`,
-    type: 'article',
-    siteName: asText(siteNameRaw, DEFAULT_SITE_NAME),
-  })
+    return buildMetadata({
+      title: article.seoTitle || article.title,
+      description: article.seoDescription || article.excerpt,
+      image: article.seoImage || article.coverImage,
+      path: `/berita/${slug}`,
+      type: 'article',
+      siteName: asText(siteNameRaw, DEFAULT_SITE_NAME),
+    })
+  } catch {
+    return {}
+  }
 }
 
 const breadcrumbItemClass = 'transition hover:text-hijau hover:underline'
 
 export default async function ArtikelPage({ params }: ArtikelPageProps) {
   const { slug } = await params
-  const [article, siteNameRaw] = await Promise.all([
-    db.article.findUnique({
-      where: { slug },
-      include: { author: { select: { name: true } } },
-    }),
-    getSetting('site.name', DEFAULT_SITE_NAME),
-  ])
+  let article: (Awaited<ReturnType<typeof db.article.findUnique>> & { author?: { name: string } | null }) | null = null
+  let siteNameRaw: unknown = null
+
+  try {
+    const res = await Promise.all([
+      db.article.findUnique({
+        where: { slug },
+        include: { author: { select: { name: true } } },
+      }),
+      getSetting('site.name', DEFAULT_SITE_NAME),
+    ])
+    article = res[0]
+    siteNameRaw = res[1]
+  } catch (error) {
+    console.error('[ArtikelPage] Error fetching article:', error)
+    notFound()
+  }
+
   if (!article || article.status !== 'PUBLISHED') notFound()
 
   const siteName = asText(siteNameRaw, DEFAULT_SITE_NAME)
   const publishedAt = article.publishedAt ?? article.createdAt
+  const publishedDate = publishedAt ? new Date(publishedAt) : new Date()
+  const authorName = article.author?.name || 'Admin Masjid'
   const breadcrumb = breadcrumbLd([
     { name: 'Beranda', url: '/' },
     { name: 'Berita', url: '/berita' },
@@ -94,7 +111,7 @@ export default async function ArtikelPage({ params }: ArtikelPageProps) {
       publishedAt: article.publishedAt,
       updatedAt: article.updatedAt,
     },
-    article.author.name,
+    authorName,
     siteName,
   )
 
@@ -140,9 +157,9 @@ export default async function ArtikelPage({ params }: ArtikelPageProps) {
             {article.title}
           </h1>
           <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-hijau-tua/70">
-            <time dateTime={publishedAt.toISOString()}>{formatDateID(publishedAt)}</time>
+            <time dateTime={publishedDate.toISOString()}>{formatDateID(publishedDate)}</time>
             <span aria-hidden="true">•</span>
-            <span>Penulis: {article.author.name}</span>
+            <span>Penulis: {authorName}</span>
           </p>
         </header>
 
