@@ -220,4 +220,95 @@ describe('Server Actions Inventaris', () => {
       })
     })
   })
+
+  describe('deleteInventoryItem', () => {
+    it('menolak penghapusan jika barang sedang dipinjam', async () => {
+      h.db.inventoryItem.findUnique.mockResolvedValue({
+        id: 'item-1',
+        borrowedQty: 2,
+        loanItems: [{ id: 'li-1' }],
+      })
+
+      const res = await deleteInventoryItem('item-1')
+      expect(res).toEqual({
+        ok: false,
+        error: expect.stringMatching(/tidak dapat dihapus karena masih tercatat sedang dipinjam/i),
+      })
+      expect(h.db.inventoryItem.delete).not.toHaveBeenCalled()
+    })
+
+    it('berhasil menghapus barang jika tidak ada yang dipinjam', async () => {
+      h.db.inventoryItem.findUnique.mockResolvedValue({
+        id: 'item-1',
+        borrowedQty: 0,
+        loanItems: [],
+      })
+      h.db.inventoryItem.delete.mockResolvedValue({ id: 'item-1' })
+
+      const res = await deleteInventoryItem('item-1')
+      expect(res.ok).toBe(true)
+      expect(h.db.inventoryItem.delete).toHaveBeenCalledWith({ where: { id: 'item-1' } })
+    })
+  })
+
+  describe('createAcquisition', () => {
+    it('menolak jika barang tidak ditemukan', async () => {
+      h.db.inventoryItem.findUnique.mockResolvedValue(null)
+
+      const res = await createAcquisition({
+        itemId: 'item-99',
+        quantity: 5,
+        source: 'WAKAF_HIBAH',
+        donorName: 'H. Fulan',
+        officer: 'Seksi Sarpras',
+        date: '2026-11-04',
+        recordToCash: false,
+      })
+
+      expect(res).toEqual({
+        ok: false,
+        error: expect.stringMatching(/Barang tidak ditemukan/i),
+      })
+    })
+
+    it('berhasil mencatat pengadaan wakaf dan menambah stok', async () => {
+      h.db.inventoryItem.findUnique.mockResolvedValue({
+        id: 'item-1',
+        name: 'Tikar Gulung',
+        code: 'INV-TKR-01',
+        totalQty: 10,
+        availableQty: 10,
+      })
+
+      const res = await createAcquisition({
+        itemId: 'item-1',
+        quantity: 5,
+        source: 'WAKAF_HIBAH',
+        donorName: 'H. Fulan',
+        officer: 'Seksi Sarpras',
+        date: '2026-11-04',
+        recordToCash: false,
+      })
+
+      expect(res.ok).toBe(true)
+      expect(h.db.inventoryAcquisition.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          itemId: 'item-1',
+          quantity: 5,
+          source: 'WAKAF_HIBAH',
+          donorName: 'H. Fulan',
+          officer: 'Seksi Sarpras',
+        }),
+      })
+      expect(h.db.inventoryItem.update).toHaveBeenCalledWith({
+        where: { id: 'item-1' },
+        data: {
+          totalQty: 15,
+          availableQty: 15,
+        },
+      })
+    })
+  })
 })
+
+

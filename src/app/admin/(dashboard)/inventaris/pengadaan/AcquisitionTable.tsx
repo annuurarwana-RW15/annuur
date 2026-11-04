@@ -8,8 +8,8 @@ export interface AcquisitionItemRow {
   id: string
   date: Date | string
   quantity: number
-  source: 'PEMBELIAN_KAS' | 'WAKAF_HIBAH'
-  unitPrice: number | null
+  source: string
+  unitPrice: unknown
   donorName: string | null
   officer: string
   notes: string | null
@@ -20,7 +20,7 @@ export interface AcquisitionItemRow {
   }
   transaction?: {
     id: string
-    amount: number
+    amount: unknown
   } | null
 }
 
@@ -108,8 +108,9 @@ export function AcquisitionTable({
                 </tr>
               ) : (
                 filtered.map((a) => {
-                  const dateStr = formatDateID(a.date)
-                  const totalCost = (a.unitPrice ?? 0) * a.quantity
+                  const dateStr = formatDateID(new Date(a.date))
+                  const priceNum = a.unitPrice != null ? Number(a.unitPrice) : null
+                  const totalCost = (priceNum ?? 0) * a.quantity
 
                   return (
                     <tr key={a.id} className="hover:bg-neutral-50/50">
@@ -142,9 +143,9 @@ export function AcquisitionTable({
                             <span className="font-semibold text-neutral-900 block">
                               {formatRupiah(totalCost)}
                             </span>
-                            {a.unitPrice ? (
+                            {priceNum != null && priceNum > 0 ? (
                               <span className="text-[10px] text-neutral-500">
-                                @ {formatRupiah(a.unitPrice)}
+                                @ {formatRupiah(priceNum)}
                               </span>
                             ) : null}
                           </div>
@@ -189,3 +190,4 @@ export function AcquisitionTable({
     </>
   )
 }
+

@@ -174,3 +174,4 @@ export default async function CetakPeminjamanPage({ params }: PageProps) {
     </div>
   )
 }
+

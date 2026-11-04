@@ -77,3 +77,4 @@ describe('inventaris invariants & helpers', () => {
     })
   })
 })
+

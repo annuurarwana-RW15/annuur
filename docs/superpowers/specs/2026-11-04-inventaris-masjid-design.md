@@ -231,3 +231,4 @@ Menu baru pada Navigasi Sidebar Admin: **"Inventaris"** (`/admin/inventaris`).
    * Render kartu metrik inventaris.
    * Render tabel sirkulasi dan badge status pinjaman.
    * Render halaman cetak bukti pinjam.
+

@@ -19,3 +19,4 @@ describe('PrintTrigger', () => {
     printSpy.mockRestore()
   })
 })
+

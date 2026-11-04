@@ -51,7 +51,7 @@ export default async function PengadaanInventarisPage() {
   // Summary Metrics
   const totalPembelianKas = acquisitions
     .filter((a) => a.source === 'PEMBELIAN_KAS')
-    .reduce((acc, curr) => acc + (curr.unitPrice ?? 0) * curr.quantity, 0)
+    .reduce((acc, curr) => acc + Number(curr.unitPrice ?? 0) * curr.quantity, 0)
 
   const totalUnitWakaf = acquisitions
     .filter((a) => a.source === 'WAKAF_HIBAH')

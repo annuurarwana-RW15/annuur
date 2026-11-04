@@ -105,5 +105,11 @@ export function formatLoanStatus(status: LoanStatus): {
         label: 'Selesai',
         color: 'bg-emerald-100 text-emerald-800 border-emerald-200',
       }
+    default:
+      return {
+        label: status,
+        color: 'bg-neutral-100 text-neutral-800 border-neutral-200',
+      }
   }
 }
+
