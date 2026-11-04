@@ -10,6 +10,7 @@ import {
   getAyatAudioUrl,
   getBackupAyatAudioUrl,
 } from '@/lib/quran'
+import { getSingletonQuranAudio, stopSingletonQuranAudio } from '@/lib/quran-audio'
 
 interface QuranReaderClientProps {
   surah: SurahDetail
@@ -67,9 +68,9 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
-  const audioRef = useRef<HTMLAudioElement | null>(null)
   const activeAudioRef = useRef<ActiveAudio | null>(null)
   activeAudioRef.current = activeAudio
+  const autoplayTriggeredRef = useRef(false)
 
   // Scroll halus ke kartu ayat di layar
   const scrollToAyat = useCallback((ayatNomor: number) => {
@@ -115,12 +116,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   useEffect(() => {
     if (initialAutoplay) return
 
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-      audioRef.current.src = ''
-      audioRef.current = null
-    }
+    stopSingletonQuranAudio()
     setIsPlaying(false)
     setIsLoadingAudio(false)
     setActiveAudio(null)
@@ -132,10 +128,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   // Cleanup audio saat unmount dan saat navigasi keluar halaman
   useEffect(() => {
     function handlePageHide() {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = ''
-      }
+      stopSingletonQuranAudio()
     }
 
     window.addEventListener('pagehide', handlePageHide)
@@ -144,12 +137,6 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     return () => {
       window.removeEventListener('pagehide', handlePageHide)
       window.removeEventListener('beforeunload', handlePageHide)
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.currentTime = 0
-        audioRef.current.src = ''
-        audioRef.current = null
-      }
     }
   }, [])
 
@@ -202,7 +189,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     })
   }
 
-  // Menginisialisasi pemutaran audio dengan fallback otomatis
+  // Menginisialisasi pemutaran audio dengan Singleton Audio tunggal
   const startAudioPlayback = useCallback(
     (audioTarget: ActiveAudio) => {
       setAudioError(null)
@@ -211,11 +198,17 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       setDuration(0)
       setActiveAudio(audioTarget)
 
-      let audio = audioRef.current
+      const audio = getSingletonQuranAudio()
       if (!audio) {
-        audio = new Audio()
-        audioRef.current = audio
+        setIsLoadingAudio(false)
+        return
       }
+
+      // Hentikan audio sebelumnya secara mutlak
+      try {
+        audio.pause()
+        audio.currentTime = 0
+      } catch {}
 
       // Reset listener lama
       audio.oncanplay = null
@@ -230,9 +223,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       audio.load()
 
       audio.onloadedmetadata = () => {
-        if (audio) {
-          setDuration(audio.duration || 0)
-        }
+        setDuration(audio.duration || 0)
       }
 
       audio.oncanplay = () => {
@@ -258,10 +249,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
             return
           } else if (surah.suratSelanjutnya) {
             // Lanjut ke ayat 1 surah berikutnya
-            if (audio) {
-              audio.pause()
-              audio.src = ''
-            }
+            stopSingletonQuranAudio()
             router.push(`/quran/${surah.suratSelanjutnya.nomor}?autoplay=ayat-1`)
             return
           }
@@ -281,15 +269,13 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
             isBackupTried: true,
           }
           setActiveAudio(backupTarget)
-          if (audio) {
-            audio.src = audioTarget.backupUrl
-            audio.load()
-            audio.play().catch(() => {
-              setIsLoadingAudio(false)
-              setIsPlaying(false)
-              setAudioError('Gagal memuat audio murottal dari server cadangan.')
-            })
-          }
+          audio.src = audioTarget.backupUrl
+          audio.load()
+          audio.play().catch(() => {
+            setIsLoadingAudio(false)
+            setIsPlaying(false)
+            setAudioError('Gagal memuat audio murottal dari server cadangan.')
+          })
           return
         }
 
@@ -314,7 +300,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       })
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [surah.jumlahAyat],
+    [surah.jumlahAyat, surah.suratSelanjutnya, router],
   )
 
   // Memutar ayat tertentu dan otomatis scroll halaman ke ayat tersebut
@@ -340,13 +326,26 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     [surah, startAudioPlayback, scrollToAyat],
   )
 
-  // Toggle pemutaran audio full surah
+  // Toggle pemutaran audio full surah (berbagi kontrol dengan pemutar utama)
   function handleToggleFullSurahAudio() {
+    const audio = getSingletonQuranAudio()
+
     if (activeAudio?.mode === 'full') {
       if (isPlaying) {
-        audioRef.current?.pause()
+        audio?.pause()
       } else {
-        audioRef.current?.play().catch(() => {
+        if (audio && audio.src && audio.src.includes('.mp3')) {
+          audio.play().catch(() => {
+            const primaryUrl = getAudioFullUrl(surah.audioFull, surah.nomor)
+            const backupUrl = getBackupAudioFullUrl(surah.nomor)
+            startAudioPlayback({
+              mode: 'full',
+              title: `Surah ${surah.namaLatin} (Lengkap)`,
+              url: primaryUrl,
+              backupUrl,
+            })
+          })
+        } else {
           const primaryUrl = getAudioFullUrl(surah.audioFull, surah.nomor)
           const backupUrl = getBackupAudioFullUrl(surah.nomor)
           startAudioPlayback({
@@ -355,7 +354,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
             url: primaryUrl,
             backupUrl,
           })
-        })
+        }
       }
       return
     }
@@ -373,11 +372,13 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
 
   // Toggle pemutaran audio per ayat
   function handleToggleAyatAudio(ayatNomor: number) {
+    const audio = getSingletonQuranAudio()
+
     if (activeAudio?.mode === 'ayat' && activeAudio.ayatNomor === ayatNomor) {
       if (isPlaying) {
-        audioRef.current?.pause()
+        audio?.pause()
       } else {
-        audioRef.current?.play().catch(() => {
+        audio?.play().catch(() => {
           handlePlayAyat(ayatNomor, true)
         })
       }
@@ -389,7 +390,8 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
 
   // Memulai pemutaran audio otomatis saat berpindah surah dari player (initialAutoplay)
   useEffect(() => {
-    if (!initialAutoplay) return
+    if (!initialAutoplay || autoplayTriggeredRef.current) return
+    autoplayTriggeredRef.current = true
 
     if (initialAutoplay === 'full') {
       const primaryUrl = getAudioFullUrl(surah.audioFull, surah.nomor)
@@ -408,7 +410,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     }
   }, [initialAutoplay, surah, startAudioPlayback, handlePlayAyat])
 
-  // Tombol Prev pada Audio Player
+  // Tombol Prev pada Audio Player Utama
   function handlePrevAudio() {
     if (!activeAudio) return
 
@@ -418,11 +420,8 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
         // Pindah ke ayat sebelumnya & scroll
         handlePlayAyat(currentAyat - 1, true)
       } else if (surah.suratSebelumnya) {
-        // Pindah ke ayat terakhir surah sebelumnya tanpa menyembunyikan player
-        if (audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current.src = ''
-        }
+        // Hentikan audio lama seketika sebelum navigasi
+        stopSingletonQuranAudio()
         setIsLoadingAudio(true)
         router.push(
           `/quran/${surah.suratSebelumnya.nomor}?autoplay=ayat-${surah.suratSebelumnya.jumlahAyat}`,
@@ -433,18 +432,15 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
 
     if (activeAudio.mode === 'full') {
       if (surah.suratSebelumnya) {
-        // Pindah ke full murottal surah sebelumnya tanpa menyembunyikan player
-        if (audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current.src = ''
-        }
+        // Hentikan audio lama seketika sebelum navigasi
+        stopSingletonQuranAudio()
         setIsLoadingAudio(true)
         router.push(`/quran/${surah.suratSebelumnya.nomor}?autoplay=full`)
       }
     }
   }
 
-  // Tombol Next pada Audio Player
+  // Tombol Next pada Audio Player Utama
   function handleNextAudio() {
     if (!activeAudio) return
 
@@ -454,11 +450,8 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
         // Pindah ke ayat selanjutnya & scroll
         handlePlayAyat(currentAyat + 1, true)
       } else if (surah.suratSelanjutnya) {
-        // Pindah ke ayat 1 surah selanjutnya tanpa menyembunyikan player
-        if (audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current.src = ''
-        }
+        // Hentikan audio lama seketika sebelum navigasi
+        stopSingletonQuranAudio()
         setIsLoadingAudio(true)
         router.push(`/quran/${surah.suratSelanjutnya.nomor}?autoplay=ayat-1`)
       }
@@ -467,11 +460,8 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
 
     if (activeAudio.mode === 'full') {
       if (surah.suratSelanjutnya) {
-        // Pindah ke full murottal surah selanjutnya tanpa menyembunyikan player
-        if (audioRef.current) {
-          audioRef.current.pause()
-          audioRef.current.src = ''
-        }
+        // Hentikan audio lama seketika sebelum navigasi
+        stopSingletonQuranAudio()
         setIsLoadingAudio(true)
         router.push(`/quran/${surah.suratSelanjutnya.nomor}?autoplay=full`)
       }
@@ -479,10 +469,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   }
 
   function handleStopAudio() {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
-    }
+    stopSingletonQuranAudio()
     setIsPlaying(false)
     setIsLoadingAudio(false)
     setActiveAudio(null)
@@ -492,8 +479,9 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   function handleSeek(e: React.ChangeEvent<HTMLInputElement>) {
     const newTime = Number(e.target.value)
     setCurrentTime(newTime)
-    if (audioRef.current) {
-      audioRef.current.currentTime = newTime
+    const audio = getSingletonQuranAudio()
+    if (audio) {
+      audio.currentTime = newTime
     }
   }
 
@@ -600,7 +588,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               {surah.nama}
             </span>
 
-            {/* Tombol Audio Murottal Full Surah */}
+            {/* Tombol Audio Murottal Full Surah (terhubung ke Player Utama tunggal) */}
             <button
               type="button"
               onClick={handleToggleFullSurahAudio}
@@ -910,7 +898,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
         )}
       </div>
 
-      {/* Sticky Mini Player Audio Mengambang di Bawah Layar */}
+      {/* Sticky Mini Player Audio Mengambang di Bawah Layar (Pemutar Utama Tunggal) */}
       {activeAudio && (
         <aside
           aria-label="Pemutar Murottal Audio"

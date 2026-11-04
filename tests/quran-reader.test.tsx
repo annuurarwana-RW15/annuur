@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/vitest'
 import { QuranReaderClient } from '@/app/(public)/quran/[nomor]/QuranReaderClient'
 import sampleSurah1 from '@/lib/quran-sample.json'
 import type { SurahDetail } from '@/lib/quran'
+import { stopSingletonQuranAudio } from '@/lib/quran-audio'
 
 const pushMock = vi.fn()
 vi.mock('next/navigation', () => ({
@@ -14,18 +15,36 @@ vi.mock('next/navigation', () => ({
 
 describe('QuranReaderClient', () => {
   beforeEach(() => {
-    // Mock HTMLMediaElement untuk Audio di JSDOM
-    vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve())
-    vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
-    vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {})
+    class MockAudio {
+      src = ''
+      currentTime = 0
+      duration = 100
+      play = vi.fn().mockImplementation(() => Promise.resolve())
+      pause = vi.fn()
+      load = vi.fn()
+      addEventListener = vi.fn()
+      removeEventListener = vi.fn()
+      oncanplay: (() => void) | null = null
+      onplaying: (() => void) | null = null
+      onpause: (() => void) | null = null
+      onended: (() => void) | null = null
+      onerror: (() => void) | null = null
+      ontimeupdate: (() => void) | null = null
+      onloadedmetadata: (() => void) | null = null
+    }
+    vi.stubGlobal('Audio', MockAudio)
+
     // Mock scrollIntoView
     window.HTMLElement.prototype.scrollIntoView = vi.fn()
     pushMock.mockClear()
   })
 
   afterEach(() => {
+    stopSingletonQuranAudio()
     cleanup()
     vi.restoreAllMocks()
+    vi.unstubAllGlobals()
+    delete (window as unknown as { __ANNUUR_QURAN_AUDIO__?: HTMLAudioElement }).__ANNUUR_QURAN_AUDIO__
   })
 
   const surah = sampleSurah1 as unknown as SurahDetail
@@ -124,16 +143,16 @@ describe('QuranReaderClient', () => {
     fireEvent.click(playFullBtn)
     expect(screen.getByLabelText(/Pemutar Murottal Audio/i)).toBeInTheDocument()
 
-    // Klik tombol daftar surah
+    // Klik tombol daftar surah (cegah JSDOM document navigation)
     const daftarSurahLink = screen.getByRole('link', { name: /← Daftar Surah/i })
+    daftarSurahLink.onclick = (e) => e.preventDefault()
     fireEvent.click(daftarSurahLink)
 
     // Mini player harus hilang
     expect(screen.queryByLabelText(/Pemutar Murottal Audio/i)).not.toBeInTheDocument()
   })
 
-  it('tombol Next dan Prev pada player ayat berpindah ayat dan memicu scroll', () => {
-    vi.useFakeTimers()
+  it('tombol Next dan Prev pada player ayat berpindah ayat dan memicu scroll', async () => {
     render(<QuranReaderClient surah={surah} />)
 
     // Putar ayat 1
@@ -151,8 +170,8 @@ describe('QuranReaderClient', () => {
     fireEvent.click(nextBtn)
     expect(screen.getByText(/QS. Al-Fatihah : Ayat 2/i)).toBeInTheDocument()
 
-    // Timer scroll dijalankan
-    vi.runAllTimers()
+    // Tunggu scroll dipanggil
+    await new Promise((r) => setTimeout(r, 100))
     expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()
 
     // Cari tombol Prev
@@ -163,9 +182,7 @@ describe('QuranReaderClient', () => {
     // Klik Prev -> kembali ke Ayat 1
     fireEvent.click(prevBtn)
     expect(screen.getByText(/QS. Al-Fatihah : Ayat 1/i)).toBeInTheDocument()
-
-    vi.runAllTimers()
-    vi.useRealTimers()
+    await new Promise((r) => setTimeout(r, 100))
   })
 
   it('tombol Next pada player full surah memicu navigasi ke surah berikutnya dengan autoplay=full', () => {
