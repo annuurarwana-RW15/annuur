@@ -5,12 +5,22 @@ import { QuranReaderClient } from '@/app/(public)/quran/[nomor]/QuranReaderClien
 import sampleSurah1 from '@/lib/quran-sample.json'
 import type { SurahDetail } from '@/lib/quran'
 
+const pushMock = vi.fn()
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: pushMock,
+  }),
+}))
+
 describe('QuranReaderClient', () => {
   beforeEach(() => {
     // Mock HTMLMediaElement untuk Audio di JSDOM
     vi.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve())
     vi.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {})
     vi.spyOn(window.HTMLMediaElement.prototype, 'load').mockImplementation(() => {})
+    // Mock scrollIntoView
+    window.HTMLElement.prototype.scrollIntoView = vi.fn()
+    pushMock.mockClear()
   })
 
   afterEach(() => {
@@ -120,6 +130,42 @@ describe('QuranReaderClient', () => {
 
     // Mini player harus hilang
     expect(screen.queryByLabelText(/Pemutar Murottal Audio/i)).not.toBeInTheDocument()
+  })
+
+  it('tombol Next dan Prev pada player ayat berpindah ayat dan memicu scroll', () => {
+    vi.useFakeTimers()
+    render(<QuranReaderClient surah={surah} />)
+
+    // Putar ayat 1
+    const audioAyatBtns = screen.getAllByTitle(/Dengarkan Murottal Ayat/i)
+    fireEvent.click(audioAyatBtns[0])
+
+    expect(screen.getByText(/QS. Al-Fatihah : Ayat 1/i)).toBeInTheDocument()
+
+    // Cari tombol Next
+    const nextBtn = screen.getByTitle(/Ayat Selanjutnya/i)
+    expect(nextBtn).toBeInTheDocument()
+    expect(nextBtn).not.toBeDisabled()
+
+    // Klik Next -> beralih ke Ayat 2
+    fireEvent.click(nextBtn)
+    expect(screen.getByText(/QS. Al-Fatihah : Ayat 2/i)).toBeInTheDocument()
+
+    // Timer scroll dijalankan
+    vi.runAllTimers()
+    expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()
+
+    // Cari tombol Prev
+    const prevBtn = screen.getByTitle(/Ayat Sebelumnya/i)
+    expect(prevBtn).toBeInTheDocument()
+    expect(prevBtn).not.toBeDisabled()
+
+    // Klik Prev -> kembali ke Ayat 1
+    fireEvent.click(prevBtn)
+    expect(screen.getByText(/QS. Al-Fatihah : Ayat 1/i)).toBeInTheDocument()
+
+    vi.runAllTimers()
+    vi.useRealTimers()
   })
 })
 

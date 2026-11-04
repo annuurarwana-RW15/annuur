@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { SurahDetail } from '@/lib/quran'
 import {
@@ -24,6 +25,8 @@ interface ActiveAudio {
 }
 
 export function QuranReaderClient({ surah }: QuranReaderClientProps) {
+  const router = useRouter()
+
   // Pengaturan preferensi membaca (tersimpan di localStorage)
   const [fontSize, setFontSize] = useState<'sm' | 'md' | 'lg' | 'xl'>('lg')
   const [showLatin, setShowLatin] = useState(true)
@@ -41,6 +44,19 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
   const [duration, setDuration] = useState(0)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const activeAudioRef = useRef<ActiveAudio | null>(null)
+  activeAudioRef.current = activeAudio
+
+  // Scroll halus ke kartu ayat di layar
+  const scrollToAyat = useCallback((ayatNomor: number) => {
+    if (typeof window === 'undefined') return
+    setTimeout(() => {
+      const el = document.getElementById(`ayat-${ayatNomor}`)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 60)
+  }, [])
 
   // Baca preferensi dari localStorage
   useEffect(() => {
@@ -161,105 +177,134 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
   }
 
   // Menginisialisasi pemutaran audio dengan fallback otomatis
-  const startAudioPlayback = useCallback((audioTarget: ActiveAudio) => {
-    setAudioError(null)
-    setIsLoadingAudio(true)
-    setCurrentTime(0)
-    setDuration(0)
-    setActiveAudio(audioTarget)
-
-    let audio = audioRef.current
-    if (!audio) {
-      audio = new Audio()
-      audioRef.current = audio
-    }
-
-    // Reset listener lama
-    audio.oncanplay = null
-    audio.onplaying = null
-    audio.onpause = null
-    audio.onended = null
-    audio.onerror = null
-    audio.ontimeupdate = null
-    audio.onloadedmetadata = null
-
-    audio.src = audioTarget.url
-    audio.load()
-
-    audio.onloadedmetadata = () => {
-      if (audio) {
-        setDuration(audio.duration || 0)
-      }
-    }
-
-    audio.oncanplay = () => {
-      setIsLoadingAudio(false)
-    }
-
-    audio.onplaying = () => {
-      setIsLoadingAudio(false)
-      setIsPlaying(true)
-    }
-
-    audio.onpause = () => {
-      setIsPlaying(false)
-    }
-
-    audio.onended = () => {
-      setIsPlaying(false)
-      setIsLoadingAudio(false)
+  const startAudioPlayback = useCallback(
+    (audioTarget: ActiveAudio) => {
+      setAudioError(null)
+      setIsLoadingAudio(true)
       setCurrentTime(0)
-    }
+      setDuration(0)
+      setActiveAudio(audioTarget)
 
-    audio.ontimeupdate = () => {
-      if (audio) {
-        setCurrentTime(audio.currentTime || 0)
+      let audio = audioRef.current
+      if (!audio) {
+        audio = new Audio()
+        audioRef.current = audio
       }
-    }
 
-    audio.onerror = () => {
-      // Coba fallback URL cadangan jika ada dan belum dicoba
-      if (audioTarget.backupUrl && !audioTarget.isBackupTried) {
-        const backupTarget: ActiveAudio = {
-          ...audioTarget,
-          url: audioTarget.backupUrl,
-          isBackupTried: true,
-        }
-        setActiveAudio(backupTarget)
+      // Reset listener lama
+      audio.oncanplay = null
+      audio.onplaying = null
+      audio.onpause = null
+      audio.onended = null
+      audio.onerror = null
+      audio.ontimeupdate = null
+      audio.onloadedmetadata = null
+
+      audio.src = audioTarget.url
+      audio.load()
+
+      audio.onloadedmetadata = () => {
         if (audio) {
-          audio.src = audioTarget.backupUrl
-          audio.load()
-          audio.play().catch(() => {
-            setIsLoadingAudio(false)
-            setIsPlaying(false)
-            setAudioError('Gagal memuat audio murottal dari server cadangan.')
-          })
+          setDuration(audio.duration || 0)
         }
-        return
       }
 
-      setIsLoadingAudio(false)
-      setIsPlaying(false)
-      setAudioError('Tidak dapat memuat audio murottal. Periksa koneksi internet Anda.')
-    }
-
-    audio.play().catch((err: unknown) => {
-      console.warn('[QuranAudio] Play error:', err)
-      // Tangani autoplay restriction browser atau network error
-      setIsLoadingAudio(false)
-      setIsPlaying(false)
-      // Coba fallback jika belum
-      if (audioTarget.backupUrl && !audioTarget.isBackupTried) {
-        startAudioPlayback({
-          ...audioTarget,
-          url: audioTarget.backupUrl,
-          isBackupTried: true,
-        })
-      } else {
-        setAudioError('Pemutaran audio dijeda oleh browser. Klik tombol Putar untuk memulai.')
+      audio.oncanplay = () => {
+        setIsLoadingAudio(false)
       }
-    })
-  }, [])
+
+      audio.onplaying = () => {
+        setIsLoadingAudio(false)
+        setIsPlaying(true)
+      }
+
+      audio.onpause = () => {
+        setIsPlaying(false)
+      }
+
+      audio.onended = () => {
+        // Otomatis lanjut ke ayat berikutnya jika sedang mode ayat
+        const current = activeAudioRef.current
+        if (current?.mode === 'ayat' && current.ayatNomor) {
+          const nextAyat = current.ayatNomor + 1
+          if (nextAyat <= surah.jumlahAyat) {
+            handlePlayAyat(nextAyat, true)
+            return
+          }
+        }
+
+        setIsPlaying(false)
+        setIsLoadingAudio(false)
+        setCurrentTime(0)
+      }
+
+      audio.onerror = () => {
+        // Coba fallback URL cadangan jika ada dan belum dicoba
+        if (audioTarget.backupUrl && !audioTarget.isBackupTried) {
+          const backupTarget: ActiveAudio = {
+            ...audioTarget,
+            url: audioTarget.backupUrl,
+            isBackupTried: true,
+          }
+          setActiveAudio(backupTarget)
+          if (audio) {
+            audio.src = audioTarget.backupUrl
+            audio.load()
+            audio.play().catch(() => {
+              setIsLoadingAudio(false)
+              setIsPlaying(false)
+              setAudioError('Gagal memuat audio murottal dari server cadangan.')
+            })
+          }
+          return
+        }
+
+        setIsLoadingAudio(false)
+        setIsPlaying(false)
+        setAudioError('Tidak dapat memuat audio murottal. Periksa koneksi internet Anda.')
+      }
+
+      audio.play().catch((err: unknown) => {
+        console.warn('[QuranAudio] Play error:', err)
+        setIsLoadingAudio(false)
+        setIsPlaying(false)
+        if (audioTarget.backupUrl && !audioTarget.isBackupTried) {
+          startAudioPlayback({
+            ...audioTarget,
+            url: audioTarget.backupUrl,
+            isBackupTried: true,
+          })
+        } else {
+          setAudioError('Pemutaran audio dijeda oleh browser. Klik tombol Putar untuk memulai.')
+        }
+      })
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [surah.jumlahAyat],
+  )
+
+  // Memutar ayat tertentu dan otomatis scroll halaman ke ayat tersebut
+  const handlePlayAyat = useCallback(
+    (ayatNomor: number, shouldScroll = true) => {
+      if (ayatNomor < 1 || ayatNomor > surah.jumlahAyat) return
+      const item = surah.ayat.find((a) => a.nomorAyat === ayatNomor)
+      const primaryUrl = getAyatAudioUrl(item?.audio, surah.nomor, ayatNomor)
+      const backupUrl = getBackupAyatAudioUrl(surah.nomor, ayatNomor)
+
+      startAudioPlayback({
+        mode: 'ayat',
+        ayatNomor,
+        title: `QS. ${surah.namaLatin} : Ayat ${ayatNomor}`,
+        url: primaryUrl,
+        backupUrl,
+      })
+
+      if (shouldScroll) {
+        scrollToAyat(ayatNomor)
+      }
+    },
+    [surah, startAudioPlayback, scrollToAyat],
+  )
 
   // Toggle pemutaran audio full surah
   function handleToggleFullSurahAudio() {
@@ -268,7 +313,6 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
         audioRef.current?.pause()
       } else {
         audioRef.current?.play().catch(() => {
-          // Retry
           const primaryUrl = getAudioFullUrl(surah.audioFull, surah.nomor)
           const backupUrl = getBackupAudioFullUrl(surah.nomor)
           startAudioPlayback({
@@ -294,36 +338,69 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
   }
 
   // Toggle pemutaran audio per ayat
-  function handleToggleAyatAudio(ayatNomor: number, audioData?: Record<string, string>) {
+  function handleToggleAyatAudio(ayatNomor: number) {
     if (activeAudio?.mode === 'ayat' && activeAudio.ayatNomor === ayatNomor) {
       if (isPlaying) {
         audioRef.current?.pause()
       } else {
         audioRef.current?.play().catch(() => {
-          const primaryUrl = getAyatAudioUrl(audioData, surah.nomor, ayatNomor)
-          const backupUrl = getBackupAyatAudioUrl(surah.nomor, ayatNomor)
-          startAudioPlayback({
-            mode: 'ayat',
-            ayatNomor,
-            title: `QS. ${surah.namaLatin} : Ayat ${ayatNomor}`,
-            url: primaryUrl,
-            backupUrl,
-          })
+          handlePlayAyat(ayatNomor, true)
         })
       }
       return
     }
 
-    const primaryUrl = getAyatAudioUrl(audioData, surah.nomor, ayatNomor)
-    const backupUrl = getBackupAyatAudioUrl(surah.nomor, ayatNomor)
+    handlePlayAyat(ayatNomor, true)
+  }
 
-    startAudioPlayback({
-      mode: 'ayat',
-      ayatNomor,
-      title: `QS. ${surah.namaLatin} : Ayat ${ayatNomor}`,
-      url: primaryUrl,
-      backupUrl,
-    })
+  // Tombol Prev pada Audio Player
+  function handlePrevAudio() {
+    if (!activeAudio) return
+
+    if (activeAudio.mode === 'ayat') {
+      const currentAyat = activeAudio.ayatNomor || 1
+      if (currentAyat > 1) {
+        // Pindah ke ayat sebelumnya & scroll
+        handlePlayAyat(currentAyat - 1, true)
+      } else if (surah.suratSebelumnya) {
+        // Pindah ke surah sebelumnya
+        handleStopAudio()
+        router.push(`/quran/${surah.suratSebelumnya.nomor}`)
+      }
+      return
+    }
+
+    if (activeAudio.mode === 'full') {
+      if (surah.suratSebelumnya) {
+        handleStopAudio()
+        router.push(`/quran/${surah.suratSebelumnya.nomor}`)
+      }
+    }
+  }
+
+  // Tombol Next pada Audio Player
+  function handleNextAudio() {
+    if (!activeAudio) return
+
+    if (activeAudio.mode === 'ayat') {
+      const currentAyat = activeAudio.ayatNomor || 1
+      if (currentAyat < surah.jumlahAyat) {
+        // Pindah ke ayat selanjutnya & scroll
+        handlePlayAyat(currentAyat + 1, true)
+      } else if (surah.suratSelanjutnya) {
+        // Pindah ke surah selanjutnya
+        handleStopAudio()
+        router.push(`/quran/${surah.suratSelanjutnya.nomor}`)
+      }
+      return
+    }
+
+    if (activeAudio.mode === 'full') {
+      if (surah.suratSelanjutnya) {
+        handleStopAudio()
+        router.push(`/quran/${surah.suratSelanjutnya.nomor}`)
+      }
+    }
   }
 
   function handleStopAudio() {
@@ -352,6 +429,46 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
   }
 
+  // Evaluasi status tombol Prev & Next
+  let canPrev = false
+  let canNext = false
+  let prevTitle = 'Sebelumnya'
+  let nextTitle = 'Selanjutnya'
+
+  if (activeAudio?.mode === 'ayat') {
+    const currentAyat = activeAudio.ayatNomor || 1
+    if (currentAyat > 1) {
+      canPrev = true
+      prevTitle = `Ayat Sebelumnya (${currentAyat - 1})`
+    } else if (surah.suratSebelumnya) {
+      canPrev = true
+      prevTitle = `Surah Sebelumnya (${surah.suratSebelumnya.namaLatin})`
+    } else {
+      canPrev = false
+      prevTitle = 'Awal surah'
+    }
+
+    if (currentAyat < surah.jumlahAyat) {
+      canNext = true
+      nextTitle = `Ayat Selanjutnya (${currentAyat + 1})`
+    } else if (surah.suratSelanjutnya) {
+      canNext = true
+      nextTitle = `Surah Selanjutnya (${surah.suratSelanjutnya.namaLatin})`
+    } else {
+      canNext = false
+      nextTitle = 'Akhir surah'
+    }
+  } else if (activeAudio?.mode === 'full') {
+    canPrev = Boolean(surah.suratSebelumnya)
+    canNext = Boolean(surah.suratSelanjutnya)
+    prevTitle = surah.suratSebelumnya
+      ? `Surah Sebelumnya (${surah.suratSebelumnya.namaLatin})`
+      : 'Surah Pertama'
+    nextTitle = surah.suratSelanjutnya
+      ? `Surah Selanjutnya (${surah.suratSelanjutnya.namaLatin})`
+      : 'Surah Terakhir'
+  }
+
   // Kelas ukuran font Arab
   const arabicSizeClass = {
     sm: 'text-2xl leading-[2.2]',
@@ -365,7 +482,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
   const isFullLoading = activeAudio?.mode === 'full' && isLoadingAudio
 
   return (
-    <div className="space-y-6 pb-24">
+    <div className="space-y-6 pb-28">
       {/* Notifikasi Error Audio jika ada */}
       {audioError && (
         <div className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs text-rose-800 flex items-center justify-between gap-3 shadow-sm">
@@ -545,7 +662,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
                 isBookmarked
                   ? 'border-emas bg-gradient-to-r from-amber-50/70 to-white ring-2 ring-emas/60 shadow-md'
                   : isCurrentAyatActive
-                    ? 'border-green-600 bg-green-50/40 shadow-md'
+                    ? 'border-green-600 bg-green-50/50 ring-2 ring-green-600/40 shadow-md'
                     : 'border-black/10 bg-white hover:border-black/20 shadow-sm'
               }`}
             >
@@ -562,7 +679,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
                   )}
                   {isCurrentAyatActive && (
                     <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-[11px] font-bold text-green-900 border border-green-300 animate-pulse">
-                      🔊 Audio Aktif
+                      🔊 Ayat Diputar
                     </span>
                   )}
                 </div>
@@ -571,7 +688,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
                   {/* Audio Ayat */}
                   <button
                     type="button"
-                    onClick={() => handleToggleAyatAudio(item.nomorAyat, item.audio)}
+                    onClick={() => handleToggleAyatAudio(item.nomorAyat)}
                     className={`flex h-8 items-center gap-1 px-2.5 rounded-full text-xs font-semibold border transition ${
                       isAyatPlaying
                         ? 'bg-rose-600 text-white border-rose-600 animate-pulse'
@@ -747,7 +864,24 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            {/* Kontrol Player: Prev, Play/Pause, Next, Tutup */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Tombol Prev */}
+              <button
+                type="button"
+                onClick={handlePrevAudio}
+                disabled={!canPrev}
+                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm transition ${
+                  canPrev
+                    ? 'bg-white/10 text-krem hover:bg-white/20 active:scale-95'
+                    : 'bg-white/5 text-krem/30 cursor-not-allowed'
+                }`}
+                title={prevTitle}
+                aria-label={prevTitle}
+              >
+                ⏮
+              </button>
+
               {/* Tombol Play/Pause */}
               <button
                 type="button"
@@ -756,18 +890,36 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
                     ? handleToggleFullSurahAudio
                     : () => handleToggleAyatAudio(activeAudio.ayatNomor || 1)
                 }
-                className="flex h-10 w-10 items-center justify-center rounded-full bg-emas text-hijau hover:bg-emas-muda font-bold shadow-md transition"
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-emas text-hijau hover:bg-emas-muda font-bold shadow-md transition active:scale-95 text-base"
                 title={isPlaying ? 'Jeda Audio' : 'Putar Audio'}
+                aria-label={isPlaying ? 'Jeda Audio' : 'Putar Audio'}
               >
                 {isLoadingAudio ? '⏳' : isPlaying ? '⏸' : '▶'}
+              </button>
+
+              {/* Tombol Next */}
+              <button
+                type="button"
+                onClick={handleNextAudio}
+                disabled={!canNext}
+                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm transition ${
+                  canNext
+                    ? 'bg-white/10 text-krem hover:bg-white/20 active:scale-95'
+                    : 'bg-white/5 text-krem/30 cursor-not-allowed'
+                }`}
+                title={nextTitle}
+                aria-label={nextTitle}
+              >
+                ⏭
               </button>
 
               {/* Tombol Tutup / Stop */}
               <button
                 type="button"
                 onClick={handleStopAudio}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-krem/80 hover:bg-white/20 transition text-xs"
+                className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-krem/80 hover:bg-white/20 transition text-xs"
                 title="Hentikan & Tutup Pemutar"
+                aria-label="Hentikan & Tutup Pemutar"
               >
                 ✕
               </button>
