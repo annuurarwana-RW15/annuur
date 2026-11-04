@@ -18,11 +18,19 @@ interface ArtikelPageProps {
 }
 
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
-  const articles = await db.article.findMany({
-    where: { status: 'PUBLISHED' },
-    select: { slug: true },
-  })
-  return articles.map(({ slug }) => ({ slug }))
+  try {
+    const articles = await db.article.findMany({
+      where: { status: 'PUBLISHED' },
+      select: { slug: true },
+    })
+    return articles.map(({ slug }) => ({ slug }))
+  } catch (error) {
+    console.warn(
+      '[generateStaticParams] Gagal mengambil slug artikel saat build; beralih ke rendering dinamis:',
+      error,
+    )
+    return []
+  }
 }
 
 export async function generateMetadata({

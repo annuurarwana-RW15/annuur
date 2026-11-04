@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { signOut } from 'next-auth/react'
 import { useEffect, useRef, useState } from 'react'
 import { PUBLIC_NAV } from './nav'
 
@@ -54,13 +55,81 @@ function MenuIcon({ open }: { open: boolean }) {
   )
 }
 
+function LoginIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      <polyline points="10 17 15 12 10 7" />
+      <line x1="15" y1="12" x2="3" y2="12" />
+    </svg>
+  )
+}
+
+function DashboardIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="3" y="3" width="7" height="9" rx="1" />
+      <rect x="14" y="3" width="7" height="5" rx="1" />
+      <rect x="14" y="12" width="7" height="9" rx="1" />
+      <rect x="3" y="16" width="7" height="5" rx="1" />
+    </svg>
+  )
+}
+
+function LogoutIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16 17 21 12 16 7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </svg>
+  )
+}
+
+export interface PublicHeaderUser {
+  name: string
+  role?: string
+}
+
+export interface PublicHeaderProps {
+  siteName: string
+  user?: PublicHeaderUser | null
+}
+
 /**
  * Header publik: navigasi inline di layar besar (lg+) dan menu drop down
  * yang di-toggle tombol hamburger di layar kecil. Panel selalu dirender
  * (attr `hidden` saat tertutup) agar `aria-controls` tidak menyasar id
  * yang tidak ada.
  */
-export function PublicHeader({ siteName }: { siteName: string }) {
+export function PublicHeader({ siteName, user }: PublicHeaderProps) {
   const [open, setOpen] = useState(false)
   const headerRef = useRef<HTMLElement | null>(null)
   const toggleRef = useRef<HTMLButtonElement | null>(null)
@@ -130,6 +199,39 @@ export function PublicHeader({ siteName }: { siteName: string }) {
           ))}
         </nav>
 
+        {/* Akses Login / Dashboard Desktop */}
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+          {user ? (
+            <>
+              <Link
+                href="/admin"
+                className="inline-flex items-center gap-1.5 rounded-full bg-emas px-3.5 py-1.5 text-xs font-semibold text-hijau shadow-sm transition hover:bg-emas-muda"
+                title={`Masuk ke Dashboard (${user.name})`}
+              >
+                <DashboardIcon className="h-3.5 w-3.5" />
+                <span>Dashboard</span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => void signOut({ callbackUrl: '/' })}
+                className="inline-flex items-center gap-1.5 rounded-full border border-krem/30 px-3 py-1.5 text-xs font-medium text-krem/80 transition hover:bg-krem/10 hover:text-krem"
+                title="Keluar"
+              >
+                <LogoutIcon className="h-3.5 w-3.5" />
+                <span>Keluar</span>
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/admin/login"
+              className="inline-flex items-center gap-1.5 rounded-full border border-emas/70 px-3.5 py-1.5 text-xs font-semibold text-emas transition hover:bg-emas hover:text-hijau"
+            >
+              <LoginIcon className="h-3.5 w-3.5" />
+              <span>Masuk</span>
+            </Link>
+          )}
+        </div>
+
         <button
           ref={toggleRef}
           type="button"
@@ -161,6 +263,51 @@ export function PublicHeader({ siteName }: { siteName: string }) {
               {item.label}
             </Link>
           ))}
+
+          <div className="my-2 border-t border-emas/20 pt-2">
+            {user ? (
+              <div className="flex flex-col gap-2">
+                <div className="px-3 text-xs text-krem/70">
+                  Masuk sebagai <strong className="font-semibold text-krem">{user.name}</strong>
+                  {user.role && (
+                    <span className="ms-1.5 rounded bg-emas/20 px-1.5 py-0.5 text-[10px] font-bold uppercase text-emas">
+                      {user.role}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 pt-1">
+                  <Link
+                    href="/admin"
+                    onClick={() => setOpen(false)}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emas px-4 py-2.5 text-sm font-semibold text-hijau shadow-sm transition hover:bg-emas-muda"
+                  >
+                    <DashboardIcon className="h-4 w-4" />
+                    <span>Dashboard</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setOpen(false)
+                      void signOut({ callbackUrl: '/' })
+                    }}
+                    className="flex items-center gap-1.5 rounded-full border border-krem/30 px-4 py-2.5 text-sm font-medium text-krem transition hover:bg-krem/10"
+                  >
+                    <LogoutIcon className="h-4 w-4" />
+                    <span>Keluar</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <Link
+                href="/admin/login"
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-full border border-emas/70 px-4 py-2.5 text-sm font-semibold text-emas transition hover:bg-emas hover:text-hijau"
+              >
+                <LoginIcon className="h-4 w-4" />
+                <span>Masuk Admin</span>
+              </Link>
+            )}
+          </div>
         </div>
       </nav>
     </header>

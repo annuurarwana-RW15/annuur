@@ -11,6 +11,10 @@ const h = vi.hoisted(() => ({
 
 vi.mock('@/lib/settings', () => ({ getSetting: h.getSetting }))
 
+vi.mock('@/lib/auth', () => ({
+  auth: vi.fn().mockResolvedValue(null),
+}))
+
 vi.mock('@/lib/db', () => ({
   db: { section: { findUnique: h.sectionFindUnique } },
 }))

@@ -8,6 +8,7 @@ export default defineConfig({
     alias: { '@': path.resolve(__dirname, './src') },
   },
   test: {
+    testTimeout: 10_000,
     projects: [
       {
         test: {

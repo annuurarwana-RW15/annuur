@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import type { ReactNode } from 'react'
+import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getSetting } from '@/lib/settings'
 import { buildPublicMetadata, jsonLd, orgLd } from '@/lib/seo'
@@ -23,14 +24,21 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const [siteName, address, phone, footer, ga4Raw] = await Promise.all([
+  const [siteName, address, phone, footer, ga4Raw, session] = await Promise.all([
     getSetting('site.name', 'Masjid An-nuur Arwana'),
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
     db.section.findUnique({ where: { key: 'footer' } }),
     getSetting('ga4.id', ''),
+    auth(),
   ])
   const name = asText(siteName, 'Masjid An-nuur Arwana')
+  const user = session?.user
+    ? {
+        name: session.user.name || session.user.email || 'Pengguna',
+        role: session.user.role || 'VIEWER',
+      }
+    : null
   const ga4Id = typeof ga4Raw === 'string' && /^G-[A-Z0-9]{4,}$/i.test(ga4Raw.trim())
     ? ga4Raw.trim()
     : ''
@@ -49,7 +57,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         Lewati ke konten
       </a>
 
-      <PublicHeader siteName={name} />
+      <PublicHeader siteName={name} user={user} />
 
       <main id="konten" className="flex-1">
         {children}
