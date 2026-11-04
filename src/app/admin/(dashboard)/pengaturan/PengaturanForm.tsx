@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
 import ImageField from '@/components/admin/ImageField'
@@ -9,13 +10,19 @@ import { normalizeRekening, type RekeningRow } from './rekening'
 
 interface PengaturanFormProps {
   initial: PengaturanInput
+  footerEditHref?: string
+  tiktokEditHref?: string
 }
 
 const fieldClass =
   'mt-1 block w-full rounded-md border border-black/15 bg-white px-3 py-2 text-sm text-neutral-900 focus:border-green-900 focus:outline-none'
 const labelClass = 'block text-sm font-medium text-neutral-700'
 
-export function PengaturanForm({ initial }: PengaturanFormProps) {
+export function PengaturanForm({
+  initial,
+  footerEditHref = '/admin/sections',
+  tiktokEditHref = '/admin/sections',
+}: PengaturanFormProps) {
   const router = useRouter()
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const [busy, startTransition] = useTransition()
@@ -249,6 +256,50 @@ export function PengaturanForm({ initial }: PengaturanFormProps) {
             defaultValue={initial.ga4.id}
             className={fieldClass}
           />
+        </div>
+      </fieldset>
+
+      <fieldset className="mt-8">
+        <legend className="text-base font-semibold text-neutral-900">
+          Media Sosial &amp; Widget Beranda
+        </legend>
+        <p className="mt-1 text-sm text-neutral-500">
+          Tautan media sosial masjid (TikTok, Instagram, YouTube, WhatsApp, dll) yang tampil di footer dan sematan feed TikTok di beranda.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+            <div>
+              <p className="font-semibold text-neutral-900 text-sm">Media Sosial Footer</p>
+              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+                Kelola daftar platform, nama akun, dan link sosial media resmi DKM yang tampil pada footer situs.
+              </p>
+            </div>
+            <div className="mt-3">
+              <Link
+                href={footerEditHref}
+                className="inline-flex items-center gap-1.5 rounded-md bg-green-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-green-800 transition"
+              >
+                Kelola Sosial Media Footer →
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+            <div>
+              <p className="font-semibold text-neutral-900 text-sm">Widget Feed TikTok</p>
+              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+                Atur akun official (@masjidannuurarwana) dan sematan feed konten dakwah TikTok di beranda publik.
+              </p>
+            </div>
+            <div className="mt-3">
+              <Link
+                href={tiktokEditHref}
+                className="inline-flex items-center gap-1.5 rounded-md bg-green-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-green-800 transition"
+              >
+                Atur Widget Feed TikTok →
+              </Link>
+            </div>
+          </div>
         </div>
       </fieldset>
 

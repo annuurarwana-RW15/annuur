@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/rbac'
+import { ensureDefaultSections } from '@/lib/sections-init'
 import { getTableParams } from '@/lib/table-query'
 import { SectionForm } from './SectionForm'
 import { SectionsTable } from './SectionsTable'
@@ -21,6 +22,7 @@ function first(value: string | string[] | undefined): string | undefined {
 
 export default async function SectionsPage({ searchParams }: PageProps) {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureDefaultSections()
 
   const sp = await searchParams
   const { q } = getTableParams(sp)

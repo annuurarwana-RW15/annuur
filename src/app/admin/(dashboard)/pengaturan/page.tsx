@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { getSetting } from '@/lib/settings'
 import { parseQris } from '@/lib/qris'
 import { requireRole } from '@/lib/rbac'
+import { ensureDefaultSections } from '@/lib/sections-init'
 import { PengaturanForm } from './PengaturanForm'
 import type { PengaturanInput } from './actions'
 
@@ -41,6 +42,7 @@ export default async function PengaturanPage() {
     rekeningRaw,
     qrisRaw,
     ga4Id,
+    defaultSections,
   ] = await Promise.all([
     getSetting('site.name', 'Masjid An-nuur Arwana'),
     getSetting('site.address', ''),
@@ -51,6 +53,7 @@ export default async function PengaturanPage() {
     getSetting<unknown>('donasi.rekening', []),
     getSetting<unknown>('donasi.qris', null),
     getSetting('ga4.id', ''),
+    ensureDefaultSections(),
   ])
 
   const initial: PengaturanInput = {
@@ -76,7 +79,19 @@ export default async function PengaturanPage() {
         dan analitik.
       </p>
       <div className="mt-6">
-        <PengaturanForm initial={initial} />
+        <PengaturanForm
+          initial={initial}
+          footerEditHref={
+            defaultSections.footerId
+              ? `/admin/sections?edit=${defaultSections.footerId}`
+              : '/admin/sections'
+          }
+          tiktokEditHref={
+            defaultSections.tiktokId
+              ? `/admin/sections?edit=${defaultSections.tiktokId}`
+              : '/admin/sections'
+          }
+        />
       </div>
     </div>
   )

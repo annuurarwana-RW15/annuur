@@ -83,6 +83,30 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
       helper: 'Isi manual tiap baris (nama + URL). Contoh: Instagram → https://instagram.com/…',
     },
   ],
+  tiktok: [
+    {
+      name: 'username',
+      label: 'Username TikTok Official',
+      helper: 'Contoh: @masjidannuurarwana atau masjidannuurarwana',
+    },
+    {
+      name: 'accountUrl',
+      label: 'Tautan Akun TikTok',
+      helper: 'Contoh: https://www.tiktok.com/@masjidannuurarwana',
+    },
+    {
+      name: 'title',
+      label: 'Keterangan / Subjudul Widget',
+      widget: 'textarea',
+      rows: 2,
+      helper: 'Keterangan yang tampil di bawah judul section.',
+    },
+    {
+      name: 'videoId',
+      label: 'ID Video TikTok Pilihan (opsional)',
+      helper: 'Contoh: 7123456789012345678 (kosongkan jika ingin menyematkan profil kreator).',
+    },
+  ],
 }
 
 export interface SectionFormSection {

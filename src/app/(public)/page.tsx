@@ -2,6 +2,7 @@ import type { Section } from '@prisma/client'
 import { db } from '@/lib/db'
 import { buildDailyMonthSeries } from '@/lib/kas-daily'
 import { getQris } from '@/lib/qris'
+import { ensureDefaultSections } from '@/lib/sections-init'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
@@ -21,6 +22,7 @@ export default async function BerandaPage() {
   let qris: Awaited<ReturnType<typeof getQris>> = null
 
   try {
+    await ensureDefaultSections().catch(() => {})
     const res = await Promise.all([
       db.section.findMany({
         where: { isVisible: true, key: { not: 'footer' } },

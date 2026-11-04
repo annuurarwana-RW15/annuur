@@ -11,6 +11,7 @@ import {
   listRecentTransactions,
 } from '@/lib/kas'
 import { requireRole } from '@/lib/rbac'
+import { ensureDefaultSections } from '@/lib/sections-init'
 import { PageviewSparkline } from './PageviewSparkline'
 import { RecentTransactions } from './RecentTransactions'
 
@@ -30,7 +31,7 @@ export default async function AdminDashboardPage() {
   )
   if (sessionUser.role === 'VIEWER') redirect('/admin/analitik')
 
-  const [period, donationByStatus, draftCount, activeUserCount, daily] =
+  const [period, donationByStatus, draftCount, activeUserCount, daily, defaultSections] =
     await Promise.all([
       getActivePeriod(),
       db.donation.groupBy({ by: ['status'], _count: { _all: true } }),
@@ -38,6 +39,7 @@ export default async function AdminDashboardPage() {
       db.article.count({ where: { status: 'DRAFT' } }),
       db.user.count({ where: { isActive: true } }),
       dailyPageviews(7),
+      ensureDefaultSections(),
     ])
 
   const [balance, dayFlow, recent] = await Promise.all([
@@ -119,6 +121,86 @@ export default async function AdminDashboardPage() {
           <RecentTransactions rows={recent} />
         </div>
       </div>
+
+      {/* Pintasan Kelola Media Sosial Footer & Widget Beranda */}
+      <section className="mt-6 rounded-xl border border-black/10 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-neutral-900">
+              Pengelolaan Media Sosial &amp; Widget Beranda
+            </h2>
+            <p className="mt-0.5 text-xs text-neutral-500">
+              Pintasan cepat untuk mengatur tautan media sosial di footer dan widget konten publik.
+            </p>
+          </div>
+          <Link
+            href="/admin/sections"
+            className="text-xs font-semibold text-green-900 hover:text-green-700"
+          >
+            Semua Section →
+          </Link>
+        </div>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <div className="flex flex-col justify-between rounded-lg border border-neutral-200/80 bg-neutral-50/60 p-4 transition hover:border-green-900/30 hover:bg-neutral-50">
+            <div>
+              <div className="flex items-center gap-2 text-green-900">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-green-100 text-sm">
+                  🌐
+                </span>
+                <h3 className="font-semibold text-neutral-900 text-sm">
+                  Media Sosial Footer
+                </h3>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-neutral-600">
+                Kelola tautan media sosial resmi (Instagram, TikTok, YouTube, WhatsApp, dll) yang tampil pada footer situs publik.
+              </p>
+            </div>
+            <div className="mt-4 border-t border-black/5 pt-3">
+              <Link
+                href={
+                  defaultSections.footerId
+                    ? `/admin/sections?edit=${defaultSections.footerId}`
+                    : '/admin/sections'
+                }
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-900 hover:text-green-700"
+              >
+                <span>Kelola Link Sosial Media Footer</span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-between rounded-lg border border-neutral-200/80 bg-neutral-50/60 p-4 transition hover:border-green-900/30 hover:bg-neutral-50">
+            <div>
+              <div className="flex items-center gap-2 text-green-900">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-green-100 text-sm">
+                  📱
+                </span>
+                <h3 className="font-semibold text-neutral-900 text-sm">
+                  Widget Feed TikTok Official
+                </h3>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-neutral-600">
+                Atur username akun official (@masjidannuurarwana) dan sematan video dakwah TikTok di beranda situs.
+              </p>
+            </div>
+            <div className="mt-4 border-t border-black/5 pt-3">
+              <Link
+                href={
+                  defaultSections.tiktokId
+                    ? `/admin/sections?edit=${defaultSections.tiktokId}`
+                    : '/admin/sections'
+                }
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-900 hover:text-green-700"
+              >
+                <span>Atur Widget Feed TikTok</span>
+                <span aria-hidden="true">→</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

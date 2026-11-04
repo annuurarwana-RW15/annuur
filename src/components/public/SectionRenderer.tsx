@@ -13,6 +13,7 @@ import { PrayerSchedule } from './PrayerSchedule'
 import { ProfilSection } from './ProfilSection'
 import { SectionHeading } from './SectionHeading'
 import { TestimoniSection } from './TestimoniSection'
+import { TikTokSection } from './TikTokSection'
 
 function PengumumanSection({ section }: { section: Section }) {
   const text =
@@ -51,6 +52,7 @@ const RENDERERS: Record<string, (section: Section) => ReactNode> = {
   testimoni: (section) => <TestimoniSection section={section} />,
   kontak: (section) => <ContactSection section={section} />,
   footer: (section) => <Footer section={section} />,
+  tiktok: (section) => <TikTokSection section={section} />,
 }
 
 export function SectionRenderer({ sections }: { sections: Section[] }) {

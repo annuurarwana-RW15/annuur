@@ -114,6 +114,17 @@ const SECTIONS = [
     },
   },
   {
+    key: 'tiktok',
+    title: 'Feed TikTok Official',
+    order: 6,
+    content: {
+      username: '@masjidannuurarwana',
+      accountUrl: 'https://www.tiktok.com/@masjidannuurarwana',
+      title: 'Kajian singkat, dokumentasi ibadah, dan kegiatan sosial Masjid An-nuur Arwana.',
+      videoId: '',
+    },
+  },
+  {
     key: 'kontak',
     title: 'Kontak',
     order: 7,
