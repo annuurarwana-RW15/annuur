@@ -15,6 +15,7 @@ export default defineConfig({
           name: 'jsdom',
           environment: 'jsdom',
           include: ['**/*.test.tsx'],
+          server: { deps: { inline: ['next-auth', '@auth/core'] } },
         },
       },
       {
