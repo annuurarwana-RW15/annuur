@@ -7,6 +7,7 @@ import { getSetting } from '@/lib/settings'
 import { buildPublicMetadata, jsonLd, orgLd } from '@/lib/seo'
 import { asText } from '@/components/public/content'
 import { Footer } from '@/components/public/Footer'
+import { LiveTimeBar } from '@/components/public/LiveTimeBar'
 import { PublicHeader } from '@/components/public/PublicHeader'
 import { Tracker } from '@/components/public/Tracker'
 
@@ -64,6 +65,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       </a>
 
       <PublicHeader siteName={name} user={user} />
+      <LiveTimeBar />
 
       <main id="konten" className="flex-1">
         {children}

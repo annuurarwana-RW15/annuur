@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { Section } from '@prisma/client'
 import { nextPrayer, todayKey } from '@/lib/praytime'
+import { HijriCalendar } from './HijriCalendar'
 import { SectionHeading } from './SectionHeading'
 
 const PRAYER_NAMES = ['Imsak', 'Subuh', 'Dzuhur', 'Ashar', 'Maghrib', 'Isya']
@@ -171,6 +172,9 @@ export function PrayerSchedule({ section }: { section?: Section }) {
             </>
           )}
         </div>
+
+        {/* Kalender Tahun Hijriah di bawah Jadwal Sholat */}
+        <HijriCalendar />
       </div>
     </section>
   )
