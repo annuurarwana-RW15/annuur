@@ -19,8 +19,13 @@ describe('QuranReaderClient', () => {
       src = ''
       currentTime = 0
       duration = 100
-      play = vi.fn().mockImplementation(() => Promise.resolve())
-      pause = vi.fn()
+      play = vi.fn().mockImplementation(() => {
+        this.onplaying?.()
+        return Promise.resolve()
+      })
+      pause = vi.fn().mockImplementation(() => {
+        this.onpause?.()
+      })
       load = vi.fn()
       addEventListener = vi.fn()
       removeEventListener = vi.fn()
@@ -216,6 +221,77 @@ describe('QuranReaderClient', () => {
     // Player langsung muncul dan tidak hide
     expect(screen.getByLabelText(/Pemutar Murottal Audio/i)).toBeInTheDocument()
     expect(screen.getByText(/Surah Al-Fatihah \(Lengkap\)/i)).toBeInTheDocument()
+  })
+
+  it('dapat mengaktifkan, mengatur kecepatan, dan mematikan toggle auto scroll membaca', () => {
+    render(<QuranReaderClient surah={surah} />)
+
+    // Awalnya status Auto Scroll OFF
+    const autoScrollBtn = screen.getByRole('button', { name: /Auto Scroll: OFF/i })
+    expect(autoScrollBtn).toBeInTheDocument()
+
+    // Aktifkan auto scroll
+    fireEvent.click(autoScrollBtn)
+
+    // Muncul status aktif dan widget kontrol kecepatan mengambang
+    expect(screen.getByRole('button', { name: /Auto Scroll: 1x/i })).toBeInTheDocument()
+    const floatingController = screen.getByLabelText(/Kontrol Kecepatan Auto Scroll/i)
+    expect(floatingController).toBeInTheDocument()
+
+    // Ubah kecepatan ke 2x
+    const speed2xBtns = screen.getAllByRole('button', { name: '2x' })
+    fireEvent.click(speed2xBtns[0])
+    expect(screen.getByRole('button', { name: /Auto Scroll: 2x/i })).toBeInTheDocument()
+
+    // Matikan auto scroll via tombol OFF
+    const offBtns = screen.getAllByRole('button', { name: /Matikan Auto Scroll/i })
+    fireEvent.click(offBtns[0])
+
+    // Kembali ke status OFF dan controller mengambang hilang
+    expect(screen.getByRole('button', { name: /Auto Scroll: OFF/i })).toBeInTheDocument()
+    expect(screen.queryByLabelText(/Kontrol Kecepatan Auto Scroll/i)).not.toBeInTheDocument()
+  })
+
+  it('memberi fill colour gradient dan memicu auto-scroll pada ayat saat murottal dimainkan', async () => {
+    render(<QuranReaderClient surah={surah} />)
+
+    // Putar murottal ayat 1
+    const audioAyatBtns = screen.getAllByTitle(/Dengarkan Murottal Ayat/i)
+    fireEvent.click(audioAyatBtns[0])
+
+    // Kartu ayat 1 harus memiliki fill color gradient dan badge "Murottal Sedang Membaca"
+    const ayat1Card = document.getElementById('ayat-1')
+    expect(ayat1Card).toBeInTheDocument()
+    expect(ayat1Card?.className).toContain('bg-gradient-to-r')
+    expect(ayat1Card?.className).toContain('border-emas')
+    expect(screen.getByText(/Murottal Sedang Membaca/i)).toBeInTheDocument()
+
+    // Memicu scrollIntoView
+    await new Promise((r) => setTimeout(r, 100))
+    expect(window.HTMLElement.prototype.scrollIntoView).toHaveBeenCalled()
+  })
+
+  it('dapat mengatur toggle auto scroll murottal dari pemutar audio', () => {
+    render(<QuranReaderClient surah={surah} />)
+
+    // Putar murottal ayat 1
+    const audioAyatBtns = screen.getAllByTitle(/Dengarkan Murottal Ayat/i)
+    fireEvent.click(audioAyatBtns[0])
+
+    // Cari tombol auto scroll di dalam pemutar audio
+    const toggleScrollMurottalBtn = screen.getByRole('button', {
+      name: /Toggle Auto Scroll Murottal/i,
+    })
+    expect(toggleScrollMurottalBtn).toBeInTheDocument()
+    expect(toggleScrollMurottalBtn).toHaveTextContent(/Scroll: ON/i)
+
+    // Klik untuk mematikan
+    fireEvent.click(toggleScrollMurottalBtn)
+    expect(toggleScrollMurottalBtn).toHaveTextContent(/Scroll: OFF/i)
+
+    // Klik untuk mengaktifkan kembali
+    fireEvent.click(toggleScrollMurottalBtn)
+    expect(toggleScrollMurottalBtn).toHaveTextContent(/Scroll: ON/i)
   })
 })
 

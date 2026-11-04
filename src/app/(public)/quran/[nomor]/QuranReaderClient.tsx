@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { SurahDetail } from '@/lib/quran'
 import {
   getAudioFullUrl,
@@ -36,6 +36,13 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   const [lastReadAyat, setLastReadAyat] = useState<number | null>(null)
   const [copiedAyat, setCopiedAyat] = useState<number | null>(null)
   const [showTafsir, setShowTafsir] = useState(false)
+
+  // Pengaturan Auto Scroll Membaca (Manual)
+  const [isAutoScrollActive, setIsAutoScrollActive] = useState(false)
+  const [scrollSpeed, setScrollSpeed] = useState<number>(1) // 0.5x, 1x, 1.5x, 2x, 3x
+
+  // Pengaturan Auto Scroll Murottal (Audio-Sync)
+  const [murottalAutoScroll, setMurottalAutoScroll] = useState(true)
 
   // State audio player (diinisialisasi dengan surah baru jika initialAutoplay aktif agar player tidak hide)
   const [activeAudio, setActiveAudio] = useState<ActiveAudio | null>(() => {
@@ -72,6 +79,10 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   activeAudioRef.current = activeAudio
   const autoplayTriggeredRef = useRef(false)
 
+  const autoScrollRafRef = useRef<number | null>(null)
+  const lastScrollTimeRef = useRef<number | null>(null)
+  const prevScrolledAyatRef = useRef<number | null>(null)
+
   // Scroll halus ke kartu ayat di layar
   const scrollToAyat = useCallback((ayatNomor: number) => {
     if (typeof window === 'undefined') return
@@ -82,6 +93,45 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       }
     }, 60)
   }, [])
+
+  // Menghitung ayat yang sedang dibaca murottal secara real-time
+  const activeMurottalAyat = useMemo(() => {
+    if (!activeAudio) return null
+    if (activeAudio.mode === 'ayat') {
+      return activeAudio.ayatNomor || 1
+    }
+    if (activeAudio.mode === 'full') {
+      if (!duration || duration <= 0 || currentTime <= 0) return 1
+      const totalChars = surah.ayat.reduce((acc, a) => acc + (a.teksArab?.length || 20), 0)
+      let accumulated = 0
+      const progress = Math.min(Math.max(currentTime / duration, 0), 0.999)
+      for (const a of surah.ayat) {
+        accumulated += a.teksArab?.length || 20
+        if (progress < accumulated / totalChars) {
+          return a.nomorAyat
+        }
+      }
+      return surah.ayat[surah.ayat.length - 1]?.nomorAyat || 1
+    }
+    return null
+  }, [activeAudio, currentTime, duration, surah.ayat])
+
+  // Auto-scroll halus otomatis menyesuaikan ayat yang sedang dibaca murottal
+  useEffect(() => {
+    if (!isPlaying || !murottalAutoScroll || !activeMurottalAyat) return
+
+    if (prevScrolledAyatRef.current !== activeMurottalAyat) {
+      prevScrolledAyatRef.current = activeMurottalAyat
+      scrollToAyat(activeMurottalAyat)
+    }
+  }, [activeMurottalAyat, isPlaying, murottalAutoScroll, scrollToAyat])
+
+  // Reset tracking scroll saat audio dijeda atau distop
+  useEffect(() => {
+    if (!isPlaying) {
+      prevScrolledAyatRef.current = null
+    }
+  }, [isPlaying])
 
   // Baca preferensi dari localStorage
   useEffect(() => {
@@ -99,6 +149,19 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
 
       const savedShowTranslation = localStorage.getItem('annuur_quran_show_translation')
       if (savedShowTranslation !== null) setShowTranslation(savedShowTranslation === 'true')
+
+      const savedSpeed = localStorage.getItem('annuur_quran_scroll_speed')
+      if (savedSpeed) {
+        const parsedSpeed = parseFloat(savedSpeed)
+        if (!isNaN(parsedSpeed) && parsedSpeed > 0) {
+          setScrollSpeed(parsedSpeed)
+        }
+      }
+
+      const savedMurottalAutoScroll = localStorage.getItem('annuur_quran_murottal_autoscroll')
+      if (savedMurottalAutoScroll !== null) {
+        setMurottalAutoScroll(savedMurottalAutoScroll === 'true')
+      }
 
       const last = localStorage.getItem('annuur_quran_last_read')
       if (last) {
@@ -123,12 +186,63 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     setAudioError(null)
     setCurrentTime(0)
     setDuration(0)
+    prevScrolledAyatRef.current = null
   }, [surah.nomor, initialAutoplay])
 
-  // Cleanup audio saat unmount dan saat navigasi keluar halaman
+  // Loop animasi Auto Scroll Membaca (Manual)
+  useEffect(() => {
+    if (!isAutoScrollActive) {
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current)
+        autoScrollRafRef.current = null
+      }
+      lastScrollTimeRef.current = null
+      return
+    }
+
+    // Kecepatan piksel per detik berdasarkan multiplier (1x = ~35px/s)
+    const pixelsPerSecond = scrollSpeed * 35
+
+    function step(timestamp: number) {
+      if (!lastScrollTimeRef.current) {
+        lastScrollTimeRef.current = timestamp
+      }
+      const deltaSeconds = (timestamp - lastScrollTimeRef.current) / 1000
+      lastScrollTimeRef.current = timestamp
+
+      const pixelsToScroll = deltaSeconds * pixelsPerSecond
+      if (pixelsToScroll > 0) {
+        window.scrollBy({ top: pixelsToScroll, behavior: 'auto' })
+      }
+
+      // Berhenti otomatis jika mencapai dasar halaman
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight
+      if (window.scrollY >= maxScroll - 8) {
+        setIsAutoScrollActive(false)
+        return
+      }
+
+      autoScrollRafRef.current = requestAnimationFrame(step)
+    }
+
+    autoScrollRafRef.current = requestAnimationFrame(step)
+
+    return () => {
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current)
+        autoScrollRafRef.current = null
+      }
+      lastScrollTimeRef.current = null
+    }
+  }, [isAutoScrollActive, scrollSpeed])
+
+  // Cleanup audio dan auto scroll saat unmount dan navigasi keluar
   useEffect(() => {
     function handlePageHide() {
       stopSingletonQuranAudio()
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current)
+      }
     }
 
     window.addEventListener('pagehide', handlePageHide)
@@ -137,6 +251,9 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     return () => {
       window.removeEventListener('pagehide', handlePageHide)
       window.removeEventListener('beforeunload', handlePageHide)
+      if (autoScrollRafRef.current) {
+        cancelAnimationFrame(autoScrollRafRef.current)
+      }
     }
   }, [])
 
@@ -145,6 +262,27 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     try {
       localStorage.setItem('annuur_quran_font_size', size)
     } catch {}
+  }
+
+  function updateScrollSpeed(speed: number) {
+    setScrollSpeed(speed)
+    try {
+      localStorage.setItem('annuur_quran_scroll_speed', String(speed))
+    } catch {}
+  }
+
+  function toggleAutoScroll() {
+    setIsAutoScrollActive((prev) => !prev)
+  }
+
+  function toggleMurottalAutoScroll() {
+    setMurottalAutoScroll((prev) => {
+      const next = !prev
+      try {
+        localStorage.setItem('annuur_quran_murottal_autoscroll', String(next))
+      } catch {}
+      return next
+    })
   }
 
   function toggleLatin() {
@@ -226,6 +364,10 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
         setDuration(audio.duration || 0)
       }
 
+      audio.ontimeupdate = () => {
+        setCurrentTime(audio.currentTime || 0)
+      }
+
       audio.oncanplay = () => {
         setIsLoadingAudio(false)
       }
@@ -233,6 +375,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       audio.onplaying = () => {
         setIsLoadingAudio(false)
         setIsPlaying(true)
+        setIsAutoScrollActive(false)
       }
 
       audio.onpause = () => {
@@ -474,6 +617,9 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     setIsLoadingAudio(false)
     setActiveAudio(null)
     setAudioError(null)
+    setCurrentTime(0)
+    setDuration(0)
+    prevScrolledAyatRef.current = null
   }
 
   function handleSeek(e: React.ChangeEvent<HTMLInputElement>) {
@@ -691,6 +837,56 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
           >
             Arti {showTranslation ? '✓' : '✕'}
           </button>
+
+          {/* Toggle & Kontrol Kecepatan Auto Scroll Baca (Manual) */}
+          <div className="flex items-center gap-1 rounded-lg border border-black/10 bg-neutral-50 p-1">
+            <button
+              type="button"
+              onClick={toggleAutoScroll}
+              className={`rounded px-2.5 py-1 text-xs font-semibold transition flex items-center gap-1.5 ${
+                isAutoScrollActive
+                  ? 'bg-emas text-hijau font-bold shadow-sm'
+                  : 'text-neutral-600 hover:bg-neutral-200/60'
+              }`}
+              title={
+                isAutoScrollActive
+                  ? 'Auto Scroll sedang aktif. Klik untuk mematikan.'
+                  : 'Mulai Auto Scroll membaca surah'
+              }
+            >
+              <span>📜</span>
+              <span>Auto Scroll: {isAutoScrollActive ? `${scrollSpeed}x` : 'OFF'}</span>
+            </button>
+
+            {isAutoScrollActive && (
+              <div className="flex items-center gap-0.5 border-l border-black/10 pl-1">
+                {([0.5, 1, 1.5, 2, 3] as const).map((spd) => (
+                  <button
+                    key={spd}
+                    type="button"
+                    onClick={() => updateScrollSpeed(spd)}
+                    className={`rounded px-1.5 py-0.5 text-[11px] font-bold transition ${
+                      scrollSpeed === spd
+                        ? 'bg-green-900 text-white shadow-xs'
+                        : 'text-neutral-500 hover:bg-neutral-200/60'
+                    }`}
+                    title={`Kecepatan ${spd}x`}
+                  >
+                    {spd}x
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setIsAutoScrollActive(false)}
+                  className="rounded px-1.5 py-0.5 text-xs font-bold text-rose-600 hover:bg-rose-50"
+                  title="Matikan Auto Scroll (Set OFF)"
+                  aria-label="Matikan Auto Scroll"
+                >
+                  OFF
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -712,37 +908,44 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       <div className="space-y-4">
         {surah.ayat.map((item) => {
           const isBookmarked = lastReadAyat === item.nomorAyat
-          const isCurrentAyatActive =
+          const isMurottalActive = activeMurottalAyat === item.nomorAyat
+          const isCurrentAyatDirectAudio =
             activeAudio?.mode === 'ayat' && activeAudio.ayatNomor === item.nomorAyat
+          const isCurrentAyatActive = isCurrentAyatDirectAudio || isMurottalActive
           const isAyatPlaying = isCurrentAyatActive && isPlaying
-          const isAyatLoading = isCurrentAyatActive && isLoadingAudio
+          const isAyatLoading = isCurrentAyatDirectAudio && isLoadingAudio
 
           return (
             <article
               key={item.nomorAyat}
               id={`ayat-${item.nomorAyat}`}
-              className={`rounded-2xl border transition p-4 sm:p-6 ${
-                isBookmarked
-                  ? 'border-emas bg-gradient-to-r from-amber-50/70 to-white ring-2 ring-emas/60 shadow-md'
-                  : isCurrentAyatActive
-                    ? 'border-green-600 bg-green-50/50 ring-2 ring-green-600/40 shadow-md'
+              className={`rounded-2xl border transition-all duration-300 p-4 sm:p-6 ${
+                isMurottalActive
+                  ? 'border-emas bg-gradient-to-r from-emerald-100/90 via-amber-50/95 to-teal-50/90 ring-2 ring-emas/70 shadow-lg border-l-4 border-l-emas'
+                  : isBookmarked
+                    ? 'border-emas bg-gradient-to-r from-amber-50/70 to-white ring-2 ring-emas/60 shadow-md'
                     : 'border-black/10 bg-white hover:border-black/20 shadow-sm'
               }`}
             >
               {/* Bar Header Ayat (Nomor, Audio, Bookmark, Salin) */}
               <div className="flex items-center justify-between border-b border-black/5 pb-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-hijau text-krem text-xs font-bold shadow-inner">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold shadow-inner ${
+                      isMurottalActive ? 'bg-emas text-hijau' : 'bg-hijau text-krem'
+                    }`}
+                  >
                     {item.nomorAyat}
                   </span>
+                  {isMurottalActive && (
+                    <span className="rounded-full bg-gradient-to-r from-emerald-700 via-hijau to-teal-700 px-3 py-0.5 text-[11px] font-bold text-white shadow-sm flex items-center gap-1.5 animate-pulse">
+                      <span>🔊</span>
+                      <span>{isPlaying ? 'Murottal Sedang Membaca' : 'Murottal Jeda'}</span>
+                    </span>
+                  )}
                   {isBookmarked && (
                     <span className="rounded-full bg-emas/20 px-2.5 py-0.5 text-[11px] font-bold text-emas-tua border border-emas/40">
                       🔖 Terakhir Dibaca
-                    </span>
-                  )}
-                  {isCurrentAyatActive && (
-                    <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-[11px] font-bold text-green-900 border border-green-300 animate-pulse">
-                      🔊 Ayat Diputar
                     </span>
                   )}
                 </div>
@@ -927,8 +1130,30 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               </div>
             </div>
 
-            {/* Kontrol Player: Prev, Play/Pause, Next, Tutup */}
+            {/* Kontrol Player: Auto Scroll Murottal, Prev, Play/Pause, Next, Tutup */}
             <div className="flex items-center gap-1.5 shrink-0">
+              {/* Tombol Toggle Auto Scroll Murottal */}
+              <button
+                type="button"
+                onClick={toggleMurottalAutoScroll}
+                className={`flex h-9 items-center gap-1 px-2.5 rounded-full text-xs font-semibold transition ${
+                  murottalAutoScroll
+                    ? 'bg-emas/20 text-emas-muda border border-emas/40'
+                    : 'bg-white/5 text-krem/40 hover:bg-white/10'
+                }`}
+                title={
+                  murottalAutoScroll
+                    ? 'Auto Scroll Murottal AKTIF (Layar otomatis mengikuti ayat yang dibaca). Klik untuk nonaktifkan.'
+                    : 'Auto Scroll Murottal NONAKTIF. Klik untuk aktifkan.'
+                }
+                aria-label="Toggle Auto Scroll Murottal"
+              >
+                <span>📜</span>
+                <span className="hidden md:inline">
+                  Scroll: {murottalAutoScroll ? 'ON' : 'OFF'}
+                </span>
+              </button>
+
               {/* Tombol Prev */}
               <button
                 type="button"
@@ -1007,6 +1232,49 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               {formatTime(duration)}
             </span>
           </div>
+        </aside>
+      )}
+
+      {/* Floating Controller Widget untuk Auto Scroll Membaca (Manual) */}
+      {isAutoScrollActive && (
+        <aside
+          aria-label="Kontrol Kecepatan Auto Scroll"
+          className={`fixed right-4 z-40 flex items-center gap-2 rounded-2xl border border-emas/50 bg-[#092b21]/95 px-3.5 py-2 text-krem shadow-2xl backdrop-blur-md transition-all animate-in fade-in slide-in-from-bottom-2 ${
+            activeAudio ? 'bottom-28' : 'bottom-6'
+          }`}
+        >
+          <div className="flex items-center gap-1.5 text-xs font-bold text-emas-muda">
+            <span className="animate-bounce">📜</span>
+            <span className="hidden sm:inline">Auto Scroll:</span>
+          </div>
+
+          <div className="flex items-center gap-1">
+            {([0.5, 1, 1.5, 2, 3] as const).map((spd) => (
+              <button
+                key={spd}
+                type="button"
+                onClick={() => updateScrollSpeed(spd)}
+                className={`rounded-lg px-2 py-0.5 text-xs font-bold transition ${
+                  scrollSpeed === spd
+                    ? 'bg-emas text-hijau shadow-sm'
+                    : 'bg-white/10 text-krem/80 hover:bg-white/20'
+                }`}
+                title={`Atur Kecepatan ${spd}x`}
+              >
+                {spd}x
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setIsAutoScrollActive(false)}
+            className="ml-1 rounded-full bg-rose-600/90 hover:bg-rose-600 text-white px-2.5 py-0.5 text-xs font-bold transition shadow-xs"
+            title="Matikan Auto Scroll (Set OFF)"
+            aria-label="Matikan Auto Scroll"
+          >
+            OFF
+          </button>
         </aside>
       )}
     </div>
