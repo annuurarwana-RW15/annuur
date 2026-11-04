@@ -46,6 +46,7 @@ export const ADMIN_NAV: readonly NavItem[] = [
     label: 'Pengaturan',
     children: [
       { label: 'Umum', href: '/admin/pengaturan', action: 'manage_settings' },
+      { label: 'Kontak & Peta', href: '/admin/pengaturan/kontak', action: 'manage_settings' },
       { label: 'Sections', href: '/admin/sections', action: 'manage_sections' },
     ],
   },

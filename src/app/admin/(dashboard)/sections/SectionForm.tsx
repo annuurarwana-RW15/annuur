@@ -62,16 +62,26 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
     },
   ],
   kontak: [
-    { name: 'alamat', label: 'Alamat' },
-    { name: 'telp', label: 'Telepon' },
-    { name: 'email', label: 'Email' },
-    { name: 'jam', label: 'Jam layanan' },
+    { name: 'alamat', label: 'Alamat Lengkap Masjid' },
+    { name: 'telp', label: 'Nomor Telepon' },
+    {
+      name: 'whatsapp',
+      label: 'Nomor WhatsApp Official (opsional)',
+      helper: 'Contoh: 08123456789 atau 628123456789 (akan dibuatkan tombol chat WhatsApp langsung).',
+    },
+    { name: 'email', label: 'Email Resmi' },
+    { name: 'jam', label: 'Jam Layanan / Kunjungan' },
+    {
+      name: 'mapUrl',
+      label: 'Link Google Maps',
+      helper: 'Tautan Google Maps untuk navigasi jamaah (contoh: https://maps.app.goo.gl/... atau https://maps.google.com/?q=...).',
+    },
     {
       name: 'mapQuery',
-      label: 'Embed peta',
+      label: 'Embed / Sematan Peta Google Maps',
       widget: 'textarea',
       rows: 3,
-      helper: 'Koordinat/pencarian OpenStreetMap, contoh: -6.2,106.8',
+      helper: 'Kode <iframe> Google Maps atau link embed. Jika kosong, peta otomatis dibuat dari alamat masjid.',
     },
   ],
   footer: [

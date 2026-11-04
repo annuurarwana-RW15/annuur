@@ -81,6 +81,7 @@ export default async function PengaturanPage() {
       <div className="mt-6">
         <PengaturanForm
           initial={initial}
+          kontakEditHref="/admin/pengaturan/kontak"
           footerEditHref={
             defaultSections.footerId
               ? `/admin/sections?edit=${defaultSections.footerId}`

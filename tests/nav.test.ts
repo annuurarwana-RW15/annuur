@@ -19,7 +19,7 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
     expect(hrefs(items)).toContain('/admin/analitik')
   })
 
-  it('ADMIN: Sections pindah ke grup Pengaturan (Umum + Sections)', () => {
+  it('ADMIN: Sections pindah ke grup Pengaturan (Umum + Kontak & Peta + Sections)', () => {
     const items = visibleAdminNav('ADMIN')
     // tidak ada link Sections level atas
     expect(items.some((item) => item.href === '/admin/sections')).toBe(false)
@@ -27,10 +27,11 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
     const pengaturan = items.find((item) => item.label === 'Pengaturan')
     expect(pengaturan?.children?.map((child) => child.label)).toEqual([
       'Umum',
+      'Kontak & Peta',
       'Sections',
     ])
     expect(hrefs(items)).toEqual(
-      expect.arrayContaining(['/admin/pengaturan', '/admin/sections']),
+      expect.arrayContaining(['/admin/pengaturan', '/admin/pengaturan/kontak', '/admin/sections']),
     )
   })
 

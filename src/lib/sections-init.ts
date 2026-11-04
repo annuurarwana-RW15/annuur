@@ -9,19 +9,21 @@ export function resetSectionsCache(): void {
 export interface DefaultSectionsResult {
   footerId?: string
   tiktokId?: string
+  kontakId?: string
 }
 
 /**
- * Memastikan section bawaan sistem (`footer` dan `tiktok`) tersedia di database.
+ * Memastikan section bawaan sistem (`footer`, `tiktok`, dan `kontak`) tersedia di database.
  * Bersifat idempoten dan aman dieksekusi berulang kali.
  */
 export async function ensureDefaultSections(): Promise<DefaultSectionsResult> {
   if (cachedResult) return cachedResult
 
   try {
-    let [footer, tiktok] = await Promise.all([
+    let [footer, tiktok, kontak] = await Promise.all([
       db.section.findUnique({ where: { key: 'footer' } }),
       db.section.findUnique({ where: { key: 'tiktok' } }),
+      db.section.findUnique({ where: { key: 'kontak' } }),
     ])
 
     if (!footer) {
@@ -56,9 +58,29 @@ export async function ensureDefaultSections(): Promise<DefaultSectionsResult> {
       })
     }
 
+    if (!kontak) {
+      kontak = await db.section.create({
+        data: {
+          key: 'kontak',
+          title: 'Kontak & Lokasi',
+          order: 7,
+          isVisible: true,
+          content: {
+            address: 'Perum Arwana Blok B, Karawang',
+            phone: '0812-3456-7890',
+            email: 'dkm@annuur-arwana.id',
+            hours: 'Setiap Hari (04.00 - 21.00 WIB)',
+            mapEmbed: '',
+            mapUrl: '',
+          },
+        },
+      })
+    }
+
     cachedResult = {
       footerId: footer.id,
       tiktokId: tiktok.id,
+      kontakId: kontak.id,
     }
     return cachedResult
   } catch (error) {

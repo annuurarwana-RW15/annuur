@@ -10,6 +10,7 @@ import { normalizeRekening, type RekeningRow } from './rekening'
 
 interface PengaturanFormProps {
   initial: PengaturanInput
+  kontakEditHref?: string
   footerEditHref?: string
   tiktokEditHref?: string
 }
@@ -20,6 +21,7 @@ const labelClass = 'block text-sm font-medium text-neutral-700'
 
 export function PengaturanForm({
   initial,
+  kontakEditHref = '/admin/pengaturan/kontak',
   footerEditHref = '/admin/sections',
   tiktokEditHref = '/admin/sections',
 }: PengaturanFormProps) {
@@ -261,15 +263,38 @@ export function PengaturanForm({
 
       <fieldset className="mt-8">
         <legend className="text-base font-semibold text-neutral-900">
-          Media Sosial &amp; Widget Beranda
+          Kontak, Media Sosial &amp; Widget Beranda
         </legend>
         <p className="mt-1 text-sm text-neutral-500">
-          Tautan media sosial masjid (TikTok, Instagram, YouTube, WhatsApp, dll) yang tampil di footer dan sematan feed TikTok di beranda.
+          Kelola informasi kontak dan peta lokasi masjid, tautan media sosial footer, serta sematan feed TikTok di beranda publik.
         </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
           <div className="flex flex-col justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
             <div>
-              <p className="font-semibold text-neutral-900 text-sm">Media Sosial Footer</p>
+              <p className="font-semibold text-neutral-900 text-sm flex items-center gap-1.5">
+                <span>📍</span>
+                <span>Kontak &amp; Google Maps</span>
+              </p>
+              <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+                Atur alamat fisik, telepon/WhatsApp, email resmi, jam operasional, serta tautan dan sematan peta interaktif Google Maps.
+              </p>
+            </div>
+            <div className="mt-3">
+              <Link
+                href={kontakEditHref}
+                className="inline-flex items-center gap-1.5 rounded-md bg-green-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-green-800 transition"
+              >
+                Kelola Kontak &amp; Peta →
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+            <div>
+              <p className="font-semibold text-neutral-900 text-sm flex items-center gap-1.5">
+                <span>🌐</span>
+                <span>Media Sosial Footer</span>
+              </p>
               <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
                 Kelola daftar platform, nama akun, dan link sosial media resmi DKM yang tampil pada footer situs.
               </p>
@@ -286,7 +311,10 @@ export function PengaturanForm({
 
           <div className="flex flex-col justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
             <div>
-              <p className="font-semibold text-neutral-900 text-sm">Widget Feed TikTok</p>
+              <p className="font-semibold text-neutral-900 text-sm flex items-center gap-1.5">
+                <span>📱</span>
+                <span>Widget Feed TikTok</span>
+              </p>
               <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
                 Atur akun official (@masjidannuurarwana) dan sematan feed konten dakwah TikTok di beranda publik.
               </p>

@@ -19,7 +19,14 @@
 const ALIASES: Record<string, Record<string, string>> = {
   hero: { subjudul: 'subheading', imageUrl: 'image' },
   profil: { text: 'body' },
-  kontak: { alamat: 'address', telp: 'phone', jam: 'hours', mapQuery: 'mapEmbed' },
+  kontak: {
+    alamat: 'address',
+    telp: 'phone',
+    jam: 'hours',
+    mapQuery: 'mapEmbed',
+    mapUrl: 'mapLink',
+    whatsapp: 'wa',
+  },
   footer: { social: 'socialLinks' },
 }
 
