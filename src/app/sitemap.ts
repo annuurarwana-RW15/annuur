@@ -8,6 +8,7 @@ export const revalidate = 3600
 const STATIC_PATHS: { path: string; priority: number; changeFrequency: 'daily' | 'weekly' | 'monthly' }[] = [
   { path: '/', priority: 1, changeFrequency: 'daily' },
   { path: '/profil', priority: 0.8, changeFrequency: 'monthly' },
+  { path: '/quran', priority: 0.9, changeFrequency: 'monthly' },
   { path: '/berita', priority: 0.9, changeFrequency: 'daily' },
   { path: '/kegiatan', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/galeri', priority: 0.6, changeFrequency: 'monthly' },

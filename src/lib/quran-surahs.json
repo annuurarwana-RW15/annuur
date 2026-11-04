@@ -1,0 +1,1028 @@
+[
+  {
+    "nomor": 1,
+    "nama": "الفاتحة",
+    "namaLatin": "Al-Fatihah",
+    "jumlahAyat": 7,
+    "tempatTurun": "Mekah",
+    "arti": "Pembukaan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/001.mp3"
+  },
+  {
+    "nomor": 2,
+    "nama": "البقرة",
+    "namaLatin": "Al-Baqarah",
+    "jumlahAyat": 286,
+    "tempatTurun": "Madinah",
+    "arti": "Sapi",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/002.mp3"
+  },
+  {
+    "nomor": 3,
+    "nama": "اٰل عمران",
+    "namaLatin": "Ali 'Imran",
+    "jumlahAyat": 200,
+    "tempatTurun": "Madinah",
+    "arti": "Keluarga Imran",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/003.mp3"
+  },
+  {
+    "nomor": 4,
+    "nama": "النساۤء",
+    "namaLatin": "An-Nisa'",
+    "jumlahAyat": 176,
+    "tempatTurun": "Madinah",
+    "arti": "Wanita",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/004.mp3"
+  },
+  {
+    "nomor": 5,
+    "nama": "الماۤئدة",
+    "namaLatin": "Al-Ma'idah",
+    "jumlahAyat": 120,
+    "tempatTurun": "Madinah",
+    "arti": "Hidangan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/005.mp3"
+  },
+  {
+    "nomor": 6,
+    "nama": "الانعام",
+    "namaLatin": "Al-An'am",
+    "jumlahAyat": 165,
+    "tempatTurun": "Mekah",
+    "arti": "Binatang Ternak",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/006.mp3"
+  },
+  {
+    "nomor": 7,
+    "nama": "الاعراف",
+    "namaLatin": "Al-A'raf",
+    "jumlahAyat": 206,
+    "tempatTurun": "Mekah",
+    "arti": "Tempat Tertinggi",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/007.mp3"
+  },
+  {
+    "nomor": 8,
+    "nama": "الانفال",
+    "namaLatin": "Al-Anfal",
+    "jumlahAyat": 75,
+    "tempatTurun": "Madinah",
+    "arti": "Rampasan Perang",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/008.mp3"
+  },
+  {
+    "nomor": 9,
+    "nama": "التوبة",
+    "namaLatin": "At-Taubah",
+    "jumlahAyat": 129,
+    "tempatTurun": "Madinah",
+    "arti": "Pengampunan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/009.mp3"
+  },
+  {
+    "nomor": 10,
+    "nama": "يونس",
+    "namaLatin": "Yunus",
+    "jumlahAyat": 109,
+    "tempatTurun": "Mekah",
+    "arti": "Yunus",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/010.mp3"
+  },
+  {
+    "nomor": 11,
+    "nama": "هود",
+    "namaLatin": "Hud",
+    "jumlahAyat": 123,
+    "tempatTurun": "Mekah",
+    "arti": "Hud",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/011.mp3"
+  },
+  {
+    "nomor": 12,
+    "nama": "يوسف",
+    "namaLatin": "Yusuf",
+    "jumlahAyat": 111,
+    "tempatTurun": "Mekah",
+    "arti": "Yusuf",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/012.mp3"
+  },
+  {
+    "nomor": 13,
+    "nama": "الرّعد",
+    "namaLatin": "Ar-Ra'd",
+    "jumlahAyat": 43,
+    "tempatTurun": "Madinah",
+    "arti": "Guruh",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/013.mp3"
+  },
+  {
+    "nomor": 14,
+    "nama": "ابرٰهيم",
+    "namaLatin": "Ibrahim",
+    "jumlahAyat": 52,
+    "tempatTurun": "Mekah",
+    "arti": "Ibrahim",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/014.mp3"
+  },
+  {
+    "nomor": 15,
+    "nama": "الحجر",
+    "namaLatin": "Al-Hijr",
+    "jumlahAyat": 99,
+    "tempatTurun": "Mekah",
+    "arti": "Hijr",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/015.mp3"
+  },
+  {
+    "nomor": 16,
+    "nama": "النحل",
+    "namaLatin": "An-Nahl",
+    "jumlahAyat": 128,
+    "tempatTurun": "Mekah",
+    "arti": "Lebah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/016.mp3"
+  },
+  {
+    "nomor": 17,
+    "nama": "الاسراۤء",
+    "namaLatin": "Al-Isra'",
+    "jumlahAyat": 111,
+    "tempatTurun": "Mekah",
+    "arti": "Memperjalankan Malam Hari",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/017.mp3"
+  },
+  {
+    "nomor": 18,
+    "nama": "الكهف",
+    "namaLatin": "Al-Kahf",
+    "jumlahAyat": 110,
+    "tempatTurun": "Mekah",
+    "arti": "Goa",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/018.mp3"
+  },
+  {
+    "nomor": 19,
+    "nama": "مريم",
+    "namaLatin": "Maryam",
+    "jumlahAyat": 98,
+    "tempatTurun": "Mekah",
+    "arti": "Maryam",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/019.mp3"
+  },
+  {
+    "nomor": 20,
+    "nama": "طٰهٰ",
+    "namaLatin": "Taha",
+    "jumlahAyat": 135,
+    "tempatTurun": "Mekah",
+    "arti": "Taha",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/020.mp3"
+  },
+  {
+    "nomor": 21,
+    "nama": "الانبياۤء",
+    "namaLatin": "Al-Anbiya'",
+    "jumlahAyat": 112,
+    "tempatTurun": "Mekah",
+    "arti": "Para Nabi",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/021.mp3"
+  },
+  {
+    "nomor": 22,
+    "nama": "الحج",
+    "namaLatin": "Al-Hajj",
+    "jumlahAyat": 78,
+    "tempatTurun": "Madinah",
+    "arti": "Haji",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/022.mp3"
+  },
+  {
+    "nomor": 23,
+    "nama": "المؤمنون",
+    "namaLatin": "Al-Mu'minun",
+    "jumlahAyat": 118,
+    "tempatTurun": "Mekah",
+    "arti": "Orang-Orang Mukmin",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/023.mp3"
+  },
+  {
+    "nomor": 24,
+    "nama": "النّور",
+    "namaLatin": "An-Nur",
+    "jumlahAyat": 64,
+    "tempatTurun": "Madinah",
+    "arti": "Cahaya",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/024.mp3"
+  },
+  {
+    "nomor": 25,
+    "nama": "الفرقان",
+    "namaLatin": "Al-Furqan",
+    "jumlahAyat": 77,
+    "tempatTurun": "Mekah",
+    "arti": "Pembeda",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/025.mp3"
+  },
+  {
+    "nomor": 26,
+    "nama": "الشعراۤء",
+    "namaLatin": "Asy-Syu'ara'",
+    "jumlahAyat": 227,
+    "tempatTurun": "Mekah",
+    "arti": "Para Penyair",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/026.mp3"
+  },
+  {
+    "nomor": 27,
+    "nama": "النمل",
+    "namaLatin": "An-Naml",
+    "jumlahAyat": 93,
+    "tempatTurun": "Mekah",
+    "arti": "Semut-semut",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/027.mp3"
+  },
+  {
+    "nomor": 28,
+    "nama": "القصص",
+    "namaLatin": "Al-Qasas",
+    "jumlahAyat": 88,
+    "tempatTurun": "Mekah",
+    "arti": "Kisah-Kisah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/028.mp3"
+  },
+  {
+    "nomor": 29,
+    "nama": "العنكبوت",
+    "namaLatin": "Al-'Ankabut",
+    "jumlahAyat": 69,
+    "tempatTurun": "Mekah",
+    "arti": "Laba-Laba",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/029.mp3"
+  },
+  {
+    "nomor": 30,
+    "nama": "الرّوم",
+    "namaLatin": "Ar-Rum",
+    "jumlahAyat": 60,
+    "tempatTurun": "Mekah",
+    "arti": "Romawi",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/030.mp3"
+  },
+  {
+    "nomor": 31,
+    "nama": "لقمٰن",
+    "namaLatin": "Luqman",
+    "jumlahAyat": 34,
+    "tempatTurun": "Mekah",
+    "arti": "Luqman",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/031.mp3"
+  },
+  {
+    "nomor": 32,
+    "nama": "السّجدة",
+    "namaLatin": "As-Sajdah",
+    "jumlahAyat": 30,
+    "tempatTurun": "Mekah",
+    "arti": "Sajdah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/032.mp3"
+  },
+  {
+    "nomor": 33,
+    "nama": "الاحزاب",
+    "namaLatin": "Al-Ahzab",
+    "jumlahAyat": 73,
+    "tempatTurun": "Madinah",
+    "arti": "Golongan Yang Bersekutu",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/033.mp3"
+  },
+  {
+    "nomor": 34,
+    "nama": "سبأ",
+    "namaLatin": "Saba'",
+    "jumlahAyat": 54,
+    "tempatTurun": "Mekah",
+    "arti": "Saba'",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/034.mp3"
+  },
+  {
+    "nomor": 35,
+    "nama": "فاطر",
+    "namaLatin": "Fatir",
+    "jumlahAyat": 45,
+    "tempatTurun": "Mekah",
+    "arti": "Maha Pencipta",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/035.mp3"
+  },
+  {
+    "nomor": 36,
+    "nama": "يٰسۤ",
+    "namaLatin": "Yasin",
+    "jumlahAyat": 83,
+    "tempatTurun": "Mekah",
+    "arti": "Yasin",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/036.mp3"
+  },
+  {
+    "nomor": 37,
+    "nama": "الصّٰۤفّٰت",
+    "namaLatin": "As-Saffat",
+    "jumlahAyat": 182,
+    "tempatTurun": "Mekah",
+    "arti": "Barisan-Barisan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/037.mp3"
+  },
+  {
+    "nomor": 38,
+    "nama": "ص",
+    "namaLatin": "Sad",
+    "jumlahAyat": 88,
+    "tempatTurun": "Mekah",
+    "arti": "Sad",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/038.mp3"
+  },
+  {
+    "nomor": 39,
+    "nama": "الزمر",
+    "namaLatin": "Az-Zumar",
+    "jumlahAyat": 75,
+    "tempatTurun": "Mekah",
+    "arti": "Rombongan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/039.mp3"
+  },
+  {
+    "nomor": 40,
+    "nama": "غافر",
+    "namaLatin": "Ghafir",
+    "jumlahAyat": 85,
+    "tempatTurun": "Mekah",
+    "arti": "Maha Pengampun",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/040.mp3"
+  },
+  {
+    "nomor": 41,
+    "nama": "فصّلت",
+    "namaLatin": "Fussilat",
+    "jumlahAyat": 54,
+    "tempatTurun": "Mekah",
+    "arti": "Yang Dijelaskan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/041.mp3"
+  },
+  {
+    "nomor": 42,
+    "nama": "الشورى",
+    "namaLatin": "Asy-Syura",
+    "jumlahAyat": 53,
+    "tempatTurun": "Mekah",
+    "arti": "Musyawarah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/042.mp3"
+  },
+  {
+    "nomor": 43,
+    "nama": "الزخرف",
+    "namaLatin": "Az-Zukhruf",
+    "jumlahAyat": 89,
+    "tempatTurun": "Mekah",
+    "arti": "Perhiasan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/043.mp3"
+  },
+  {
+    "nomor": 44,
+    "nama": "الدخان",
+    "namaLatin": "Ad-Dukhan",
+    "jumlahAyat": 59,
+    "tempatTurun": "Mekah",
+    "arti": "Kabut",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/044.mp3"
+  },
+  {
+    "nomor": 45,
+    "nama": "الجاثية",
+    "namaLatin": "Al-Jasiyah",
+    "jumlahAyat": 37,
+    "tempatTurun": "Mekah",
+    "arti": "Berlutut",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/045.mp3"
+  },
+  {
+    "nomor": 46,
+    "nama": "الاحقاف",
+    "namaLatin": "Al-Ahqaf",
+    "jumlahAyat": 35,
+    "tempatTurun": "Mekah",
+    "arti": "Bukit Pasir",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/046.mp3"
+  },
+  {
+    "nomor": 47,
+    "nama": "محمّد",
+    "namaLatin": "Muhammad",
+    "jumlahAyat": 38,
+    "tempatTurun": "Madinah",
+    "arti": "Muhammad",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/047.mp3"
+  },
+  {
+    "nomor": 48,
+    "nama": "الفتح",
+    "namaLatin": "Al-Fath",
+    "jumlahAyat": 29,
+    "tempatTurun": "Madinah",
+    "arti": "Kemenangan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/048.mp3"
+  },
+  {
+    "nomor": 49,
+    "nama": "الحجرٰت",
+    "namaLatin": "Al-Hujurat",
+    "jumlahAyat": 18,
+    "tempatTurun": "Madinah",
+    "arti": "Kamar-Kamar",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/049.mp3"
+  },
+  {
+    "nomor": 50,
+    "nama": "ق",
+    "namaLatin": "Qaf",
+    "jumlahAyat": 45,
+    "tempatTurun": "Mekah",
+    "arti": "Qaf",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/050.mp3"
+  },
+  {
+    "nomor": 51,
+    "nama": "الذّٰريٰت",
+    "namaLatin": "Az-Zariyat",
+    "jumlahAyat": 60,
+    "tempatTurun": "Mekah",
+    "arti": "Angin yang Menerbangkan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/051.mp3"
+  },
+  {
+    "nomor": 52,
+    "nama": "الطور",
+    "namaLatin": "At-Tur",
+    "jumlahAyat": 49,
+    "tempatTurun": "Mekah",
+    "arti": "Bukit Tursina",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/052.mp3"
+  },
+  {
+    "nomor": 53,
+    "nama": "النجم",
+    "namaLatin": "An-Najm",
+    "jumlahAyat": 62,
+    "tempatTurun": "Mekah",
+    "arti": "Bintang",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/053.mp3"
+  },
+  {
+    "nomor": 54,
+    "nama": "القمر",
+    "namaLatin": "Al-Qamar",
+    "jumlahAyat": 55,
+    "tempatTurun": "Mekah",
+    "arti": "Bulan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/054.mp3"
+  },
+  {
+    "nomor": 55,
+    "nama": "الرحمن",
+    "namaLatin": "Ar-Rahman",
+    "jumlahAyat": 78,
+    "tempatTurun": "Madinah",
+    "arti": "Maha Pengasih",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/055.mp3"
+  },
+  {
+    "nomor": 56,
+    "nama": "الواقعة",
+    "namaLatin": "Al-Waqi'ah",
+    "jumlahAyat": 96,
+    "tempatTurun": "Mekah",
+    "arti": "Hari Kiamat",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/056.mp3"
+  },
+  {
+    "nomor": 57,
+    "nama": "الحديد",
+    "namaLatin": "Al-Hadid",
+    "jumlahAyat": 29,
+    "tempatTurun": "Madinah",
+    "arti": "Besi",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/057.mp3"
+  },
+  {
+    "nomor": 58,
+    "nama": "المجادلة",
+    "namaLatin": "Al-Mujadilah",
+    "jumlahAyat": 22,
+    "tempatTurun": "Madinah",
+    "arti": "Gugatan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/058.mp3"
+  },
+  {
+    "nomor": 59,
+    "nama": "الحشر",
+    "namaLatin": "Al-Hasyr",
+    "jumlahAyat": 24,
+    "tempatTurun": "Madinah",
+    "arti": "Pengusiran",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/059.mp3"
+  },
+  {
+    "nomor": 60,
+    "nama": "الممتحنة",
+    "namaLatin": "Al-Mumtahanah",
+    "jumlahAyat": 13,
+    "tempatTurun": "Madinah",
+    "arti": "Wanita Yang Diuji",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/060.mp3"
+  },
+  {
+    "nomor": 61,
+    "nama": "الصّفّ",
+    "namaLatin": "As-Saff",
+    "jumlahAyat": 14,
+    "tempatTurun": "Madinah",
+    "arti": "Barisan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/061.mp3"
+  },
+  {
+    "nomor": 62,
+    "nama": "الجمعة",
+    "namaLatin": "Al-Jumu'ah",
+    "jumlahAyat": 11,
+    "tempatTurun": "Madinah",
+    "arti": "Jumat",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/062.mp3"
+  },
+  {
+    "nomor": 63,
+    "nama": "المنٰفقون",
+    "namaLatin": "Al-Munafiqun",
+    "jumlahAyat": 11,
+    "tempatTurun": "Madinah",
+    "arti": "Orang-Orang Munafik",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/063.mp3"
+  },
+  {
+    "nomor": 64,
+    "nama": "التغابن",
+    "namaLatin": "At-Tagabun",
+    "jumlahAyat": 18,
+    "tempatTurun": "Madinah",
+    "arti": "Pengungkapan Kesalahan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/064.mp3"
+  },
+  {
+    "nomor": 65,
+    "nama": "الطلاق",
+    "namaLatin": "At-Talaq",
+    "jumlahAyat": 12,
+    "tempatTurun": "Madinah",
+    "arti": "Talak",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/065.mp3"
+  },
+  {
+    "nomor": 66,
+    "nama": "التحريم",
+    "namaLatin": "At-Tahrim",
+    "jumlahAyat": 12,
+    "tempatTurun": "Madinah",
+    "arti": "Pengharaman",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/066.mp3"
+  },
+  {
+    "nomor": 67,
+    "nama": "الملك",
+    "namaLatin": "Al-Mulk",
+    "jumlahAyat": 30,
+    "tempatTurun": "Mekah",
+    "arti": "Kerajaan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/067.mp3"
+  },
+  {
+    "nomor": 68,
+    "nama": "القلم",
+    "namaLatin": "Al-Qalam",
+    "jumlahAyat": 52,
+    "tempatTurun": "Mekah",
+    "arti": "Pena",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/068.mp3"
+  },
+  {
+    "nomor": 69,
+    "nama": "الحاۤقّة",
+    "namaLatin": "Al-Haqqah",
+    "jumlahAyat": 52,
+    "tempatTurun": "Mekah",
+    "arti": "Hari Kiamat",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/069.mp3"
+  },
+  {
+    "nomor": 70,
+    "nama": "المعارج",
+    "namaLatin": "Al-Ma'arij",
+    "jumlahAyat": 44,
+    "tempatTurun": "Mekah",
+    "arti": "Tempat Naik",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/070.mp3"
+  },
+  {
+    "nomor": 71,
+    "nama": "نوح",
+    "namaLatin": "Nuh",
+    "jumlahAyat": 28,
+    "tempatTurun": "Mekah",
+    "arti": "Nuh",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/071.mp3"
+  },
+  {
+    "nomor": 72,
+    "nama": "الجن",
+    "namaLatin": "Al-Jinn",
+    "jumlahAyat": 28,
+    "tempatTurun": "Mekah",
+    "arti": "Jin",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/072.mp3"
+  },
+  {
+    "nomor": 73,
+    "nama": "المزّمّل",
+    "namaLatin": "Al-Muzzammil",
+    "jumlahAyat": 20,
+    "tempatTurun": "Mekah",
+    "arti": "Orang Yang Berselimut",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/073.mp3"
+  },
+  {
+    "nomor": 74,
+    "nama": "المدّثّر",
+    "namaLatin": "Al-Muddassir",
+    "jumlahAyat": 56,
+    "tempatTurun": "Mekah",
+    "arti": "Orang Yang Berkemul",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/074.mp3"
+  },
+  {
+    "nomor": 75,
+    "nama": "القيٰمة",
+    "namaLatin": "Al-Qiyamah",
+    "jumlahAyat": 40,
+    "tempatTurun": "Mekah",
+    "arti": "Hari Kiamat",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/075.mp3"
+  },
+  {
+    "nomor": 76,
+    "nama": "الانسان",
+    "namaLatin": "Al-Insan",
+    "jumlahAyat": 31,
+    "tempatTurun": "Madinah",
+    "arti": "Manusia",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/076.mp3"
+  },
+  {
+    "nomor": 77,
+    "nama": "المرسلٰت",
+    "namaLatin": "Al-Mursalat",
+    "jumlahAyat": 50,
+    "tempatTurun": "Mekah",
+    "arti": "Malaikat Yang Diutus",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/077.mp3"
+  },
+  {
+    "nomor": 78,
+    "nama": "النبأ",
+    "namaLatin": "An-Naba'",
+    "jumlahAyat": 40,
+    "tempatTurun": "Mekah",
+    "arti": "Berita Besar",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/078.mp3"
+  },
+  {
+    "nomor": 79,
+    "nama": "النّٰزعٰت",
+    "namaLatin": "An-Nazi'at",
+    "jumlahAyat": 46,
+    "tempatTurun": "Mekah",
+    "arti": "Malaikat Yang Mencabut",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/079.mp3"
+  },
+  {
+    "nomor": 80,
+    "nama": "عبس",
+    "namaLatin": "'Abasa",
+    "jumlahAyat": 42,
+    "tempatTurun": "Mekah",
+    "arti": "Bermuka Masam",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/080.mp3"
+  },
+  {
+    "nomor": 81,
+    "nama": "التكوير",
+    "namaLatin": "At-Takwir",
+    "jumlahAyat": 29,
+    "tempatTurun": "Mekah",
+    "arti": "Penggulungan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/081.mp3"
+  },
+  {
+    "nomor": 82,
+    "nama": "الانفطار",
+    "namaLatin": "Al-Infitar",
+    "jumlahAyat": 19,
+    "tempatTurun": "Mekah",
+    "arti": "Terbelah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/082.mp3"
+  },
+  {
+    "nomor": 83,
+    "nama": "المطفّفين",
+    "namaLatin": "Al-Mutaffifin",
+    "jumlahAyat": 36,
+    "tempatTurun": "Mekah",
+    "arti": "Orang-Orang Curang",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/083.mp3"
+  },
+  {
+    "nomor": 84,
+    "nama": "الانشقاق",
+    "namaLatin": "Al-Insyiqaq",
+    "jumlahAyat": 25,
+    "tempatTurun": "Mekah",
+    "arti": "Terbelah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/084.mp3"
+  },
+  {
+    "nomor": 85,
+    "nama": "البروج",
+    "namaLatin": "Al-Buruj",
+    "jumlahAyat": 22,
+    "tempatTurun": "Mekah",
+    "arti": "Gugusan Bintang",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/085.mp3"
+  },
+  {
+    "nomor": 86,
+    "nama": "الطارق",
+    "namaLatin": "At-Tariq",
+    "jumlahAyat": 17,
+    "tempatTurun": "Mekah",
+    "arti": "Yang Datang Di Malam Hari",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/086.mp3"
+  },
+  {
+    "nomor": 87,
+    "nama": "الاعلى",
+    "namaLatin": "Al-A'la",
+    "jumlahAyat": 19,
+    "tempatTurun": "Mekah",
+    "arti": "Maha Tinggi",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/087.mp3"
+  },
+  {
+    "nomor": 88,
+    "nama": "الغاشية",
+    "namaLatin": "Al-Gasyiyah",
+    "jumlahAyat": 26,
+    "tempatTurun": "Mekah",
+    "arti": "Hari Kiamat",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/088.mp3"
+  },
+  {
+    "nomor": 89,
+    "nama": "الفجر",
+    "namaLatin": "Al-Fajr",
+    "jumlahAyat": 30,
+    "tempatTurun": "Mekah",
+    "arti": "Fajar",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/089.mp3"
+  },
+  {
+    "nomor": 90,
+    "nama": "البلد",
+    "namaLatin": "Al-Balad",
+    "jumlahAyat": 20,
+    "tempatTurun": "Mekah",
+    "arti": "Negeri",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/090.mp3"
+  },
+  {
+    "nomor": 91,
+    "nama": "الشمس",
+    "namaLatin": "Asy-Syams",
+    "jumlahAyat": 15,
+    "tempatTurun": "Mekah",
+    "arti": "Matahari",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/091.mp3"
+  },
+  {
+    "nomor": 92,
+    "nama": "الّيل",
+    "namaLatin": "Al-Lail",
+    "jumlahAyat": 21,
+    "tempatTurun": "Mekah",
+    "arti": "Malam",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/092.mp3"
+  },
+  {
+    "nomor": 93,
+    "nama": "الضحى",
+    "namaLatin": "Ad-Duha",
+    "jumlahAyat": 11,
+    "tempatTurun": "Mekah",
+    "arti": "Duha",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/093.mp3"
+  },
+  {
+    "nomor": 94,
+    "nama": "الشرح",
+    "namaLatin": "Al-Insyirah",
+    "jumlahAyat": 8,
+    "tempatTurun": "Mekah",
+    "arti": "Lapang",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/094.mp3"
+  },
+  {
+    "nomor": 95,
+    "nama": "التين",
+    "namaLatin": "At-Tin",
+    "jumlahAyat": 8,
+    "tempatTurun": "Mekah",
+    "arti": "Buah Tin",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/095.mp3"
+  },
+  {
+    "nomor": 96,
+    "nama": "العلق",
+    "namaLatin": "Al-'Alaq",
+    "jumlahAyat": 19,
+    "tempatTurun": "Mekah",
+    "arti": "Segumpal Darah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/096.mp3"
+  },
+  {
+    "nomor": 97,
+    "nama": "القدر",
+    "namaLatin": "Al-Qadr",
+    "jumlahAyat": 5,
+    "tempatTurun": "Mekah",
+    "arti": "Kemuliaan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/097.mp3"
+  },
+  {
+    "nomor": 98,
+    "nama": "البيّنة",
+    "namaLatin": "Al-Bayyinah",
+    "jumlahAyat": 8,
+    "tempatTurun": "Madinah",
+    "arti": "Bukti Nyata",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/098.mp3"
+  },
+  {
+    "nomor": 99,
+    "nama": "الزلزلة",
+    "namaLatin": "Az-Zalzalah",
+    "jumlahAyat": 8,
+    "tempatTurun": "Madinah",
+    "arti": "Guncangan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/099.mp3"
+  },
+  {
+    "nomor": 100,
+    "nama": "العٰديٰت",
+    "namaLatin": "Al-'Adiyat",
+    "jumlahAyat": 11,
+    "tempatTurun": "Mekah",
+    "arti": "Kuda Yang Berlari Kencang",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/100.mp3"
+  },
+  {
+    "nomor": 101,
+    "nama": "القارعة",
+    "namaLatin": "Al-Qari'ah",
+    "jumlahAyat": 11,
+    "tempatTurun": "Mekah",
+    "arti": "Hari Kiamat",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/101.mp3"
+  },
+  {
+    "nomor": 102,
+    "nama": "التكاثر",
+    "namaLatin": "At-Takasur",
+    "jumlahAyat": 8,
+    "tempatTurun": "Mekah",
+    "arti": "Bermegah-Megahan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/102.mp3"
+  },
+  {
+    "nomor": 103,
+    "nama": "العصر",
+    "namaLatin": "Al-'Asr",
+    "jumlahAyat": 3,
+    "tempatTurun": "Mekah",
+    "arti": "Masa",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/103.mp3"
+  },
+  {
+    "nomor": 104,
+    "nama": "الهمزة",
+    "namaLatin": "Al-Humazah",
+    "jumlahAyat": 9,
+    "tempatTurun": "Mekah",
+    "arti": "Pengumpat",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/104.mp3"
+  },
+  {
+    "nomor": 105,
+    "nama": "الفيل",
+    "namaLatin": "Al-Fil",
+    "jumlahAyat": 5,
+    "tempatTurun": "Mekah",
+    "arti": "Gajah",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/105.mp3"
+  },
+  {
+    "nomor": 106,
+    "nama": "قريش",
+    "namaLatin": "Quraisy",
+    "jumlahAyat": 4,
+    "tempatTurun": "Mekah",
+    "arti": "Quraisy",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/106.mp3"
+  },
+  {
+    "nomor": 107,
+    "nama": "الماعون",
+    "namaLatin": "Al-Ma'un",
+    "jumlahAyat": 7,
+    "tempatTurun": "Mekah",
+    "arti": "Barang Yang Berguna",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/107.mp3"
+  },
+  {
+    "nomor": 108,
+    "nama": "الكوثر",
+    "namaLatin": "Al-Kausar",
+    "jumlahAyat": 3,
+    "tempatTurun": "Mekah",
+    "arti": "Pemberian Yang Banyak",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/108.mp3"
+  },
+  {
+    "nomor": 109,
+    "nama": "الكٰفرون",
+    "namaLatin": "Al-Kafirun",
+    "jumlahAyat": 6,
+    "tempatTurun": "Mekah",
+    "arti": "Orang-Orang kafir",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/109.mp3"
+  },
+  {
+    "nomor": 110,
+    "nama": "النصر",
+    "namaLatin": "An-Nasr",
+    "jumlahAyat": 3,
+    "tempatTurun": "Madinah",
+    "arti": "Pertolongan",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/110.mp3"
+  },
+  {
+    "nomor": 111,
+    "nama": "اللهب",
+    "namaLatin": "Al-Lahab",
+    "jumlahAyat": 5,
+    "tempatTurun": "Mekah",
+    "arti": "Api Yang Bergejolak",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/111.mp3"
+  },
+  {
+    "nomor": 112,
+    "nama": "الاخلاص",
+    "namaLatin": "Al-Ikhlas",
+    "jumlahAyat": 4,
+    "tempatTurun": "Mekah",
+    "arti": "Ikhlas",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/112.mp3"
+  },
+  {
+    "nomor": 113,
+    "nama": "الفلق",
+    "namaLatin": "Al-Falaq",
+    "jumlahAyat": 5,
+    "tempatTurun": "Madinah",
+    "arti": "Subuh",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/113.mp3"
+  },
+  {
+    "nomor": 114,
+    "nama": "الناس",
+    "namaLatin": "An-Nas",
+    "jumlahAyat": 6,
+    "tempatTurun": "Madinah",
+    "arti": "Manusia",
+    "audioFull": "https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/114.mp3"
+  }
+]
