@@ -8,8 +8,10 @@ import {
   buildMetadata,
   buildPublicMetadata,
   buildRootMetadata,
+  cleanVerificationCode,
   jsonLd,
   orgLd,
+  parseKeywords,
 } from '@/lib/seo'
 
 const SITE_NAME = 'Masjid An-nuur Arwana'
@@ -295,5 +297,79 @@ describe('buildPublicMetadata (layout (public))', () => {
 
     expect(buildRootMetadata(input).title).toBe('X')
     expect(buildPublicMetadata(input).title).toMatchObject({ default: 'X' })
+  })
+
+  it('mendukung favicon kustom, keywords, author, ogImage, robots, dan webmaster verification', () => {
+    const md = buildPublicMetadata({
+      siteName: 'Masjid An-nuur',
+      favicon: 'https://cdn.example.com/favicon.png',
+      seoKeywords: 'masjid, sholat, karawang',
+      seoAuthor: 'DKM Resmi',
+      seoOgImage: 'https://cdn.example.com/share.jpg',
+      seoRobots: 'index',
+      webmasterGoogle: '<meta name="google-site-verification" content="google123" />',
+      webmasterBing: 'bing456',
+      webmasterYandex: 'yandex789',
+    })
+
+    expect(md.icons).toEqual({
+      icon: [{ url: 'https://cdn.example.com/favicon.png' }],
+      shortcut: [{ url: 'https://cdn.example.com/favicon.png' }],
+      apple: [{ url: 'https://cdn.example.com/favicon.png' }],
+    })
+    expect(md.keywords).toEqual(['masjid', 'sholat', 'karawang'])
+    expect(md.authors).toEqual([{ name: 'DKM Resmi' }])
+    expect(md.robots).toMatchObject({ index: true, follow: true })
+    expect(md.openGraph?.images).toEqual([
+      { url: 'https://cdn.example.com/share.jpg', width: 1200, height: 630, alt: 'Masjid An-nuur' },
+    ])
+    expect(md.twitter?.images).toEqual(['https://cdn.example.com/share.jpg'])
+    expect(md.verification).toEqual({
+      google: 'google123',
+      yandex: 'yandex789',
+      other: { 'msvalidate.01': ['bing456'] },
+    })
+  })
+
+  it('seoRobots "noindex" mematikan indeksasi search engine', () => {
+    const md = buildPublicMetadata({ seoRobots: 'noindex' })
+    expect(md.robots).toEqual({ index: false, follow: false })
+  })
+})
+
+describe('cleanVerificationCode', () => {
+  it('mengekstrak content dari tag meta html', () => {
+    expect(
+      cleanVerificationCode('<meta name="google-site-verification" content="abc123xyz" />'),
+    ).toBe('abc123xyz')
+    expect(
+      cleanVerificationCode('<meta content=\'token-456\' name=\'msvalidate.01\'>'),
+    ).toBe('token-456')
+  })
+
+  it('mengembalikan string biasa jika sudah berupa token polos', () => {
+    expect(cleanVerificationCode('token-murni-789')).toBe('token-murni-789')
+  })
+
+  it('mengembalikan undefined jika kosong', () => {
+    expect(cleanVerificationCode('')).toBeUndefined()
+    expect(cleanVerificationCode('   ')).toBeUndefined()
+    expect(cleanVerificationCode(null)).toBeUndefined()
+  })
+})
+
+describe('parseKeywords', () => {
+  it('memisahkan koma dan baris baru menjadi array kata kunci bersih', () => {
+    expect(parseKeywords('masjid, jadwal sholat,\nkarawang , dkm')).toEqual([
+      'masjid',
+      'jadwal sholat',
+      'karawang',
+      'dkm',
+    ])
+  })
+
+  it('mengembalikan undefined jika string kosong', () => {
+    expect(parseKeywords('')).toBeUndefined()
+    expect(parseKeywords('  ,  ')).toBeUndefined()
   })
 })

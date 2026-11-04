@@ -70,7 +70,7 @@ beforeEach(() => {
 })
 
 describe('setPengaturan', () => {
-  it('menyimpan seluruh grup form termasuk seo.title & seo.description', async () => {
+  it('menyimpan seluruh grup form termasuk favicon, seo & webmaster', async () => {
     const result = await setPengaturan(INPUT)
 
     expect(result).toEqual({ ok: true })
@@ -79,8 +79,16 @@ describe('setPengaturan', () => {
       'site.address',
       'site.phone',
       'site.city',
+      'site.favicon',
       'seo.title',
       'seo.description',
+      'seo.keywords',
+      'seo.ogImage',
+      'seo.author',
+      'seo.robots',
+      'webmaster.google',
+      'webmaster.bing',
+      'webmaster.yandex',
       'donasi.rekening',
       'donasi.qris',
       'ga4.id',
@@ -142,10 +150,12 @@ describe('setPengaturan', () => {
     expect(savedKeys()).toContain('seo.description')
   })
 
-  it('revalidatePath("/", "layout") agar metadata root ikut tersegarkan', async () => {
+  it('revalidatePath("/", "layout"), sitemap dan robots agar metadata ikut tersegarkan', async () => {
     await setPengaturan(INPUT)
 
     expect(h.revalidatePathMock).toHaveBeenCalledWith('/', 'layout')
+    expect(h.revalidatePathMock).toHaveBeenCalledWith('/sitemap.xml')
+    expect(h.revalidatePathMock).toHaveBeenCalledWith('/robots.txt')
   })
 
   it('VIEWER ditolak tanpa menyentuh database', async () => {

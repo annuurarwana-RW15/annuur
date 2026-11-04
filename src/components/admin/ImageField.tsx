@@ -16,7 +16,7 @@ export default function ImageField({
   onChange,
   prefix = 'uploads',
   label = 'Gambar',
-  accept = 'image/jpeg,image/png,image/webp',
+  accept = 'image/jpeg,image/png,image/webp,image/x-icon,image/vnd.microsoft.icon,image/svg+xml',
 }: ImageFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)

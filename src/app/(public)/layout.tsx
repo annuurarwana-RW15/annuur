@@ -16,12 +16,44 @@ export const revalidate = 60
 // Judul & deskripsi berasal dari Setting (grup "SEO Global" di admin),
 // bukan konstanta — `revalidatePath('/', 'layout')` menyegarkannya saat disimpan.
 export async function generateMetadata(): Promise<Metadata> {
-  const [seoTitle, seoDescription, siteName] = await Promise.all([
+  const [
+    seoTitle,
+    seoDescription,
+    seoKeywords,
+    seoOgImage,
+    seoAuthor,
+    seoRobots,
+    siteName,
+    favicon,
+    webmasterGoogle,
+    webmasterBing,
+    webmasterYandex,
+  ] = await Promise.all([
     getSetting('seo.title', ''),
     getSetting('seo.description', ''),
+    getSetting('seo.keywords', ''),
+    getSetting('seo.ogImage', ''),
+    getSetting('seo.author', ''),
+    getSetting('seo.robots', 'index'),
     getSetting('site.name', ''),
+    getSetting('site.favicon', ''),
+    getSetting('webmaster.google', ''),
+    getSetting('webmaster.bing', ''),
+    getSetting('webmaster.yandex', ''),
   ])
-  return buildPublicMetadata({ seoTitle, seoDescription, siteName })
+  return buildPublicMetadata({
+    seoTitle,
+    seoDescription,
+    seoKeywords,
+    seoOgImage,
+    seoAuthor,
+    seoRobots,
+    siteName,
+    favicon,
+    webmasterGoogle,
+    webmasterBing,
+    webmasterYandex,
+  })
 }
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {

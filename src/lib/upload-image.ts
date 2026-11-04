@@ -3,8 +3,15 @@
  * dan RichTextEditor (gambar sisipan artikel) agar alur & pesan error seragam.
  */
 
-/** Tipe gambar yang diizinkan. */
-export const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp']
+/** Tipe gambar yang diizinkan (termasuk icon/favicon). */
+export const ALLOWED_IMAGE_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'image/x-icon',
+  'image/vnd.microsoft.icon',
+  'image/svg+xml',
+]
 
 /** Batas ukuran gambar: 5MB. */
 export const MAX_IMAGE_SIZE = 5 * 1024 * 1024
@@ -14,7 +21,7 @@ export const MAX_IMAGE_SIZE = 5 * 1024 * 1024
  */
 export function validateImageFile(file: File): string | null {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-    return 'Tipe file tidak diizinkan. Gunakan JPG, PNG, atau WebP.'
+    return 'Tipe file tidak diizinkan. Gunakan JPG, PNG, WebP, ICO, atau SVG.'
   }
   if (file.size > MAX_IMAGE_SIZE) {
     return 'Ukuran file maksimal 5MB.'

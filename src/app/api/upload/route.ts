@@ -11,6 +11,9 @@ const ALLOWED_TYPES: Record<string, string[]> = {
   'image/jpeg': ['jpg', 'jpeg'],
   'image/png': ['png'],
   'image/webp': ['webp'],
+  'image/x-icon': ['ico'],
+  'image/vnd.microsoft.icon': ['ico'],
+  'image/svg+xml': ['svg'],
 }
 
 const MAX_SIZE = 5 * 1024 * 1024

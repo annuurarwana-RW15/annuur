@@ -57,3 +57,4 @@ export default async function KontakPengaturanPage() {
     </div>
   )
 }
+

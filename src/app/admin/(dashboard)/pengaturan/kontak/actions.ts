@@ -98,3 +98,4 @@ export async function setKontakSettings(input: KontakInput): Promise<KontakResul
     return { ok: false, error: 'Terjadi kesalahan saat menyimpan data kontak' }
   }
 }
+

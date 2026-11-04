@@ -37,12 +37,32 @@ const geistMono = localFont({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const [seoTitle, seoDescription, siteName] = await Promise.all([
-    getSetting("seo.title", ""),
-    getSetting("seo.description", ""),
-    getSetting("site.name", ""),
-  ]);
-  return buildRootMetadata({ seoTitle, seoDescription, siteName });
+  const [
+    seoTitle,
+    seoDescription,
+    siteName,
+    favicon,
+    webmasterGoogle,
+    webmasterBing,
+    webmasterYandex,
+  ] = await Promise.all([
+    getSetting('seo.title', ''),
+    getSetting('seo.description', ''),
+    getSetting('site.name', ''),
+    getSetting('site.favicon', ''),
+    getSetting('webmaster.google', ''),
+    getSetting('webmaster.bing', ''),
+    getSetting('webmaster.yandex', ''),
+  ])
+  return buildRootMetadata({
+    seoTitle,
+    seoDescription,
+    siteName,
+    favicon,
+    webmasterGoogle,
+    webmasterBing,
+    webmasterYandex,
+  })
 }
 
 export default function RootLayout({

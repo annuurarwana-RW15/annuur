@@ -62,7 +62,44 @@ export function buildMetadata({
 export interface SiteMetadataInput {
   seoTitle?: string | null
   seoDescription?: string | null
+  seoKeywords?: string | null
+  seoOgImage?: string | null
+  seoAuthor?: string | null
+  seoRobots?: string | null
+  favicon?: string | null
   siteName?: string | null
+  webmasterGoogle?: string | null
+  webmasterBing?: string | null
+  webmasterYandex?: string | null
+}
+
+/**
+ * Membersihkan token verifikasi webmaster jika pengguna menempelkan tag HTML utuh
+ * (misal `<meta name="google-site-verification" content="XYZ" />`).
+ */
+export function cleanVerificationCode(raw?: string | null): string | undefined {
+  if (!raw) return undefined
+  const str = raw.trim()
+  if (!str) return undefined
+
+  // Cek apakah berupa tag <meta ... content="..." />
+  const contentMatch = str.match(/content=["']([^"']+)["']/i)
+  if (contentMatch?.[1]) return contentMatch[1].trim()
+
+  // Cek apakah berupa value="..."
+  const valueMatch = str.match(/value=["']([^"']+)["']/i)
+  if (valueMatch?.[1]) return valueMatch[1].trim()
+
+  return str
+}
+
+export function parseKeywords(raw?: string | null): string[] | undefined {
+  if (!raw) return undefined
+  const items = raw
+    .split(/[\n,]+/)
+    .map((s) => s.trim())
+    .filter(Boolean)
+  return items.length > 0 ? items : undefined
 }
 
 function siteTitle({ seoTitle, siteName }: SiteMetadataInput): string {
@@ -73,6 +110,55 @@ function siteDescription({ seoDescription }: SiteMetadataInput): string {
   return seoDescription?.trim() || DEFAULT_DESCRIPTION
 }
 
+function resolveIcons(favicon?: string | null): Metadata['icons'] {
+  const iconUrl = favicon?.trim()
+  if (!iconUrl) {
+    return {
+      icon: [{ url: '/favicon.ico' }],
+    }
+  }
+  return {
+    icon: [{ url: iconUrl }],
+    shortcut: [{ url: iconUrl }],
+    apple: [{ url: iconUrl }],
+  }
+}
+
+function resolveVerification(input: SiteMetadataInput): Metadata['verification'] {
+  const google = cleanVerificationCode(input.webmasterGoogle)
+  const bing = cleanVerificationCode(input.webmasterBing)
+  const yandex = cleanVerificationCode(input.webmasterYandex)
+
+  if (!google && !bing && !yandex) return undefined
+
+  return {
+    ...(google ? { google } : {}),
+    ...(yandex ? { yandex } : {}),
+    ...(bing ? { other: { 'msvalidate.01': [bing] } } : {}),
+  }
+}
+
+function resolveRobots(seoRobots?: string | null): Metadata['robots'] {
+  const isNoIndex = seoRobots?.trim().toLowerCase() === 'noindex'
+  if (isNoIndex) {
+    return {
+      index: false,
+      follow: false,
+    }
+  }
+  return {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  }
+}
+
 /**
  * Metadata layout root (di luar route group `(public)`): judul berupa string
  * polos **tanpa** `title.template` — halaman admin menyetel judulnya sendiri
@@ -81,10 +167,13 @@ function siteDescription({ seoDescription }: SiteMetadataInput): string {
  * Sumbernya Setting `seo.title` / `seo.description` lewat `generateMetadata`.
  */
 export function buildRootMetadata(input: SiteMetadataInput = {}): Metadata {
+  const verification = resolveVerification(input)
   return {
     metadataBase: new URL(SITE_URL),
     title: siteTitle(input),
     description: siteDescription(input),
+    icons: resolveIcons(input.favicon),
+    ...(verification ? { verification } : {}),
   }
 }
 
@@ -98,9 +187,37 @@ export function buildRootMetadata(input: SiteMetadataInput = {}): Metadata {
  */
 export function buildPublicMetadata(input: SiteMetadataInput = {}): Metadata {
   const name = siteTitle(input)
+  const desc = siteDescription(input)
+  const keywords = parseKeywords(input.seoKeywords)
+  const authorName = input.seoAuthor?.trim() || name
+  const ogImg = input.seoOgImage?.trim() ? absoluteUrl(input.seoOgImage.trim()) : undefined
+  const verification = resolveVerification(input)
+
   return {
     title: { default: name, template: `%s — ${name}` },
-    description: siteDescription(input),
+    description: desc,
+    ...(keywords ? { keywords } : {}),
+    authors: [{ name: authorName }],
+    creator: authorName,
+    publisher: name,
+    icons: resolveIcons(input.favicon),
+    robots: resolveRobots(input.seoRobots),
+    ...(verification ? { verification } : {}),
+    openGraph: {
+      type: 'website',
+      locale: 'id_ID',
+      url: SITE_URL,
+      siteName: name,
+      title: name,
+      description: desc,
+      ...(ogImg ? { images: [{ url: ogImg, width: 1200, height: 630, alt: name }] } : {}),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: name,
+      description: desc,
+      ...(ogImg ? { images: [ogImg] } : {}),
+    },
   }
 }
 

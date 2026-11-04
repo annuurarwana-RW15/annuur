@@ -302,3 +302,4 @@ export function KontakForm({ initial }: KontakFormProps) {
     </div>
   )
 }
+

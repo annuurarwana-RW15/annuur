@@ -37,8 +37,16 @@ export default async function PengaturanPage() {
     siteAddress,
     sitePhone,
     siteCity,
+    siteFavicon,
     seoTitle,
     seoDescription,
+    seoKeywords,
+    seoOgImage,
+    seoAuthor,
+    seoRobots,
+    webmasterGoogle,
+    webmasterBing,
+    webmasterYandex,
     rekeningRaw,
     qrisRaw,
     ga4Id,
@@ -48,8 +56,16 @@ export default async function PengaturanPage() {
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
     getSetting('site.city', ''),
+    getSetting('site.favicon', ''),
     getSetting('seo.title', ''),
     getSetting('seo.description', ''),
+    getSetting('seo.keywords', ''),
+    getSetting('seo.ogImage', ''),
+    getSetting('seo.author', ''),
+    getSetting('seo.robots', 'index'),
+    getSetting('webmaster.google', ''),
+    getSetting('webmaster.bing', ''),
+    getSetting('webmaster.yandex', ''),
     getSetting<unknown>('donasi.rekening', []),
     getSetting<unknown>('donasi.qris', null),
     getSetting('ga4.id', ''),
@@ -62,8 +78,21 @@ export default async function PengaturanPage() {
       address: siteAddress,
       phone: sitePhone,
       city: siteCity,
+      favicon: siteFavicon,
     },
-    seo: { title: seoTitle, description: seoDescription },
+    seo: {
+      title: seoTitle,
+      description: seoDescription,
+      keywords: seoKeywords,
+      ogImage: seoOgImage,
+      author: seoAuthor,
+      robots: seoRobots,
+    },
+    webmaster: {
+      google: webmasterGoogle,
+      bing: webmasterBing,
+      yandex: webmasterYandex,
+    },
     donasi: {
       rekening: rekeningList(rekeningRaw),
       qris: parseQris(qrisRaw) ?? { image: '', caption: '' },
@@ -75,8 +104,8 @@ export default async function PengaturanPage() {
     <div>
       <h1 className="text-2xl font-semibold text-neutral-900">Pengaturan</h1>
       <p className="mt-1 text-sm text-neutral-500">
-        Identitas, lokasi &amp; jadwal sholat, rekening &amp; QRIS donasi, SEO,
-        dan analitik.
+        Identitas &amp; favicon, lokasi &amp; jadwal sholat, rekening &amp; QRIS donasi,
+        SEO global, verifikasi webmaster, sitemap &amp; robots, dan analitik.
       </p>
       <div className="mt-6">
         <PengaturanForm
