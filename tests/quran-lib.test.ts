@@ -1,5 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { getAllSurahs, getSurahDetail, getSurahMeta, POPULAR_SURAHS } from '@/lib/quran'
+import {
+  getAllSurahs,
+  getAudioFullUrl,
+  getBackupAudioFullUrl,
+  getAyatAudioUrl,
+  getBackupAyatAudioUrl,
+  getSurahDetail,
+  getSurahMeta,
+  POPULAR_SURAHS,
+} from '@/lib/quran'
 
 describe('quran library', () => {
   it('getAllSurahs mengembalikan seluruh 114 surah lengkap', () => {
@@ -42,6 +51,38 @@ describe('quran library', () => {
     expect(POPULAR_SURAHS).toContain(18) // Al-Kahf
     expect(POPULAR_SURAHS).toContain(36) // Yasin
     expect(POPULAR_SURAHS).toContain(67) // Al-Mulk
+  })
+
+  it('getAudioFullUrl dan getBackupAudioFullUrl menangani string dan object dictionary audio', () => {
+    // Kasus object dictionary dari API equran.id v2
+    const audioObj = {
+      '01': 'https://cdn.equran.id/audio-full/Abdullah-Al-Juhany/001.mp3',
+      '05': 'https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/001.mp3',
+    }
+    const resolvedObj = getAudioFullUrl(audioObj, 1)
+    expect(resolvedObj).toBe('https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/001.mp3')
+
+    // Kasus string direct URL
+    const resolvedStr = getAudioFullUrl('https://example.com/audio.mp3', 2)
+    expect(resolvedStr).toBe('https://example.com/audio.mp3')
+
+    // Kasus undefined
+    const resolvedUndef = getAudioFullUrl(undefined, 36)
+    expect(resolvedUndef).toBe('https://cdn.equran.id/audio-full/Misyari-Rasyid-Al-Afasi/036.mp3')
+
+    // Cadangan backup quranicaudio.com
+    expect(getBackupAudioFullUrl(1)).toContain('001.mp3')
+    expect(getBackupAudioFullUrl(114)).toContain('114.mp3')
+  })
+
+  it('getAyatAudioUrl dan getBackupAyatAudioUrl menghasilkan URL ayat yang valid', () => {
+    const ayatAudio = {
+      '05': 'https://cdn.equran.id/audio-partial/Misyari-Rasyid-Al-Afasi/001001.mp3',
+    }
+    expect(getAyatAudioUrl(ayatAudio, 1, 1)).toBe(
+      'https://cdn.equran.id/audio-partial/Misyari-Rasyid-Al-Afasi/001001.mp3',
+    )
+    expect(getBackupAyatAudioUrl(1, 1)).toContain('everyayah.com')
   })
 })
 
