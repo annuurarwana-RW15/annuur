@@ -71,11 +71,40 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
     }
   }, [surah.nomor])
 
-  // Cleanup audio saat unmount
+  // Hentikan pemutaran audio saat surah berganti
   useEffect(() => {
-    return () => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.currentTime = 0
+      audioRef.current.src = ''
+      audioRef.current = null
+    }
+    setIsPlaying(false)
+    setIsLoadingAudio(false)
+    setActiveAudio(null)
+    setAudioError(null)
+    setCurrentTime(0)
+    setDuration(0)
+  }, [surah.nomor])
+
+  // Cleanup audio saat unmount dan saat navigasi keluar halaman
+  useEffect(() => {
+    function handlePageHide() {
       if (audioRef.current) {
         audioRef.current.pause()
+        audioRef.current.src = ''
+      }
+    }
+
+    window.addEventListener('pagehide', handlePageHide)
+    window.addEventListener('beforeunload', handlePageHide)
+
+    return () => {
+      window.removeEventListener('pagehide', handlePageHide)
+      window.removeEventListener('beforeunload', handlePageHide)
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.currentTime = 0
         audioRef.current.src = ''
         audioRef.current = null
       }
@@ -429,6 +458,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
       <div className="sticky top-14 z-30 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-black/10 bg-white/95 backdrop-blur-md px-4 py-3 shadow-sm">
         <Link
           href="/quran"
+          onClick={handleStopAudio}
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-green-900 hover:text-green-700"
         >
           <span>← Daftar Surah</span>
@@ -642,6 +672,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
         {surah.suratSebelumnya ? (
           <Link
             href={`/quran/${surah.suratSebelumnya.nomor}`}
+            onClick={handleStopAudio}
             className="flex items-center gap-2 rounded-xl border border-black/10 p-3 hover:border-emas hover:bg-krem/40 transition w-full sm:w-auto"
           >
             <span className="text-lg">←</span>
@@ -660,6 +691,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
 
         <Link
           href="/quran"
+          onClick={handleStopAudio}
           className="rounded-full bg-hijau px-5 py-2.5 text-xs font-semibold text-krem shadow hover:bg-hijau-tua transition text-center"
         >
           Semua Daftar Surah
@@ -668,6 +700,7 @@ export function QuranReaderClient({ surah }: QuranReaderClientProps) {
         {surah.suratSelanjutnya ? (
           <Link
             href={`/quran/${surah.suratSelanjutnya.nomor}`}
+            onClick={handleStopAudio}
             className="flex items-center justify-end gap-2 rounded-xl border border-black/10 p-3 hover:border-emas hover:bg-krem/40 transition w-full sm:w-auto text-right"
           >
             <div>

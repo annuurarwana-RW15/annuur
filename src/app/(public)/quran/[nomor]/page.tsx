@@ -65,7 +65,7 @@ export default async function SurahPage({ params }: PageProps) {
   return (
     <div className="bg-krem min-h-screen py-8 sm:py-12">
       <div className="mx-auto max-w-4xl px-4">
-        <QuranReaderClient surah={surah} />
+        <QuranReaderClient key={surah.nomor} surah={surah} />
       </div>
     </div>
   )

@@ -81,5 +81,45 @@ describe('QuranReaderClient', () => {
     fireEvent.click(bookmarkBtns[0])
     expect(screen.getByText(/Terakhir Dibaca/i)).toBeInTheDocument()
   })
+
+  it('menghentikan pemutar audio ketika surah berganti (rerender dengan surah baru)', () => {
+    const { rerender } = render(<QuranReaderClient surah={surah} />)
+
+    // Putar murottal
+    const playFullBtn = screen.getByRole('button', { name: /Putar Murottal Surah/i })
+    fireEvent.click(playFullBtn)
+    expect(screen.getByLabelText(/Pemutar Murottal Audio/i)).toBeInTheDocument()
+
+    // Simulasi ganti surah ke Al-Baqarah (nomor 2)
+    const surahBaqarah: SurahDetail = {
+      ...surah,
+      nomor: 2,
+      nama: 'البقرة',
+      namaLatin: 'Al-Baqarah',
+      jumlahAyat: 286,
+      arti: 'Sapi Betina',
+    }
+
+    rerender(<QuranReaderClient surah={surahBaqarah} />)
+
+    // Pemutar audio harus otomatis dihentikan dan ditutup
+    expect(screen.queryByLabelText(/Pemutar Murottal Audio/i)).not.toBeInTheDocument()
+  })
+
+  it('menghentikan pemutar audio ketika tautan navigasi surah diklik', () => {
+    render(<QuranReaderClient surah={surah} />)
+
+    // Putar murottal
+    const playFullBtn = screen.getByRole('button', { name: /Putar Murottal Surah/i })
+    fireEvent.click(playFullBtn)
+    expect(screen.getByLabelText(/Pemutar Murottal Audio/i)).toBeInTheDocument()
+
+    // Klik tombol daftar surah
+    const daftarSurahLink = screen.getByRole('link', { name: /← Daftar Surah/i })
+    fireEvent.click(daftarSurahLink)
+
+    // Mini player harus hilang
+    expect(screen.queryByLabelText(/Pemutar Murottal Audio/i)).not.toBeInTheDocument()
+  })
 })
 
