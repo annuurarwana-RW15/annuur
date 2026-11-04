@@ -8,6 +8,7 @@ import {
   generateLoanCode,
 } from '@/lib/inventaris'
 import { requireRole } from '@/lib/rbac'
+import { ensureInventoryTables } from '@/lib/inventaris-db'
 import {
   acquisitionSchema,
   createLoanSchema,
@@ -41,6 +42,7 @@ export async function saveInventoryItem(
   input: ItemInput,
 ): Promise<ActionResult<{ id: string }>> {
   await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const parsed = itemSchema.safeParse(input)
   if (!parsed.success) {
@@ -136,6 +138,7 @@ export async function saveInventoryItem(
  */
 export async function deleteInventoryItem(id: string): Promise<ActionResult> {
   await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const existing = await db.inventoryItem.findUnique({
     where: { id },
@@ -175,6 +178,7 @@ export async function createLoan(
   input: CreateLoanInput,
 ): Promise<ActionResult<{ loanId: string }>> {
   await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const parsed = createLoanSchema.safeParse(input)
   if (!parsed.success) {
@@ -291,6 +295,7 @@ export async function recordReturn(
   input: RecordReturnInput,
 ): Promise<ActionResult> {
   await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const parsed = recordReturnSchema.safeParse(input)
   if (!parsed.success) {
@@ -425,6 +430,7 @@ export async function createAcquisition(
   input: AcquisitionInput,
 ): Promise<ActionResult> {
   const sessionUser = await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const parsed = acquisitionSchema.safeParse(input)
   if (!parsed.success) {

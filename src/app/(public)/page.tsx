@@ -9,56 +9,79 @@ import { SectionRenderer } from '@/components/public/SectionRenderer'
 export const revalidate = 86400
 
 export default async function BerandaPage() {
-  const [sections, articles, period, qris] = await Promise.all([
-    db.section.findMany({
-      where: { isVisible: true, key: { not: 'footer' } },
-      orderBy: { order: 'asc' },
-    }),
-    db.article.findMany({
-      where: { status: 'PUBLISHED' },
-      orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
-      take: 3,
-      select: {
-        title: true,
-        slug: true,
-        excerpt: true,
-        coverImage: true,
-        publishedAt: true,
-      },
-    }),
-    db.period.findFirst({
-      where: { status: 'AKTIF' },
-      orderBy: { startDate: 'desc' },
-      select: { id: true },
-    }),
-    getQris(),
-  ])
+  let sections: Section[] = []
+  let articles: Array<{
+    title: string
+    slug: string
+    excerpt: string | null
+    coverImage: string | null
+    publishedAt: Date | null
+  }> = []
+  let period: { id: string } | null = null
+  let qris: Awaited<ReturnType<typeof getQris>> = null
+
+  try {
+    const res = await Promise.all([
+      db.section.findMany({
+        where: { isVisible: true, key: { not: 'footer' } },
+        orderBy: { order: 'asc' },
+      }),
+      db.article.findMany({
+        where: { status: 'PUBLISHED' },
+        orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
+        take: 3,
+        select: {
+          title: true,
+          slug: true,
+          excerpt: true,
+          coverImage: true,
+          publishedAt: true,
+        },
+      }),
+      db.period.findFirst({
+        where: { status: 'AKTIF' },
+        orderBy: { startDate: 'desc' },
+        select: { id: true },
+      }),
+      getQris(),
+    ])
+    sections = res[0]
+    articles = res[1]
+    period = res[2]
+    qris = res[3]
+  } catch (error) {
+    console.error('[BerandaPage] Gagal memuat data awal beranda:', error)
+  }
 
   let saldo: number | null = null
   // Deret harian bulan berjalan selalu tersedia (seri kosong bila tanpa periode)
   // agar kartu chart tetap tampil dengan empty state yang benar.
   let daily = buildDailyMonthSeries([])
   if (period) {
-    const [grouped, txRows] = await Promise.all([
-      db.transaction.groupBy({
-        by: ['type'],
-        where: { periodId: period.id },
-        _sum: { amount: true },
-      }),
-      db.transaction.findMany({
-        where: { periodId: period.id },
-        select: { date: true, type: true, amount: true },
-      }),
-    ])
-    const totals = new Map(grouped.map((row) => [row.type, Number(row._sum.amount ?? 0)]))
-    saldo = (totals.get('MASUK') ?? 0) - (totals.get('KELUAR') ?? 0)
-    daily = buildDailyMonthSeries(
-      txRows.map((row) => ({
-        date: row.date,
-        type: row.type,
-        amount: Number(row.amount),
-      })),
-    )
+    try {
+      const [grouped, txRows] = await Promise.all([
+        db.transaction.groupBy({
+          by: ['type'],
+          where: { periodId: period.id },
+          _sum: { amount: true },
+        }),
+        db.transaction.findMany({
+          where: { periodId: period.id },
+          select: { date: true, type: true, amount: true },
+        }),
+      ])
+      const totals = new Map(grouped.map((row) => [row.type, Number(row._sum.amount ?? 0)]))
+      saldo = (totals.get('MASUK') ?? 0) - (totals.get('KELUAR') ?? 0)
+      daily = buildDailyMonthSeries(
+        txRows.map((row) => ({
+          date: row.date,
+          type: row.type,
+          amount: Number(row.amount),
+        })),
+      )
+    } catch (error) {
+      console.error('[BerandaPage] Gagal memuat data keuangan beranda:', error)
+    }
   }
 
   // Posisi tetap di luar urutan DB:

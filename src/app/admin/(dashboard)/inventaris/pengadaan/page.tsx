@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/rbac'
 import { formatRupiah } from '@/lib/format'
+import { ensureInventoryTables } from '@/lib/inventaris-db'
 import { AcquisitionTable } from './AcquisitionTable'
 
 export const metadata: Metadata = {
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 
 export default async function PengadaanInventarisPage() {
   await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const [acquisitions, items, cashCategories] = await Promise.all([
     db.inventoryAcquisition.findMany({

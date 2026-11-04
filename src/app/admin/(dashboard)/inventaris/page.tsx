@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/rbac'
+import { ensureInventoryTables } from '@/lib/inventaris-db'
 import { InventoryMetrics } from './InventoryMetrics'
 import { InventarisTable } from './InventarisTable'
 import { ItemForm } from './form'
@@ -22,6 +23,7 @@ function first(value: string | string[] | undefined): string | undefined {
 
 export default async function InventarisPage({ searchParams }: PageProps) {
   await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const sp = await searchParams
   const edit = first(sp.edit)

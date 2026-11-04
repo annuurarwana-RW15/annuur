@@ -41,6 +41,7 @@ const h = vi.hoisted(() => ({
 
 vi.mock('@/lib/db', () => ({ db: h.db }))
 vi.mock('@/lib/rbac', () => ({ requireRole: h.requireRole }))
+vi.mock('@/lib/inventaris-db', () => ({ ensureInventoryTables: vi.fn().mockResolvedValue(undefined) }))
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
 
 beforeEach(() => {

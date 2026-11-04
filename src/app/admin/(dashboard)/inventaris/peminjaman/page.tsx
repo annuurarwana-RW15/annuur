@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { db } from '@/lib/db'
 import { deriveLoanStatus } from '@/lib/inventaris'
 import { requireRole } from '@/lib/rbac'
+import { ensureInventoryTables } from '@/lib/inventaris-db'
 import { PeminjamanTable } from './PeminjamanTable'
 
 export const metadata: Metadata = {
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 
 export default async function PeminjamanPage() {
   await requireRole('ADMIN', 'BENDAHARA')
+  await ensureInventoryTables()
 
   const loansRaw = await db.inventoryLoan.findMany({
     orderBy: { createdAt: 'desc' },

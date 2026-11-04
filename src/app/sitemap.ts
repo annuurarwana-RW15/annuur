@@ -17,15 +17,24 @@ const STATIC_PATHS: { path: string; priority: number; changeFrequency: 'daily' |
 ]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [sections, articles] = await Promise.all([
-    db.section.aggregate({ _max: { updatedAt: true } }),
-    db.article.findMany({
-      where: { status: 'PUBLISHED' },
-      select: { slug: true, updatedAt: true },
-    }),
-  ])
-  // Setting tidak punya timestamp → pakai konten terakhir diperbarui, fallback "sekarang".
-  const contentUpdated = sections._max.updatedAt ?? new Date()
+  let contentUpdated = new Date()
+  let articles: { slug: string; updatedAt: Date }[] = []
+
+  try {
+    const [sectionsResult, articlesResult] = await Promise.all([
+      db.section.aggregate({ _max: { updatedAt: true } }),
+      db.article.findMany({
+        where: { status: 'PUBLISHED' },
+        select: { slug: true, updatedAt: true },
+      }),
+    ])
+    if (sectionsResult._max.updatedAt) {
+      contentUpdated = sectionsResult._max.updatedAt
+    }
+    articles = articlesResult
+  } catch (error) {
+    console.error('[sitemap] Gagal mengambil data dinamis dari database, memakai fallback rute statis:', error)
+  }
 
   const staticEntries: MetadataRoute.Sitemap = STATIC_PATHS.map((page) => ({
     url: absoluteUrl(page.path),
