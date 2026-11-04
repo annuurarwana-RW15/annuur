@@ -9,12 +9,18 @@ const ALL_ACTIONS: Action[] = [
   'manage_articles',
   'manage_transactions',
   'verify_donations',
+  'manage_inventory',
   'view_analytics',
 ]
 
 const MATRIX: Record<Role, Action[]> = {
   ADMIN: ALL_ACTIONS,
-  BENDAHARA: ['manage_transactions', 'verify_donations', 'view_analytics'],
+  BENDAHARA: [
+    'manage_transactions',
+    'verify_donations',
+    'manage_inventory',
+    'view_analytics',
+  ],
   KONTEN: ['manage_sections', 'manage_articles'],
   VIEWER: ['view_analytics'],
 }

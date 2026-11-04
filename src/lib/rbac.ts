@@ -10,6 +10,7 @@ export type Action =
   | 'manage_articles'
   | 'manage_transactions'
   | 'verify_donations'
+  | 'manage_inventory'
   | 'view_analytics'
 
 const MATRIX: Record<Role, readonly Action[]> = {
@@ -20,9 +21,15 @@ const MATRIX: Record<Role, readonly Action[]> = {
     'manage_articles',
     'manage_transactions',
     'verify_donations',
+    'manage_inventory',
     'view_analytics',
   ],
-  BENDAHARA: ['manage_transactions', 'verify_donations', 'view_analytics'],
+  BENDAHARA: [
+    'manage_transactions',
+    'verify_donations',
+    'manage_inventory',
+    'view_analytics',
+  ],
   KONTEN: ['manage_sections', 'manage_articles'],
   VIEWER: ['view_analytics'],
 }

@@ -32,6 +32,15 @@ export const ADMIN_NAV: readonly NavItem[] = [
     ],
   },
   { label: 'Donasi', href: '/admin/donasi', action: 'verify_donations' },
+  {
+    label: 'Inventaris',
+    action: 'manage_inventory',
+    children: [
+      { label: 'Katalog Aset', href: '/admin/inventaris' },
+      { label: 'Peminjaman', href: '/admin/inventaris/peminjaman' },
+      { label: 'Pengadaan', href: '/admin/inventaris/pengadaan' },
+    ],
+  },
   { label: 'Pengguna', href: '/admin/pengguna', action: 'manage_users' },
   {
     label: 'Pengaturan',

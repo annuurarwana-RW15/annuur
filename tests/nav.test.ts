@@ -49,6 +49,8 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
   it('BENDAHARA: Analitik tampil, grup Pengaturan & Sections hilang', () => {
     const items = visibleAdminNav('BENDAHARA')
     expect(hrefs(items)).toContain('/admin/analitik')
+    expect(labels(items)).toContain('Inventaris')
+    expect(hrefs(items)).toContain('/admin/inventaris')
     expect(labels(items)).not.toContain('Pengaturan')
     expect(hrefs(items)).not.toContain('/admin/sections')
     expect(labels(items)).toContain('Kas')
