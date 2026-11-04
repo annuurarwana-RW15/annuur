@@ -118,6 +118,7 @@ model Transaction {
   creator      User       @relation(fields: [createdBy], references: [id])
   donationId   String?    @unique
   donation     Donation?  @relation(fields: [donationId], references: [id])
+  acquisition  InventoryAcquisition?
   createdAt    DateTime   @default(now())
 
   @@index([periodId, date])
@@ -168,4 +169,92 @@ model Track {
 model Setting {
   key   String @id
   value Json
+}
+
+enum InventoryCategoryType {
+  SARPRAS_UMUM
+  ELEKTRONIK_AUDIO
+  IBADAH_PENGAJIAN
+  RUKUN_KEMATIAN
+  KEBERSIHAN_DAPUR
+}
+
+enum LoanStatus {
+  DIPINJAM
+  KEMBALI_SEBAGIAN
+  SELESAI
+  TERLAMBAT
+}
+
+model InventoryItem {
+  id            String                @id @default(cuid())
+  code          String                @unique
+  name          String
+  category      InventoryCategoryType @default(SARPRAS_UMUM)
+  location      String
+  isBorrowable  Boolean               @default(true)
+  totalQty      Int                   @default(1)
+  availableQty  Int                   @default(1)
+  borrowedQty   Int                   @default(0)
+  brokenQty     Int                   @default(0)
+  isWaqf        Boolean               @default(false)
+  waqfDonor     String?
+  priceEstimate Decimal?              @db.Decimal(18, 2)
+  notes         String?
+  image         String?
+  loanItems     InventoryLoanItem[]
+  acquisitions  InventoryAcquisition[]
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+
+  @@index([category, isBorrowable])
+}
+
+model InventoryLoan {
+  id              String              @id @default(cuid())
+  code            String              @unique
+  borrowerName    String
+  borrowerPhone   String
+  borrowerAddress String?
+  purpose         String
+  loanDate        DateTime            @default(now())
+  expectedReturn  DateTime
+  actualReturn    DateTime?
+  status          LoanStatus          @default(DIPINJAM)
+  officerOut      String
+  officerIn       String?
+  notes           String?
+  items           InventoryLoanItem[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@index([status, expectedReturn])
+  @@index([loanDate])
+}
+
+model InventoryLoanItem {
+  id          String        @id @default(cuid())
+  loanId      String
+  loan        InventoryLoan @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  itemId      String
+  item        InventoryItem @relation(fields: [itemId], references: [id])
+  borrowedQty Int
+  returnedQty Int           @default(0)
+  brokenQty   Int           @default(0)
+  missingQty  Int           @default(0)
+}
+
+model InventoryAcquisition {
+  id            String        @id @default(cuid())
+  itemId        String
+  item          InventoryItem @relation(fields: [itemId], references: [id])
+  quantity      Int
+  source        String
+  unitPrice     Decimal?      @db.Decimal(18, 2)
+  donorName     String?
+  officer       String
+  date          DateTime      @default(now())
+  notes         String?
+  transactionId String?       @unique
+  transaction   Transaction?  @relation(fields: [transactionId], references: [id])
 }
