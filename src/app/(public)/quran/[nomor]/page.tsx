@@ -6,6 +6,7 @@ import { QuranReaderClient } from './QuranReaderClient'
 
 interface PageProps {
   params: Promise<{ nomor: string }>
+  searchParams?: Promise<{ autoplay?: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -26,8 +27,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
-export default async function SurahPage({ params }: PageProps) {
+export default async function SurahPage({ params, searchParams }: PageProps) {
   const { nomor: rawNomor } = await params
+  const resolvedSearchParams = (await searchParams) || {}
   const nomor = parseInt(rawNomor, 10)
 
   if (Number.isNaN(nomor) || nomor < 1 || nomor > 114) {
@@ -65,7 +67,11 @@ export default async function SurahPage({ params }: PageProps) {
   return (
     <div className="bg-krem min-h-screen py-8 sm:py-12">
       <div className="mx-auto max-w-4xl px-4">
-        <QuranReaderClient key={surah.nomor} surah={surah} />
+        <QuranReaderClient
+          key={surah.nomor}
+          surah={surah}
+          initialAutoplay={resolvedSearchParams.autoplay}
+        />
       </div>
     </div>
   )

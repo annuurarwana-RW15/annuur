@@ -167,5 +167,38 @@ describe('QuranReaderClient', () => {
     vi.runAllTimers()
     vi.useRealTimers()
   })
+
+  it('tombol Next pada player full surah memicu navigasi ke surah berikutnya dengan autoplay=full', () => {
+    // Al-Fatihah memiliki suratSelanjutnya (Al-Baqarah nomor 2)
+    const surahWithNext: SurahDetail = {
+      ...surah,
+      suratSelanjutnya: {
+        nomor: 2,
+        nama: 'البقرة',
+        namaLatin: 'Al-Baqarah',
+        jumlahAyat: 286,
+      },
+    }
+
+    render(<QuranReaderClient surah={surahWithNext} />)
+
+    // Putar full surah
+    const playFullBtn = screen.getByRole('button', { name: /Putar Murottal Surah/i })
+    fireEvent.click(playFullBtn)
+
+    // Klik tombol Next pada player
+    const nextBtn = screen.getByTitle(/Surah Selanjutnya/i)
+    fireEvent.click(nextBtn)
+
+    expect(pushMock).toHaveBeenCalledWith('/quran/2?autoplay=full')
+  })
+
+  it('memulai pemutaran audio otomatis jika dibuka dengan initialAutoplay="full"', () => {
+    render(<QuranReaderClient surah={surah} initialAutoplay="full" />)
+
+    // Player langsung muncul dan tidak hide
+    expect(screen.getByLabelText(/Pemutar Murottal Audio/i)).toBeInTheDocument()
+    expect(screen.getByText(/Surah Al-Fatihah \(Lengkap\)/i)).toBeInTheDocument()
+  })
 })
 
