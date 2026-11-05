@@ -1,60 +1,11 @@
 import type { Section } from '@prisma/client'
 import Link from 'next/link'
 import { readField } from '@/app/admin/(dashboard)/sections/section-content'
-import { galleryItems, type GalleryItem } from './content'
+import { galleryItems } from './content'
+import { GalleryGrid } from './GalleryGrid'
 import { SectionHeading } from './SectionHeading'
 
-export function GalleryGrid({
-  items,
-  className = 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4',
-}: {
-  items: GalleryItem[]
-  className?: string
-}) {
-  return (
-    <ul className={`grid gap-4 ${className}`.trim()}>
-      {items.map((item, index) => (
-        <li
-          key={`${item.url}-${index}`}
-          className="overflow-hidden rounded-2xl border border-emas/25 bg-white shadow-sm"
-        >
-          <figure>
-            {/* eslint-disable-next-line @next/next/no-img-element -- URL galeri dari penyimpanan eksternal, di luar image optimizer */}
-            <img
-              src={item.url}
-              alt={galleryAlt(item)}
-              loading="lazy"
-              className="aspect-[4/3] w-full object-cover"
-            />
-            {item.caption && (
-              <figcaption className="px-3 py-2 text-xs text-hijau-tua/75">
-                {item.caption}
-              </figcaption>
-            )}
-          </figure>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-/** Alt: caption bila ada, lalu nama berkas dari URL, lalu fallback generik. */
-function galleryAlt(item: GalleryItem): string {
-  if (item.caption) return item.caption
-  try {
-    const last = new URL(item.url, 'https://placeholder.invalid').pathname
-      .split('/')
-      .pop()
-    const name = decodeURIComponent(last || '')
-      .replace(/\.[a-z0-9]+$/i, '')
-      .replace(/[-_+]+/g, ' ')
-      .trim()
-    if (name) return `Foto ${name}`
-  } catch {
-    /* URL tak terbaca → fallback */
-  }
-  return 'Foto galeri Masjid An-nuur Arwana'
-}
+export { GalleryGrid }
 
 export function GallerySection({ section }: { section: Section }) {
   const items = galleryItems(readField(section.content, 'galeri', 'images'))
