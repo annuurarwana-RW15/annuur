@@ -306,5 +306,27 @@ describe('QuranReaderClient', () => {
     expect(screen.getByText(/QS. Al-Fatihah : Ayat 1/i)).toBeInTheDocument()
     expect(screen.getByText(/Murottal Sedang Membaca/i)).toBeInTheDocument()
   })
+
+  it('dapat mengatur konfigurasi scroll murottal antara Otomatis dan Manual dari toolbar dan header', () => {
+    render(<QuranReaderClient surah={surah} />)
+
+    // Tombol di toolbar sticky
+    const toolbarScrollBtn = screen.getByRole('button', { name: /Murottal: Auto Scroll/i })
+    expect(toolbarScrollBtn).toBeInTheDocument()
+
+    // Klik untuk beralih ke Manual
+    fireEvent.click(toolbarScrollBtn)
+    expect(screen.getByRole('button', { name: /Murottal: Manual/i })).toBeInTheDocument()
+
+    // Tombol di header surah via title
+    const headerManualBtn = screen.getByTitle(/Manual Scroll: Layar tetap diam/i)
+    expect(headerManualBtn).toBeInTheDocument()
+    const headerAutoBtn = screen.getByTitle(/Auto Scroll: Layar otomatis bergeser/i)
+    expect(headerAutoBtn).toBeInTheDocument()
+
+    // Klik Auto Scroll di header
+    fireEvent.click(headerAutoBtn)
+    expect(screen.getByRole('button', { name: /Murottal: Auto Scroll/i })).toBeInTheDocument()
+  })
 })
 

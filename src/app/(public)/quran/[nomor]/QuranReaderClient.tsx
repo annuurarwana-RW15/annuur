@@ -147,13 +147,14 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       const effectiveDuration = Math.max(1, duration - bismillahDuration)
 
       // Hitung bobot per ayat secara proporsional berdasarkan:
-      // 1. Teks Arab bersih (tashkeel/harakat dibersihkan agar tidak bias)
-      // 2. Jumlah kata (tajwid & mad berkorelasi erat dengan kata)
-      // 3. Jeda waqaf nafas antar ayat (rata-rata 1.5 - 2 detik per ayat)
+      // 1. Bobot durasi dasar minimum (45 unit, mencegah ayat pendek melompat terlalu cepat)
+      // 2. Teks Arab bersih (tashkeel/harakat dibersihkan agar tidak bias)
+      // 3. Jumlah kata (tajwid & mad berkorelasi erat dengan kata)
+      // 4. Jeda waqaf nafas antar ayat (rata-rata 1.5 - 2 detik per ayat)
       const ayatWeights = surah.ayat.map((a) => {
         const cleanArab = (a.teksArab || '').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
         const words = cleanArab.trim() ? cleanArab.trim().split(/\s+/).length : 4
-        const weight = Math.max(15, cleanArab.length * 1.0 + words * 2.5 + 12)
+        const weight = 45 + cleanArab.length * 0.6 + words * 1.5
         return { nomorAyat: a.nomorAyat, weight }
       })
 
@@ -518,11 +519,11 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
         backupUrl,
       })
 
-      if (shouldScroll) {
+      if (shouldScroll && murottalAutoScroll) {
         scrollToAyat(ayatNomor)
       }
     },
-    [surah, startAudioPlayback, scrollToAyat],
+    [surah, startAudioPlayback, scrollToAyat, murottalAutoScroll],
   )
 
   // Toggle pemutaran audio full surah (berbagi kontrol dengan pemutar utama)
@@ -791,7 +792,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
             </span>
 
             {/* Tombol Audio Murottal: Mode Sinkron Tiap Ayat & Mode Full Surah */}
-            <div className="flex flex-wrap sm:justify-end gap-2">
+            <div className="flex flex-wrap sm:justify-end items-center gap-2">
               <button
                 type="button"
                 onClick={() => handleToggleAyatAudio(1)}
@@ -837,6 +838,49 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
                 </span>
                 <span className="text-[10px] opacity-75 font-normal">(Syaikh Al-Afasy)</span>
               </button>
+            </div>
+
+            {/* Konfigurasi Mode Scroll Murottal (Auto Scroll vs Manual) */}
+            <div className="flex items-center gap-2 rounded-xl bg-black/25 px-3 py-1.5 border border-emas/20 text-xs">
+              <span className="text-[11px] text-krem/75 font-medium">Navigasi Layar:</span>
+              <div className="flex items-center rounded-lg bg-black/30 p-0.5 border border-white/10">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMurottalAutoScroll(true)
+                    try {
+                      localStorage.setItem('annuur_quran_murottal_autoscroll', 'true')
+                    } catch {}
+                  }}
+                  className={`rounded px-2.5 py-0.5 text-[11px] font-semibold transition flex items-center gap-1 ${
+                    murottalAutoScroll
+                      ? 'bg-emas text-hijau font-bold shadow-xs'
+                      : 'text-krem/70 hover:text-krem'
+                  }`}
+                  title="Auto Scroll: Layar otomatis bergeser mengikuti ayat yang dilantunkan murottal"
+                >
+                  <span>📜</span>
+                  <span>Auto Scroll</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMurottalAutoScroll(false)
+                    try {
+                      localStorage.setItem('annuur_quran_murottal_autoscroll', 'false')
+                    } catch {}
+                  }}
+                  className={`rounded px-2.5 py-0.5 text-[11px] font-semibold transition flex items-center gap-1 ${
+                    !murottalAutoScroll
+                      ? 'bg-white/20 text-krem font-bold shadow-xs'
+                      : 'text-krem/70 hover:text-krem'
+                  }`}
+                  title="Manual Scroll: Layar tetap diam di tempat, Anda bebas scroll manual"
+                >
+                  <span>🖐️</span>
+                  <span>Manual</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -917,6 +961,25 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
             }`}
           >
             Arti {showTranslation ? '✓' : '✕'}
+          </button>
+
+          {/* Konfigurasi Mode Scroll Murottal (Otomatis vs Manual) */}
+          <button
+            type="button"
+            onClick={toggleMurottalAutoScroll}
+            className={`rounded-lg px-2.5 py-1 text-xs font-semibold border transition flex items-center gap-1.5 ${
+              murottalAutoScroll
+                ? 'border-emerald-700 bg-emerald-50 text-emerald-900 font-bold'
+                : 'border-black/10 bg-neutral-50 text-neutral-500'
+            }`}
+            title={
+              murottalAutoScroll
+                ? 'Scroll Murottal: OTOMATIS (Layar otomatis bergulir mengikuti ayat yang dibaca). Klik untuk ganti ke Manual.'
+                : 'Scroll Murottal: MANUAL (Layar tetap diam, bebas Anda geser sendiri). Klik untuk ganti ke Otomatis.'
+            }
+          >
+            <span>{murottalAutoScroll ? '📜' : '🖐️'}</span>
+            <span>Murottal: {murottalAutoScroll ? 'Auto Scroll' : 'Manual'}</span>
           </button>
 
           {/* Toggle & Kontrol Kecepatan Auto Scroll Baca (Manual) */}
@@ -1224,21 +1287,24 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               <button
                 type="button"
                 onClick={toggleMurottalAutoScroll}
-                className={`flex h-9 items-center gap-1 px-2.5 rounded-full text-xs font-semibold transition ${
+                className={`flex h-9 items-center gap-1.5 px-3 rounded-full text-xs font-semibold transition ${
                   murottalAutoScroll
-                    ? 'bg-emas/20 text-emas-muda border border-emas/40'
-                    : 'bg-white/5 text-krem/40 hover:bg-white/10'
+                    ? 'bg-emas/20 text-emas-muda border border-emas/40 shadow-xs'
+                    : 'bg-white/10 text-krem/50 hover:bg-white/15'
                 }`}
                 title={
                   murottalAutoScroll
-                    ? 'Auto Scroll Murottal AKTIF (Layar otomatis mengikuti ayat yang dibaca). Klik untuk nonaktifkan.'
-                    : 'Auto Scroll Murottal NONAKTIF. Klik untuk aktifkan.'
+                    ? 'Scroll Murottal: AKTIF (Layar otomatis mengikuti ayat yang dibaca). Klik untuk ganti ke Manual.'
+                    : 'Scroll Murottal: MANUAL (Layar diam, bebas Anda geser sendiri). Klik untuk aktifkan auto-scroll.'
                 }
                 aria-label="Toggle Auto Scroll Murottal"
               >
-                <span>📜</span>
-                <span className="hidden md:inline">
-                  Scroll: {murottalAutoScroll ? 'ON' : 'OFF'}
+                <span>{murottalAutoScroll ? '📜' : '🖐️'}</span>
+                <span className="hidden sm:inline">
+                  Scroll: {murottalAutoScroll ? 'ON (Otomatis)' : 'OFF (Manual)'}
+                </span>
+                <span className="sm:hidden">
+                  {murottalAutoScroll ? 'Auto' : 'Manual'}
                 </span>
               </button>
 
