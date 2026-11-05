@@ -22,10 +22,10 @@ async function submitPublicDonation(page: Page, donorName: string): Promise<void
 }
 
 test.describe('publik', () => {
-  test('beranda → klik Berita → artikel pertama tampil h1', async ({ page }) => {
+  test('beranda → klik Artikel → artikel pertama tampil h1', async ({ page }) => {
     await page.goto('/')
     const nav = page.getByRole('navigation', { name: 'Navigasi utama' })
-    await nav.getByRole('link', { name: /Berita/ }).click()
+    await nav.getByRole('link', { name: /Artikel/ }).click()
     await expect(page).toHaveURL(/\/berita(\?|$)/)
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 
