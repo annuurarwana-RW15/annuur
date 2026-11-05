@@ -293,5 +293,18 @@ describe('QuranReaderClient', () => {
     fireEvent.click(toggleScrollMurottalBtn)
     expect(toggleScrollMurottalBtn).toHaveTextContent(/Scroll: ON/i)
   })
+
+  it('tombol "Putar Sinkron Tiap Ayat" di header memulai mode continuous ayat 1', () => {
+    render(<QuranReaderClient surah={surah} />)
+
+    const syncAyatBtn = screen.getByRole('button', { name: /Putar Sinkron Tiap Ayat/i })
+    expect(syncAyatBtn).toBeInTheDocument()
+
+    fireEvent.click(syncAyatBtn)
+
+    // Player aktif pada QS. Al-Fatihah : Ayat 1
+    expect(screen.getByText(/QS. Al-Fatihah : Ayat 1/i)).toBeInTheDocument()
+    expect(screen.getByText(/Murottal Sedang Membaca/i)).toBeInTheDocument()
+  })
 })
 

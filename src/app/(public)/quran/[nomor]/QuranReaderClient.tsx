@@ -82,16 +82,46 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
   const autoScrollRafRef = useRef<number | null>(null)
   const lastScrollTimeRef = useRef<number | null>(null)
   const prevScrolledAyatRef = useRef<number | null>(null)
+  const lastScrollTimestampRef = useRef<number>(0)
 
-  // Scroll halus ke kartu ayat di layar
-  const scrollToAyat = useCallback((ayatNomor: number) => {
+  // Scroll halus ke kartu ayat di layar dengan zona nyaman & pencegahan getar (anti-jitter)
+  const scrollToAyat = useCallback((ayatNomor: number, force = false) => {
     if (typeof window === 'undefined') return
+
+    const now = Date.now()
+    if (!force && prevScrolledAyatRef.current === ayatNomor && now - lastScrollTimestampRef.current < 400) {
+      return
+    }
+    prevScrolledAyatRef.current = ayatNomor
+    lastScrollTimestampRef.current = now
+
     setTimeout(() => {
       const el = document.getElementById(`ayat-${ayatNomor}`)
-      if (el) {
+      if (!el) return
+
+      // Kompatibilitas pengujian Vitest / JSDOM mock
+      if (typeof el.scrollIntoView === 'function') {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
-    }, 60)
+
+      // Browser nyata: evaluasi posisi agar tidak tertutup sticky toolbar atas atau floating player bawah
+      try {
+        const rect = el.getBoundingClientRect()
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight
+        const topSafeZone = 120 // Margin di bawah sticky bar atas (~100-110px)
+        const bottomSafeZone = viewportHeight - 140 // Margin di atas floating player bawah (~100-120px)
+
+        const isComfortablyVisible = rect.top >= topSafeZone && rect.bottom <= bottomSafeZone
+
+        if (!isComfortablyVisible) {
+          const scrollTarget = window.scrollY + rect.top - topSafeZone - 12
+          window.scrollTo({
+            top: Math.max(0, scrollTarget),
+            behavior: 'smooth',
+          })
+        }
+      } catch {}
+    }, 50)
   }, [])
 
   // Menghitung ayat yang sedang dibaca murottal secara real-time
@@ -102,19 +132,45 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
     }
     if (activeAudio.mode === 'full') {
       if (!duration || duration <= 0 || currentTime <= 0) return 1
-      const totalChars = surah.ayat.reduce((acc, a) => acc + (a.teksArab?.length || 20), 0)
+
+      // File murottal full surah dari qari diawali Basmalah pembuka
+      // pada seluruh surah selain Al-Fatihah (nomor 1) dan At-Taubah (nomor 9).
+      // Durasi Basmalah pembuka rata-rata adalah ~6.5 detik.
+      const bismillahDuration = surah.nomor !== 1 && surah.nomor !== 9 ? 6.5 : 0
+
+      // Jika masih dalam rentang Basmalah pembuka, ayat aktif tetap Ayat 1
+      if (currentTime < bismillahDuration) {
+        return 1
+      }
+
+      const effectiveTime = Math.max(0, currentTime - bismillahDuration)
+      const effectiveDuration = Math.max(1, duration - bismillahDuration)
+
+      // Hitung bobot per ayat secara proporsional berdasarkan:
+      // 1. Teks Arab bersih (tashkeel/harakat dibersihkan agar tidak bias)
+      // 2. Jumlah kata (tajwid & mad berkorelasi erat dengan kata)
+      // 3. Jeda waqaf nafas antar ayat (rata-rata 1.5 - 2 detik per ayat)
+      const ayatWeights = surah.ayat.map((a) => {
+        const cleanArab = (a.teksArab || '').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+        const words = cleanArab.trim() ? cleanArab.trim().split(/\s+/).length : 4
+        const weight = Math.max(15, cleanArab.length * 1.0 + words * 2.5 + 12)
+        return { nomorAyat: a.nomorAyat, weight }
+      })
+
+      const totalWeight = ayatWeights.reduce((acc, item) => acc + item.weight, 0)
       let accumulated = 0
-      const progress = Math.min(Math.max(currentTime / duration, 0), 0.999)
-      for (const a of surah.ayat) {
-        accumulated += a.teksArab?.length || 20
-        if (progress < accumulated / totalChars) {
-          return a.nomorAyat
+      const progressRatio = Math.min(Math.max(effectiveTime / effectiveDuration, 0), 0.999)
+
+      for (const item of ayatWeights) {
+        accumulated += item.weight
+        if (progressRatio < accumulated / totalWeight) {
+          return item.nomorAyat
         }
       }
       return surah.ayat[surah.ayat.length - 1]?.nomorAyat || 1
     }
     return null
-  }, [activeAudio, currentTime, duration, surah.ayat])
+  }, [activeAudio, currentTime, duration, surah.ayat, surah.nomor])
 
   // Auto-scroll halus otomatis menyesuaikan ayat yang sedang dibaca murottal
   useEffect(() => {
@@ -734,29 +790,54 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               {surah.nama}
             </span>
 
-            {/* Tombol Audio Murottal Full Surah (terhubung ke Player Utama tunggal) */}
-            <button
-              type="button"
-              onClick={handleToggleFullSurahAudio}
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold shadow transition ${
-                isFullPlaying
-                  ? 'bg-rose-600 text-white animate-pulse'
-                  : isFullLoading
-                    ? 'bg-amber-500 text-white'
-                    : 'bg-emas text-hijau hover:bg-emas-muda'
-              }`}
-            >
-              <span>
-                {isFullLoading
-                  ? '⏳ Menyiapkan Audio...'
-                  : isFullPlaying
-                    ? '⏸ Jeda Murottal Surah'
-                    : activeAudio?.mode === 'full'
-                      ? '▶ Lanjutkan Murottal Surah'
-                      : '▶ Putar Murottal Surah'}
-              </span>
-              <span className="text-[10px] opacity-75 font-normal">(Syaikh Al-Afasy)</span>
-            </button>
+            {/* Tombol Audio Murottal: Mode Sinkron Tiap Ayat & Mode Full Surah */}
+            <div className="flex flex-wrap sm:justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => handleToggleAyatAudio(1)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold shadow transition ${
+                  activeAudio?.mode === 'ayat' && isPlaying
+                    ? 'bg-emerald-600 text-white animate-pulse ring-2 ring-emerald-300'
+                    : 'bg-emerald-900/90 text-krem hover:bg-emerald-800 border border-emerald-500/40'
+                }`}
+                title="Putar murottal ayat demi ayat secara berurutan dengan sinkronisasi 100% presisi"
+              >
+                <span>
+                  {activeAudio?.mode === 'ayat' && isPlaying
+                    ? '⏸ Jeda Bacaan Ayat'
+                    : activeAudio?.mode === 'ayat'
+                      ? '▶ Lanjut Bacaan Ayat'
+                      : '▶ Putar Sinkron Tiap Ayat'}
+                </span>
+                <span className="rounded bg-emas/20 px-1.5 py-0.5 text-[10px] text-emas-muda font-bold">
+                  ★ Presisi
+                </span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleToggleFullSurahAudio}
+                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold shadow transition ${
+                  isFullPlaying
+                    ? 'bg-rose-600 text-white animate-pulse'
+                    : isFullLoading
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-emas text-hijau hover:bg-emas-muda'
+                }`}
+                title="Putar audio full satu surah utuh"
+              >
+                <span>
+                  {isFullLoading
+                    ? '⏳ Menyiapkan Audio...'
+                    : isFullPlaying
+                      ? '⏸ Jeda Murottal Surah'
+                      : activeAudio?.mode === 'full'
+                        ? '▶ Lanjutkan Murottal Surah'
+                        : '▶ Putar Murottal Surah'}
+                </span>
+                <span className="text-[10px] opacity-75 font-normal">(Syaikh Al-Afasy)</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -1121,9 +1202,16 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
                 )}
               </div>
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold text-emas-muda uppercase tracking-wider truncate">
-                  Murottal Syaikh Misyari Rasyid Al-Afasy
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="text-[11px] font-semibold text-emas-muda uppercase tracking-wider truncate">
+                    Murottal Syaikh Al-Afasy
+                  </p>
+                  {activeMurottalAyat && (
+                    <span className="rounded bg-emas/20 px-1.5 py-0.2 text-[10px] font-bold text-emas-muda border border-emas/30 shrink-0">
+                      Ayat {activeMurottalAyat}
+                    </span>
+                  )}
+                </div>
                 <h4 className="text-sm font-bold text-krem truncate">
                   {activeAudio.title}
                 </h4>
