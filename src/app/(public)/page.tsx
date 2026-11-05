@@ -17,6 +17,7 @@ export default async function BerandaPage() {
     excerpt: string | null
     coverImage: string | null
     publishedAt: Date | null
+    category?: string | null
   }> = []
   let period: { id: string } | null = null
   let qris: Awaited<ReturnType<typeof getQris>> = null
@@ -31,13 +32,14 @@ export default async function BerandaPage() {
       db.article.findMany({
         where: { status: 'PUBLISHED' },
         orderBy: [{ publishedAt: 'desc' }, { createdAt: 'desc' }],
-        take: 3,
+        take: 6,
         select: {
           title: true,
           slug: true,
           excerpt: true,
           coverImage: true,
           publishedAt: true,
+          category: true,
         },
       }),
       db.period.findFirst({

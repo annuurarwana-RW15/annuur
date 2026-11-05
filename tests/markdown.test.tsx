@@ -40,6 +40,12 @@ describe('parseMarkdown', () => {
       { type: 'paragraph', text: 'b' },
     ])
   })
+
+  it('mem-parse blockquote kutipan ayat dan hadits yang diawali >', () => {
+    expect(parseMarkdown('> Hadits shahih\n> riwayat Bukhari')).toEqual([
+      { type: 'blockquote', text: 'Hadits shahih riwayat Bukhari' },
+    ])
+  })
 })
 
 describe('renderInline', () => {

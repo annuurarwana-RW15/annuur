@@ -6,12 +6,14 @@ export type MarkdownBlock =
   | { type: 'heading'; level: 2 | 3; text: string }
   | { type: 'paragraph'; text: string }
   | { type: 'list'; items: string[] }
+  | { type: 'blockquote'; text: string }
 
 const HEADING_RE = /^(#{1,6})\s+(.*)$/
 const BULLET_RE = /^[-*+]\s+(.*)$/
+const BLOCKQUOTE_RE = /^>\s*(.*)$/
 
 /**
- * Parser markdown ringkas: paragraf, heading (`#`–`######`), bullet (`-`/`*`).
+ * Parser markdown ringkas: paragraf, heading (`#`–`######`), bullet (`-`/`*`), blockquote (`>`).
  * Heading `#`/`##` → h2 (h1 dipakai judul halaman), `###`+ → h3.
  * Tidak ada HTML: hasilnya hanya struktur data untuk dirender sebagai elemen React.
  */
@@ -20,6 +22,7 @@ export function parseMarkdown(text: string): MarkdownBlock[] {
   const blocks: MarkdownBlock[] = []
   let paragraph: string[] = []
   let list: string[] = []
+  let quote: string[] = []
 
   const flushParagraph = () => {
     if (paragraph.length) {
@@ -33,12 +36,19 @@ export function parseMarkdown(text: string): MarkdownBlock[] {
       list = []
     }
   }
+  const flushQuote = () => {
+    if (quote.length) {
+      blocks.push({ type: 'blockquote', text: quote.join(' ') })
+      quote = []
+    }
+  }
 
   for (const raw of lines) {
     const line = raw.trim()
     if (!line) {
       flushParagraph()
       flushList()
+      flushQuote()
       continue
     }
 
@@ -46,6 +56,7 @@ export function parseMarkdown(text: string): MarkdownBlock[] {
     if (heading) {
       flushParagraph()
       flushList()
+      flushQuote()
       blocks.push({
         type: 'heading',
         level: heading[1].length >= 3 ? 3 : 2,
@@ -54,19 +65,30 @@ export function parseMarkdown(text: string): MarkdownBlock[] {
       continue
     }
 
+    const blockquote = BLOCKQUOTE_RE.exec(line)
+    if (blockquote) {
+      flushParagraph()
+      flushList()
+      quote.push(blockquote[1].trim())
+      continue
+    }
+
     const bullet = BULLET_RE.exec(line)
     if (bullet) {
       flushParagraph()
+      flushQuote()
       list.push(bullet[1].trim())
       continue
     }
 
     flushList()
+    flushQuote()
     paragraph.push(line)
   }
 
   flushParagraph()
   flushList()
+  flushQuote()
   return blocks
 }
 
@@ -140,6 +162,16 @@ export function Markdown({
                 <li key={itemIndex}>{renderInline(item)}</li>
               ))}
             </ul>
+          )
+        }
+        if (block.type === 'blockquote') {
+          return (
+            <blockquote
+              key={index}
+              className="my-4 rounded-r-2xl border-l-4 border-emas bg-white/70 p-4 sm:p-5 shadow-xs text-hijau-tua leading-relaxed italic"
+            >
+              {renderInline(block.text)}
+            </blockquote>
           )
         }
         return <p key={index}>{renderInline(block.text)}</p>
