@@ -109,7 +109,7 @@ export default async function BerandaPage() {
 
   return (
     <>
-      <SectionRenderer sections={beforeFinance} />
+      <SectionRenderer sections={beforeFinance} articles={articles} />
       <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
       <SectionRenderer sections={afterFinance} articles={articles} />
       {!hasPengumumanSection && <LatestNews articles={articles} />}
