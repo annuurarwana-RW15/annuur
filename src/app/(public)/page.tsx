@@ -7,7 +7,7 @@ import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
 
-export const revalidate = 86400
+export const revalidate = 60
 
 export default async function BerandaPage() {
   let sections: Section[] = []
@@ -105,12 +105,14 @@ export default async function BerandaPage() {
     afterFinance = []
   }
 
+  const hasPengumumanSection = sections.some((s) => s.key === 'pengumuman')
+
   return (
     <>
       <SectionRenderer sections={beforeFinance} />
       <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
-      <SectionRenderer sections={afterFinance} />
-      <LatestNews articles={articles} />
+      <SectionRenderer sections={afterFinance} articles={articles} />
+      {!hasPengumumanSection && <LatestNews articles={articles} />}
       {testimoni && <SectionRenderer sections={[testimoni]} />}
     </>
   )

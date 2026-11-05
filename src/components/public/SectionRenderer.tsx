@@ -15,10 +15,18 @@ import { SectionHeading } from './SectionHeading'
 import { TestimoniSection } from './TestimoniSection'
 import { TikTokSection } from './TikTokSection'
 
-function PengumumanSection({ section }: { section: Section }) {
+import { ArticleCard, type ArticleCardData } from './ArticleCard'
+
+function PengumumanSection({
+  section,
+  articles = [],
+}: {
+  section: Section
+  articles?: ArticleCardData[]
+}) {
   const text =
     asText(readField(section.content, 'pengumuman', 'text')) ||
-    'Ikuti kabar kegiatan dan pengumuman terbaru dari Masjid An-nuur Arwana.'
+    'Ikuti kajian keislaman, tadabbur ayat Al-Qur\'an, hadits shahih, dan agenda kegiatan Masjid An-nuur Arwana.'
 
   return (
     <section
@@ -27,14 +35,41 @@ function PengumumanSection({ section }: { section: Section }) {
       className="bg-krem-tua/60"
     >
       <div className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading id="pengumuman-judul">{section.title}</SectionHeading>
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-2xl text-lg leading-relaxed text-hijau-tua/85">{text}</p>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <div>
+            <SectionHeading id="pengumuman-judul">{section.title}</SectionHeading>
+            <p className="mt-2 max-w-2xl text-base leading-relaxed text-hijau-tua/80">
+              {text}
+            </p>
+          </div>
           <Link
             href="/berita"
-            className="inline-flex shrink-0 items-center justify-center rounded-full bg-hijau px-6 py-3 font-semibold text-krem transition hover:bg-hijau-muda"
+            className="hidden sm:inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emas/40 bg-white px-5 py-2.5 text-sm font-semibold text-hijau shadow-xs transition hover:bg-emas hover:text-hijau-tua"
           >
-            Lihat Berita
+            <span>Lihat Semua Berita &amp; Artikel</span>
+            <span>→</span>
+          </Link>
+        </div>
+
+        {articles.length === 0 ? (
+          <p className="mt-8 text-hijau-tua/70">Belum ada artikel atau pengumuman</p>
+        ) : (
+          <ul className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {articles.map((article) => (
+              <li key={article.slug} className="h-full">
+                <ArticleCard article={article} showCategory />
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="mt-8 text-center sm:hidden">
+          <Link
+            href="/berita"
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-emas/40 bg-white px-6 py-2.5 text-sm font-semibold text-hijau shadow-xs transition hover:bg-emas hover:text-hijau-tua"
+          >
+            <span>Lihat Semua Berita &amp; Artikel</span>
+            <span>→</span>
           </Link>
         </div>
       </div>
@@ -42,12 +77,17 @@ function PengumumanSection({ section }: { section: Section }) {
   )
 }
 
-const RENDERERS: Record<string, (section: Section) => ReactNode> = {
+const RENDERERS: Record<
+  string,
+  (section: Section, articles?: ArticleCardData[]) => ReactNode
+> = {
   hero: (section) => <Hero section={section} />,
   profil: (section) => <ProfilSection section={section} />,
   jadwal: (section) => <PrayerSchedule section={section} />,
   jumat: (section) => <JumatSection section={section} />,
-  pengumuman: (section) => <PengumumanSection section={section} />,
+  pengumuman: (section, articles) => (
+    <PengumumanSection section={section} articles={articles} />
+  ),
   galeri: (section) => <GallerySection section={section} />,
   testimoni: (section) => <TestimoniSection section={section} />,
   kontak: (section) => <ContactSection section={section} />,
@@ -55,13 +95,19 @@ const RENDERERS: Record<string, (section: Section) => ReactNode> = {
   tiktok: (section) => <TikTokSection section={section} />,
 }
 
-export function SectionRenderer({ sections }: { sections: Section[] }) {
+export function SectionRenderer({
+  sections,
+  articles,
+}: {
+  sections: Section[]
+  articles?: ArticleCardData[]
+}) {
   return (
     <>
       {sections.map((section) => {
         const render = RENDERERS[section.key]
         if (!render) return null
-        return <Fragment key={section.id}>{render(section)}</Fragment>
+        return <Fragment key={section.id}>{render(section, articles)}</Fragment>
       })}
     </>
   )
