@@ -1,13 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { useEffect, useRef, useState } from 'react'
-import { PUBLIC_NAV } from './nav'
+import { PUBLIC_NAV, type PublicNavChild, type PublicNavItem } from './nav'
 
 function DomeMark() {
   return (
-    <svg viewBox="0 0 32 32" aria-hidden="true" className="h-6 w-6">
+    <svg viewBox="0 0 32 32" aria-hidden="true" className="h-5 w-5 xl:h-6 xl:w-6">
       <circle cx="16" cy="4.5" r="1.6" fill="currentColor" />
       <path
         d="M7.5 21c0-4.7 3.8-8.5 8.5-8.5s8.5 3.8 8.5 8.5z"
@@ -32,7 +33,7 @@ function MenuIcon({ open }: { open: boolean }) {
     <svg
       viewBox="0 0 24 24"
       aria-hidden="true"
-      className="h-6 w-6"
+      className="h-5 w-5"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -44,7 +45,7 @@ function MenuIcon({ open }: { open: boolean }) {
     <svg
       viewBox="0 0 24 24"
       aria-hidden="true"
-      className="h-6 w-6"
+      className="h-5 w-5"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
@@ -55,7 +56,105 @@ function MenuIcon({ open }: { open: boolean }) {
   )
 }
 
-function LoginIcon({ className = 'h-4 w-4' }: { className?: string }) {
+function ChevronDownIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  )
+}
+
+function DonasiIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
+    </svg>
+  )
+}
+
+function KasIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z" />
+      <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+      <path d="M12 6v12" />
+    </svg>
+  )
+}
+
+function StatusIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  )
+}
+
+function TransaksiIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M8 3 4 7l4 4" />
+      <path d="M4 7h16" />
+      <path d="m16 21 4-4-4-4" />
+      <path d="M20 17H4" />
+    </svg>
+  )
+}
+
+function getChildIcon(href: string) {
+  if (href.includes('status')) return <StatusIcon className="h-4 w-4" />
+  if (href.includes('transaksi')) return <TransaksiIcon className="h-4 w-4" />
+  if (href.includes('donasi')) return <DonasiIcon className="h-4 w-4" />
+  return <KasIcon className="h-4 w-4" />
+}
+
+function LoginIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -74,7 +173,7 @@ function LoginIcon({ className = 'h-4 w-4' }: { className?: string }) {
   )
 }
 
-function DashboardIcon({ className = 'h-4 w-4' }: { className?: string }) {
+function DashboardIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -94,7 +193,7 @@ function DashboardIcon({ className = 'h-4 w-4' }: { className?: string }) {
   )
 }
 
-function LogoutIcon({ className = 'h-4 w-4' }: { className?: string }) {
+function LogoutIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -123,35 +222,55 @@ export interface PublicHeaderProps {
   user?: PublicHeaderUser | null
 }
 
-/**
- * Header publik: navigasi inline di layar besar (lg+) dan menu drop down
- * yang di-toggle tombol hamburger di layar kecil. Panel selalu dirender
- * (attr `hidden` saat tertutup) agar `aria-controls` tidak menyasar id
- * yang tidak ada.
- */
 export function PublicHeader({ siteName, user }: PublicHeaderProps) {
-  const [open, setOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [mobileExpanded, setMobileExpanded] = useState<Record<string, boolean>>({
+    'Donasi & Kas': true,
+  })
+
+  let pathname = '/'
+  try {
+    const current = usePathname()
+    if (current) pathname = current
+  } catch {
+    pathname = '/'
+  }
+
   const headerRef = useRef<HTMLElement | null>(null)
   const toggleRef = useRef<HTMLButtonElement | null>(null)
+  const dropdownTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  const handleDropdownEnter = (label: string) => {
+    if (dropdownTimerRef.current) clearTimeout(dropdownTimerRef.current)
+    setOpenDropdown(label)
+  }
+
+  const handleDropdownLeave = () => {
+    dropdownTimerRef.current = setTimeout(() => {
+      setOpenDropdown(null)
+    }, 150)
+  }
 
   useEffect(() => {
-    if (!open) return
-
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setOpen(false)
+        setMobileOpen(false)
+        setOpenDropdown(null)
         toggleRef.current?.focus()
       }
     }
     const onPointerDown = (event: Event) => {
       const target = event.target as Node | null
       if (target && headerRef.current && !headerRef.current.contains(target)) {
-        setOpen(false)
+        setMobileOpen(false)
+        setOpenDropdown(null)
       }
     }
     const onResize = () => {
-      // Pindah ke layar besar → navigasi inline kembali tampil, tutup panel.
-      if (window.innerWidth >= 1024) setOpen(false)
+      if (window.innerWidth >= 1024) {
+        setMobileOpen(false)
+      }
     }
 
     document.addEventListener('keydown', onKeyDown)
@@ -163,49 +282,159 @@ export function PublicHeader({ siteName, user }: PublicHeaderProps) {
       document.removeEventListener('mousedown', onPointerDown)
       document.removeEventListener('touchstart', onPointerDown)
       window.removeEventListener('resize', onResize)
+      if (dropdownTimerRef.current) clearTimeout(dropdownTimerRef.current)
     }
-  }, [open])
+  }, [])
+
+  const isItemActive = (item: PublicNavItem): boolean => {
+    if (item.href) {
+      if (item.href === '/') return pathname === '/'
+      return pathname === item.href || pathname.startsWith(item.href + '/')
+    }
+    if (item.children) {
+      return item.children.some(
+        (c) => pathname === c.href || pathname.startsWith(c.href + '/'),
+      )
+    }
+    return false
+  }
 
   return (
     <header
       ref={headerRef}
-      className="sticky top-0 z-40 border-b border-emas/40 bg-hijau text-krem shadow-sm"
+      className="sticky top-0 z-40 border-b border-emas/25 bg-hijau/95 text-krem shadow-xs backdrop-blur-md transition-colors"
     >
-      <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
+      <div className="mx-auto flex max-w-6xl xl:max-w-7xl items-center justify-between gap-3 px-4 py-2 sm:px-6">
+        {/* Brand / Logo */}
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2.5 transition hover:text-emas-muda"
+          className="flex min-w-0 shrink-0 items-center gap-2.5 transition hover:text-emas-muda"
         >
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-emas text-hijau">
+          <span className="grid h-8 w-8 xl:h-9 xl:w-9 shrink-0 place-items-center rounded-full bg-emas text-hijau shadow-xs">
             <DomeMark />
           </span>
-          <span className="truncate font-display text-lg font-bold leading-tight">
+          <span className="truncate font-display text-base font-bold leading-tight sm:text-lg">
             {siteName}
           </span>
         </Link>
 
+        {/* Navigasi Utama Desktop */}
         <nav
           aria-label="Navigasi utama"
-          className="hidden min-w-0 flex-1 items-center gap-1 lg:flex"
+          className="hidden min-w-0 items-center gap-0.5 lg:flex xl:gap-1"
         >
-          {PUBLIC_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="whitespace-nowrap rounded-full px-3 py-1.5 text-sm font-medium text-krem/85 transition hover:bg-krem/10 hover:text-krem"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {PUBLIC_NAV.map((item) => {
+            const active = isItemActive(item)
+
+            // Item dengan Dropdown
+            if (item.children && item.children.length > 0) {
+              const isOpen = openDropdown === item.label
+
+              return (
+                <div
+                  key={item.label}
+                  className="relative"
+                  onMouseEnter={() => handleDropdownEnter(item.label)}
+                  onMouseLeave={handleDropdownLeave}
+                >
+                  <button
+                    type="button"
+                    aria-haspopup="true"
+                    aria-expanded={isOpen}
+                    onClick={() =>
+                      setOpenDropdown((prev) =>
+                        prev === item.label ? null : item.label,
+                      )
+                    }
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-150 xl:px-3 xl:py-1.5 xl:text-[13px] ${
+                      active
+                        ? 'bg-white/15 text-emas font-semibold shadow-xs ring-1 ring-emas/30'
+                        : 'text-krem/85 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <ChevronDownIcon
+                      className={`h-3.5 w-3.5 transition-transform duration-200 ${
+                        isOpen ? 'rotate-180 text-emas' : 'opacity-70'
+                      }`}
+                    />
+                  </button>
+
+                  {/* Dropdown Floating Panel */}
+                  {isOpen && (
+                    <div className="absolute left-1/2 top-full -translate-x-1/2 pt-1.5 z-50">
+                      <div className="w-72 xl:w-80 rounded-2xl border border-emas/30 bg-hijau-tua/95 p-1.5 shadow-2xl backdrop-blur-xl ring-1 ring-black/20 animate-in fade-in-0 zoom-in-95">
+                        <div className="flex flex-col gap-0.5">
+                          {item.children.map((child: PublicNavChild) => {
+                            const isChildActive =
+                              pathname === child.href ||
+                              pathname.startsWith(child.href + '/')
+
+                            return (
+                              <Link
+                                key={child.href}
+                                href={child.href}
+                                onClick={() => setOpenDropdown(null)}
+                                className={`group flex items-start gap-2.5 rounded-xl p-2 transition-all duration-150 ${
+                                  isChildActive
+                                    ? 'bg-white/15 text-white ring-1 ring-emas/40'
+                                    : 'text-krem/90 hover:bg-white/10 hover:text-white'
+                                }`}
+                              >
+                                <span
+                                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg transition-colors ${
+                                    isChildActive
+                                      ? 'bg-emas text-hijau shadow-xs'
+                                      : 'bg-emas/15 text-emas group-hover:bg-emas group-hover:text-hijau'
+                                  }`}
+                                >
+                                  {getChildIcon(child.href)}
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                  <p className="truncate text-xs font-semibold leading-tight group-hover:text-emas-muda">
+                                    {child.label}
+                                  </p>
+                                  {child.description && (
+                                    <p className="mt-0.5 truncate text-[11px] text-krem/60 leading-tight">
+                                      {child.description}
+                                    </p>
+                                  )}
+                                </div>
+                              </Link>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            }
+
+            // Link Standar
+            return (
+              <Link
+                key={item.href || item.label}
+                href={item.href || '#'}
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium transition-all duration-150 xl:px-3 xl:py-1.5 xl:text-[13px] whitespace-nowrap ${
+                  active
+                    ? 'bg-white/15 text-emas font-semibold shadow-xs ring-1 ring-emas/30'
+                    : 'text-krem/85 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
         </nav>
 
         {/* Akses Login / Dashboard Desktop */}
-        <div className="hidden shrink-0 items-center gap-2 lg:flex">
+        <div className="hidden shrink-0 items-center gap-1.5 lg:flex">
           {user ? (
             <>
               <Link
                 href="/admin"
-                className="inline-flex items-center gap-1.5 rounded-full bg-emas px-3.5 py-1.5 text-xs font-semibold text-hijau shadow-sm transition hover:bg-emas-muda"
+                className="inline-flex items-center gap-1.5 rounded-full bg-emas px-3 py-1 text-xs font-semibold text-hijau shadow-sm transition hover:bg-emas-muda"
                 title={`Masuk ke Dashboard (${user.name})`}
               >
                 <DashboardIcon className="h-3.5 w-3.5" />
@@ -214,7 +443,7 @@ export function PublicHeader({ siteName, user }: PublicHeaderProps) {
               <button
                 type="button"
                 onClick={() => void signOut({ callbackUrl: '/' })}
-                className="inline-flex items-center gap-1.5 rounded-full border border-krem/30 px-3 py-1.5 text-xs font-medium text-krem/80 transition hover:bg-krem/10 hover:text-krem"
+                className="inline-flex items-center gap-1 rounded-full border border-krem/30 px-2.5 py-1 text-xs font-medium text-krem/80 transition hover:bg-krem/10 hover:text-krem"
                 title="Keluar"
               >
                 <LogoutIcon className="h-3.5 w-3.5" />
@@ -224,7 +453,7 @@ export function PublicHeader({ siteName, user }: PublicHeaderProps) {
           ) : (
             <Link
               href="/admin/login"
-              className="inline-flex items-center gap-1.5 rounded-full border border-emas/70 px-3.5 py-1.5 text-xs font-semibold text-emas transition hover:bg-emas hover:text-hijau"
+              className="inline-flex items-center gap-1.5 rounded-full border border-emas/70 px-3 py-1 text-xs font-semibold text-emas transition hover:bg-emas hover:text-hijau"
             >
               <LoginIcon className="h-3.5 w-3.5" />
               <span>Masuk</span>
@@ -232,38 +461,115 @@ export function PublicHeader({ siteName, user }: PublicHeaderProps) {
           )}
         </div>
 
+        {/* Tombol Hamburger Mobile */}
         <button
           ref={toggleRef}
           type="button"
-          className="ms-auto shrink-0 rounded-full border border-emas/50 p-2 text-krem transition hover:bg-krem/10 lg:hidden"
-          aria-expanded={open}
+          className="ms-auto shrink-0 rounded-full border border-emas/40 p-1.5 text-krem transition hover:bg-krem/10 lg:hidden"
+          aria-expanded={mobileOpen}
           aria-controls="menu-utama"
-          aria-label={open ? 'Tutup menu navigasi' : 'Buka menu navigasi'}
-          onClick={() => setOpen((value) => !value)}
+          aria-label={mobileOpen ? 'Tutup menu navigasi' : 'Buka menu navigasi'}
+          onClick={() => setMobileOpen((value) => !value)}
         >
-          <MenuIcon open={open} />
+          <MenuIcon open={mobileOpen} />
         </button>
       </div>
 
-      {/* Drop down mobile: di bawah header, menutup saat link diklik. */}
+      {/* Menu Drawer Mobile */}
       <nav
         id="menu-utama"
         aria-label="Menu utama"
-        hidden={!open}
-        className="border-t border-emas/30 bg-hijau shadow-lg lg:hidden"
+        hidden={!mobileOpen}
+        className="border-t border-emas/30 bg-hijau-tua/95 text-krem shadow-xl backdrop-blur-lg lg:hidden"
       >
-        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3">
-          {PUBLIC_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className="rounded-full px-3 py-2.5 text-base font-medium text-krem/90 transition hover:bg-krem/10 hover:text-krem"
-            >
-              {item.label}
-            </Link>
-          ))}
+        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 max-h-[calc(100vh-4rem)] overflow-y-auto">
+          {PUBLIC_NAV.map((item) => {
+            const active = isItemActive(item)
 
+            // Dropdown accordion di mobile
+            if (item.children && item.children.length > 0) {
+              const isExpanded = Boolean(mobileExpanded[item.label])
+
+              return (
+                <div key={item.label} className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setMobileExpanded((prev) => ({
+                        ...prev,
+                        [item.label]: !prev[item.label],
+                      }))
+                    }
+                    className={`flex items-center justify-between rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                      active ? 'text-emas bg-white/10' : 'text-krem/90 hover:bg-white/10'
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    <ChevronDownIcon
+                      className={`h-4 w-4 transition-transform duration-200 ${
+                        isExpanded ? 'rotate-180 text-emas' : 'opacity-70'
+                      }`}
+                    />
+                  </button>
+
+                  {isExpanded && (
+                    <div className="my-1 ml-3 flex flex-col gap-1 border-l-2 border-emas/30 pl-2">
+                      {item.children.map((child: PublicNavChild) => {
+                        const isChildActive =
+                          pathname === child.href ||
+                          pathname.startsWith(child.href + '/')
+
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href}
+                            onClick={() => setMobileOpen(false)}
+                            className={`flex items-start gap-2.5 rounded-lg p-2 text-xs transition ${
+                              isChildActive
+                                ? 'bg-white/15 text-white font-medium'
+                                : 'text-krem/80 hover:bg-white/10 hover:text-white'
+                            }`}
+                          >
+                            <span className="mt-0.5 text-emas shrink-0">
+                              {getChildIcon(child.href)}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-semibold leading-tight">
+                                {child.label}
+                              </p>
+                              {child.description && (
+                                <p className="text-[10px] text-krem/60 leading-tight">
+                                  {child.description}
+                                </p>
+                              )}
+                            </div>
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )
+            }
+
+            // Link biasa di mobile
+            return (
+              <Link
+                key={item.href || item.label}
+                href={item.href || '#'}
+                onClick={() => setMobileOpen(false)}
+                className={`flex items-center rounded-xl px-3 py-2 text-sm font-medium transition ${
+                  active
+                    ? 'bg-white/15 text-emas font-semibold'
+                    : 'text-krem/90 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                {item.label}
+              </Link>
+            )
+          })}
+
+          {/* Area Auth Mobile */}
           <div className="my-2 border-t border-emas/20 pt-2">
             {user ? (
               <div className="flex flex-col gap-2">
@@ -278,21 +584,21 @@ export function PublicHeader({ siteName, user }: PublicHeaderProps) {
                 <div className="flex items-center gap-2 pt-1">
                   <Link
                     href="/admin"
-                    onClick={() => setOpen(false)}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emas px-4 py-2.5 text-sm font-semibold text-hijau shadow-sm transition hover:bg-emas-muda"
+                    onClick={() => setMobileOpen(false)}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-full bg-emas px-4 py-2 text-xs font-semibold text-hijau shadow-sm transition hover:bg-emas-muda"
                   >
-                    <DashboardIcon className="h-4 w-4" />
+                    <DashboardIcon className="h-3.5 w-3.5" />
                     <span>Dashboard</span>
                   </Link>
                   <button
                     type="button"
                     onClick={() => {
-                      setOpen(false)
+                      setMobileOpen(false)
                       void signOut({ callbackUrl: '/' })
                     }}
-                    className="flex items-center gap-1.5 rounded-full border border-krem/30 px-4 py-2.5 text-sm font-medium text-krem transition hover:bg-krem/10"
+                    className="flex items-center gap-1.5 rounded-full border border-krem/30 px-3 py-2 text-xs font-medium text-krem transition hover:bg-krem/10"
                   >
-                    <LogoutIcon className="h-4 w-4" />
+                    <LogoutIcon className="h-3.5 w-3.5" />
                     <span>Keluar</span>
                   </button>
                 </div>
@@ -300,10 +606,10 @@ export function PublicHeader({ siteName, user }: PublicHeaderProps) {
             ) : (
               <Link
                 href="/admin/login"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-full border border-emas/70 px-4 py-2.5 text-sm font-semibold text-emas transition hover:bg-emas hover:text-hijau"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-center gap-2 rounded-full border border-emas/70 px-4 py-2 text-xs font-semibold text-emas transition hover:bg-emas hover:text-hijau"
               >
-                <LoginIcon className="h-4 w-4" />
+                <LoginIcon className="h-3.5 w-3.5" />
                 <span>Masuk Admin</span>
               </Link>
             )}

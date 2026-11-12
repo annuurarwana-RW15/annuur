@@ -67,7 +67,13 @@ export function Footer({ section, siteName = 'Masjid An-nuur Arwana' }: FooterPr
           aria-label="Navigasi footer"
           className="mt-8 flex flex-wrap gap-x-5 gap-y-2 border-t border-krem/15 pt-6 text-sm text-krem/75"
         >
-          {PUBLIC_NAV.map((item) => (
+          {PUBLIC_NAV.flatMap((item) =>
+            item.children
+              ? item.children.map((child) => ({ label: child.label, href: child.href }))
+              : item.href
+                ? [{ label: item.label, href: item.href }]
+                : []
+          ).map((item) => (
             <Link
               key={item.href}
               href={item.href}
