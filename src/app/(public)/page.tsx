@@ -2,9 +2,11 @@ import type { Section } from '@prisma/client'
 import { db } from '@/lib/db'
 import { buildDailyMonthSeries } from '@/lib/kas-daily'
 import { getQris } from '@/lib/qris'
+import { getAllSurahs } from '@/lib/quran'
 import { ensureDefaultSections } from '@/lib/sections-init'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
+import { QuranMurottalSection } from '@/components/public/QuranMurottalSection'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
 
 export const revalidate = 60
@@ -106,11 +108,13 @@ export default async function BerandaPage() {
   }
 
   const hasPengumumanSection = sections.some((s) => s.key === 'pengumuman')
+  const surahs = getAllSurahs()
 
   return (
     <>
       <SectionRenderer sections={beforeFinance} articles={articles} />
       <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
+      <QuranMurottalSection surahs={surahs} />
       <SectionRenderer sections={afterFinance} articles={articles} />
       {!hasPengumumanSection && <LatestNews articles={articles} />}
       {testimoni && <SectionRenderer sections={[testimoni]} />}
