@@ -4,12 +4,35 @@ import { buildDailyMonthSeries } from '@/lib/kas-daily'
 import { getQris } from '@/lib/qris'
 import { getAllSurahs } from '@/lib/quran'
 import { ensureDefaultSections } from '@/lib/sections-init'
+import { getSetting } from '@/lib/settings'
+import { getWhatsAppNumber } from '@/lib/whatsapp-server'
+import { DonationSection, type RekeningDisplayItem } from '@/components/public/DonationSection'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { QuranMurottalSection } from '@/components/public/QuranMurottalSection'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
 
 export const revalidate = 60
+
+function parseRekening(value: unknown): RekeningDisplayItem[] {
+  if (!Array.isArray(value)) return []
+  const items: RekeningDisplayItem[] = []
+  for (const raw of value) {
+    if (!raw || typeof raw !== 'object') continue
+    const rec = raw as Record<string, unknown>
+    const bank = typeof rec.bank === 'string' ? rec.bank.trim() : ''
+    const no = typeof rec.no === 'string' ? rec.no.trim() : ''
+    const atasNama =
+      (typeof rec.atasNama === 'string' && rec.atasNama.trim()) ||
+      (typeof rec['a.n.'] === 'string' && rec['a.n.'].trim()) ||
+      (typeof rec.an === 'string' && rec.an.trim()) ||
+      'Masjid An-nuur Arwana'
+    if (bank && no) {
+      items.push({ bank, no, atasNama, link: typeof rec.link === 'string' ? rec.link : null })
+    }
+  }
+  return items
+}
 
 export default async function BerandaPage() {
   let sections: Section[] = []
@@ -23,6 +46,8 @@ export default async function BerandaPage() {
   }> = []
   let period: { id: string } | null = null
   let qris: Awaited<ReturnType<typeof getQris>> = null
+  let rekening: RekeningDisplayItem[] = []
+  let whatsapp = ''
 
   try {
     await ensureDefaultSections().catch(() => {})
@@ -50,11 +75,15 @@ export default async function BerandaPage() {
         select: { id: true },
       }),
       getQris(),
+      getSetting<unknown>('donasi.rekening', []),
+      getWhatsAppNumber(),
     ])
     sections = res[0]
     articles = res[1]
     period = res[2]
     qris = res[3]
+    rekening = parseRekening(res[4])
+    whatsapp = res[5]
   } catch (error) {
     console.error('[BerandaPage] Gagal memuat data awal beranda:', error)
   }
@@ -112,12 +141,13 @@ export default async function BerandaPage() {
 
   return (
     <>
-      <SectionRenderer sections={beforeFinance} articles={articles} />
+      <SectionRenderer sections={beforeFinance} articles={articles} whatsapp={whatsapp} />
       <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
       <QuranMurottalSection surahs={surahs} />
-      <SectionRenderer sections={afterFinance} articles={articles} />
+      <DonationSection qris={qris} rekening={rekening} whatsapp={whatsapp} />
+      <SectionRenderer sections={afterFinance} articles={articles} whatsapp={whatsapp} />
       {!hasPengumumanSection && <LatestNews articles={articles} />}
-      {testimoni && <SectionRenderer sections={[testimoni]} />}
+      {testimoni && <SectionRenderer sections={[testimoni]} whatsapp={whatsapp} />}
     </>
   )
 }

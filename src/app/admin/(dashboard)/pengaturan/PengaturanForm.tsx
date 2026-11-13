@@ -563,25 +563,36 @@ export function PengaturanForm({
       </fieldset>
 
       {/* 6. REKENING DONASI & QRIS */}
-      <fieldset className="mt-8 border-t border-neutral-100 pt-6">
+      <fieldset id="rekening" className="mt-8 border-t border-neutral-100 pt-6 scroll-mt-20">
         <legend className="text-base font-semibold text-neutral-900">
           Rekening Donasi
         </legend>
         <p className="mt-1 text-sm text-neutral-500">
-          Dipakai halaman /donasi — isi manual bank, nomor, dan atas nama.
+          Dipakai halaman /donasi dan section donasi beranda — isi manual bank, nomor, dan atas nama.
         </p>
         <div className="mt-3">
           <RekeningEditor rows={rekeningRows} onChange={setRekeningRows} />
         </div>
       </fieldset>
 
-      <fieldset className="mt-8 border-t border-neutral-100 pt-6">
-        <legend className="text-base font-semibold text-neutral-900">
-          Kartu QRIS
-        </legend>
+      <fieldset id="qris" className="mt-8 border-t border-neutral-100 pt-6 scroll-mt-20">
+        <div className="flex items-center justify-between">
+          <legend className="text-base font-semibold text-neutral-900">
+            Kartu QRIS Donasi
+          </legend>
+          <a
+            href="/#donasi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:underline inline-flex items-center gap-1"
+          >
+            <span>Lihat di Beranda</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
         <p className="mt-1 text-sm text-neutral-500">
-          Tampil sebagai kartu compact di section Laporan Keuangan beranda.
-          Kosongkan gambar untuk menyembunyikan kartu.
+          Tampil pada <strong>Section Donasi di Beranda</strong> dan halaman <code>/donasi</code>.
+          Unggah gambar QRIS (PNG/JPEG/WebP) dari rekening bank atau e-wallet resmi masjid.
         </p>
         <div className="mt-3 grid max-w-2xl gap-4 sm:grid-cols-[max-content_1fr] sm:items-start">
           <ImageField
@@ -603,7 +614,7 @@ export function PengaturanForm({
               className={fieldClass}
             />
             <p className="mt-1 text-xs text-neutral-500">
-              Tercetak di bawah judul &ldquo;Donasi via QRIS&rdquo; pada kartu.
+              Tercetak di bawah kode QRIS pada kartu donasi.
             </p>
           </div>
         </div>

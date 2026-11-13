@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import type { DonationStatus, Prisma } from '@prisma/client'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/rbac'
@@ -162,6 +163,35 @@ export default async function DonasiAdminPage({ searchParams }: PageProps) {
             Verifikasi donasi masuk — konfirmasi mencatat transaksi kas periode
             aktif, tolak butuh catatan.
           </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/pengaturan#qris"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 shadow-xs hover:bg-neutral-50 transition"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3.5 w-3.5 text-neutral-600"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <path d="M14 14h3v3h-3z" />
+            </svg>
+            <span>Upload &amp; Atur QRIS</span>
+          </Link>
+          <Link
+            href="/admin/pengaturan#rekening"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-700 shadow-xs hover:bg-neutral-50 transition"
+          >
+            <span>Rekening Bank</span>
+          </Link>
         </div>
       </div>
 

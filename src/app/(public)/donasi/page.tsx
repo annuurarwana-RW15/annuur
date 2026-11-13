@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { getSetting } from '@/lib/settings'
+import { getQris } from '@/lib/qris'
 import { buildMetadata } from '@/lib/seo'
 import { asText, safeHref } from '@/components/public/content'
 import { SectionHeading } from '@/components/public/SectionHeading'
@@ -50,7 +51,7 @@ function rekeningItems(value: unknown): RekeningItem[] {
 }
 
 export default async function DonasiPage() {
-  const [rekeningRaw, phone, categories] = await Promise.all([
+  const [rekeningRaw, phone, categories, qris] = await Promise.all([
     getSetting<unknown>('donasi.rekening', []),
     getSetting('site.phone', ''),
     db.category.findMany({
@@ -58,6 +59,7 @@ export default async function DonasiPage() {
       select: { id: true, name: true },
       orderBy: { name: 'asc' },
     }),
+    getQris(),
   ])
   const rekening = rekeningItems(rekeningRaw)
   const telp = asText(phone)
@@ -140,6 +142,39 @@ export default async function DonasiPage() {
                 </a>
                 .
               </p>
+            )}
+
+            {qris && qris.image && (
+              <div className="rounded-2xl border border-emas/30 bg-white p-6 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-emas-tua">
+                  QRIS Donasi Masjid
+                </p>
+                <div className="mt-3 flex flex-col items-center">
+                  <div className="rounded-xl border border-neutral-100 bg-white p-2 shadow-xs">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={qris.image}
+                      alt="Kode QRIS Donasi"
+                      width={220}
+                      height={220}
+                      className="h-48 w-48 object-contain"
+                    />
+                  </div>
+                  {qris.caption && (
+                    <p className="mt-2 text-center text-xs font-semibold text-hijau">
+                      {qris.caption}
+                    </p>
+                  )}
+                  <a
+                    href={qris.image}
+                    download="QRIS-Masjid-An-nuur-Arwana.png"
+                    className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-emas/50 bg-emas/10 px-3.5 py-1.5 text-xs font-medium text-emas-tua hover:bg-emas hover:text-hijau transition"
+                  >
+                    <span>Unduh Gambar QRIS</span>
+                    <span aria-hidden="true">↓</span>
+                  </a>
+                </div>
+              </div>
             )}
           </div>
 

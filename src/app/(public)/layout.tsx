@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getSetting } from '@/lib/settings'
+import { getWhatsAppNumber } from '@/lib/whatsapp-server'
 import { buildPublicMetadata, jsonLd, orgLd } from '@/lib/seo'
 import { asText } from '@/components/public/content'
 import { Footer } from '@/components/public/Footer'
@@ -57,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const [siteName, address, phone, footer, ga4Raw, session] = await Promise.all([
+  const [siteName, address, phone, footer, ga4Raw, session, whatsapp] = await Promise.all([
     getSetting('site.name', 'Masjid An-nuur Arwana'),
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
@@ -70,6 +71,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       console.warn('[PublicLayout] auth check failed:', err)
       return null
     }),
+    getWhatsAppNumber(),
   ])
   const name = asText(siteName, 'Masjid An-nuur Arwana')
   const user = session?.user
@@ -96,7 +98,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         Lewati ke konten
       </a>
 
-      <PublicHeader siteName={name} user={user} />
+      <PublicHeader siteName={name} user={user} whatsapp={whatsapp} />
       <LiveTimeBar />
 
       <main id="konten" className="flex-1">

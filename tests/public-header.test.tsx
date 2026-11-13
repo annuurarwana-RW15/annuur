@@ -74,5 +74,15 @@ describe('PublicHeader Auth Menu', () => {
 
     expect(h.signOutMock).toHaveBeenCalledWith({ callbackUrl: '/' })
   })
+
+  it('saat nomor WhatsApp diberikan: menampilkan tombol Kontak WA dengan tautan wa.me', () => {
+    render(<PublicHeader siteName="Masjid An-Nuur" user={null} whatsapp="081234567890" />)
+
+    const waLinks = screen.getAllByRole('link', { name: /kontak wa/i })
+    expect(waLinks.length).toBeGreaterThan(0)
+    for (const link of waLinks) {
+      expect(link.getAttribute('href')).toContain('wa.me/6281234567890')
+    }
+  })
 })
 

@@ -79,9 +79,9 @@ function PengumumanSection({
 
 const RENDERERS: Record<
   string,
-  (section: Section, articles?: ArticleCardData[]) => ReactNode
+  (section: Section, articles?: ArticleCardData[], whatsapp?: string) => ReactNode
 > = {
-  hero: (section) => <Hero section={section} />,
+  hero: (section, _articles, whatsapp) => <Hero section={section} whatsapp={whatsapp} />,
   profil: (section) => <ProfilSection section={section} />,
   jadwal: (section) => <PrayerSchedule section={section} />,
   jumat: (section) => <JumatSection section={section} />,
@@ -98,16 +98,18 @@ const RENDERERS: Record<
 export function SectionRenderer({
   sections,
   articles,
+  whatsapp,
 }: {
   sections: Section[]
   articles?: ArticleCardData[]
+  whatsapp?: string
 }) {
   return (
     <>
       {sections.map((section) => {
         const render = RENDERERS[section.key]
         if (!render) return null
-        return <Fragment key={section.id}>{render(section, articles)}</Fragment>
+        return <Fragment key={section.id}>{render(section, articles, whatsapp)}</Fragment>
       })}
     </>
   )

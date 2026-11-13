@@ -84,9 +84,13 @@ export async function setKontakSettings(input: KontakInput): Promise<KontakResul
     if (telp) {
       await setSetting('site.phone', telp)
     }
+    if (whatsapp) {
+      await setSetting('site.whatsapp', whatsapp)
+    }
 
     // 3. Revalidasi halaman publik dan admin
     revalidatePath('/')
+    revalidatePath('/', 'layout')
     revalidatePath('/kontak')
     revalidatePath('/admin/pengaturan')
     revalidatePath('/admin/pengaturan/kontak')
