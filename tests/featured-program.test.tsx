@@ -51,5 +51,89 @@ describe('FeaturedProgramSection', () => {
       '/program',
     )
   })
+
+  it('merender null jika section.isVisible bernilai false', () => {
+    const samplePrograms: ProgramWithRelations[] = [
+      {
+        id: 'prog-1',
+        title: 'Program 1',
+        slug: 'program-1',
+        description: 'Deskripsi 1',
+        periodType: 'PENDEK',
+        category: 'IMARAH',
+        status: 'BERJALAN',
+        progress: 50,
+        targetDate: null,
+        budgetEstimate: null,
+        picName: null,
+        picPhone: null,
+        order: 1,
+        isFeatured: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]
+
+    const { container } = render(
+      <FeaturedProgramSection
+        programs={samplePrograms}
+        section={{
+          id: 'sec-1',
+          key: 'program',
+          title: 'Program Kerja',
+          order: 1,
+          isVisible: false,
+          content: {},
+          updatedAt: new Date(),
+        }}
+      />,
+    )
+    expect(container.firstChild).toBeNull()
+  })
+
+  it('menggunakan judul dan subjudul kustom dari section DB', () => {
+    const samplePrograms: ProgramWithRelations[] = [
+      {
+        id: 'prog-1',
+        title: 'Program 1',
+        slug: 'program-1',
+        description: 'Deskripsi 1',
+        periodType: 'PENDEK',
+        category: 'IMARAH',
+        status: 'BERJALAN',
+        progress: 50,
+        targetDate: null,
+        budgetEstimate: null,
+        picName: null,
+        picPhone: null,
+        order: 1,
+        isFeatured: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    ]
+
+    render(
+      <FeaturedProgramSection
+        programs={samplePrograms}
+        section={{
+          id: 'sec-1',
+          key: 'program',
+          title: 'Agenda Unggulan DKM',
+          order: 1,
+          isVisible: true,
+          content: {
+            subjudul: 'Visi Bersama',
+            text: 'Deskripsi pengantar kustom dari admin.',
+          },
+          updatedAt: new Date(),
+        }}
+      />,
+    )
+
+    expect(screen.getByText('Agenda Unggulan DKM')).toBeInTheDocument()
+    expect(screen.getByText('Visi Bersama')).toBeInTheDocument()
+    expect(screen.getByText('Deskripsi pengantar kustom dari admin.')).toBeInTheDocument()
+  })
 })
 

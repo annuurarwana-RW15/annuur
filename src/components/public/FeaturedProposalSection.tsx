@@ -1,13 +1,25 @@
 import Link from 'next/link'
+import type { Section } from '@prisma/client'
+import { readField } from '@/app/admin/(dashboard)/sections/section-content'
+import { asText } from './content'
 import { SectionHeading } from './SectionHeading'
 import { ProposalCard, type ProposalWithFunding } from './ProposalCard'
 
 interface FeaturedProposalSectionProps {
   proposals: ProposalWithFunding[]
+  section?: Section | null
 }
 
-export function FeaturedProposalSection({ proposals }: FeaturedProposalSectionProps) {
+export function FeaturedProposalSection({ proposals, section }: FeaturedProposalSectionProps) {
+  if (section && !section.isVisible) return null
   if (!proposals || proposals.length === 0) return null
+
+  const title = section?.title || 'Proposal Terbuka Pilihan'
+  const subjudul =
+    asText(readField(section?.content, 'proposal', 'subjudul')) || 'Peluang Amal Jariyah'
+  const text =
+    asText(readField(section?.content, 'proposal', 'text')) ||
+    'Dukung realisasi program prioritas pembangunan dan fasilitas ibadah Masjid An-Nuur Arwana. Partisipasi Anda adalah investasi akhirat.'
 
   return (
     <section className="bg-krem-muda/40 border-y border-emas/15 py-12 md:py-16">
@@ -15,12 +27,11 @@ export function FeaturedProposalSection({ proposals }: FeaturedProposalSectionPr
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-8">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-emas-tua">
-              Peluang Amal Jariyah
+              {subjudul}
             </span>
-            <SectionHeading as="h2">Proposal Terbuka Pilihan</SectionHeading>
+            <SectionHeading as="h2">{title}</SectionHeading>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
-              Dukung realisasi program prioritas pembangunan dan fasilitas ibadah
-              Masjid An-Nuur Arwana. Partisipasi Anda adalah investasi akhirat.
+              {text}
             </p>
           </div>
 

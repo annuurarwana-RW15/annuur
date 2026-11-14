@@ -1,13 +1,25 @@
 import Link from 'next/link'
+import type { Section } from '@prisma/client'
+import { readField } from '@/app/admin/(dashboard)/sections/section-content'
+import { asText } from './content'
 import { SectionHeading } from './SectionHeading'
 import { ProgramCard, type ProgramWithRelations } from './ProgramCard'
 
 interface FeaturedProgramSectionProps {
   programs: ProgramWithRelations[]
+  section?: Section | null
 }
 
-export function FeaturedProgramSection({ programs }: FeaturedProgramSectionProps) {
+export function FeaturedProgramSection({ programs, section }: FeaturedProgramSectionProps) {
+  if (section && !section.isVisible) return null
   if (!programs || programs.length === 0) return null
+
+  const title = section?.title || 'Program Kerja Strategis'
+  const subjudul =
+    asText(readField(section?.content, 'program', 'subjudul')) || 'Amanah & Khidmah'
+  const text =
+    asText(readField(section?.content, 'program', 'text')) ||
+    'Ikhtiar nyata DKM Masjid An-Nuur Arwana dalam memakmurkan masjid, memelihara sarana ibadah, dan melayani kebutuhan keumatan.'
 
   return (
     <section className="border-b border-emas/15 bg-white py-12 md:py-16">
@@ -15,12 +27,11 @@ export function FeaturedProgramSection({ programs }: FeaturedProgramSectionProps
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <span className="text-xs font-bold uppercase tracking-widest text-emas-tua">
-              Amanah &amp; Khidmah
+              {subjudul}
             </span>
-            <SectionHeading as="h2">Program Kerja Strategis</SectionHeading>
+            <SectionHeading as="h2">{title}</SectionHeading>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600">
-              Ikhtiar nyata DKM Masjid An-Nuur Arwana dalam memakmurkan masjid,
-              memelihara sarana ibadah, dan melayani kebutuhan keumatan.
+              {text}
             </p>
           </div>
 

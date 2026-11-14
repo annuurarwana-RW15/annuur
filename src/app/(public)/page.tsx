@@ -151,8 +151,13 @@ export default async function BerandaPage() {
   // Posisi tetap di luar urutan DB:
   // - Laporan Keuangan tepat setelah section `jumat` (bila jumat disembunyikan → setelah semua section).
   // - Testimoni selalu block terakhir sebelum footer.
+  // - Proposal dan Program memiliki komponen cuplikan khusus yang dikendalikan oleh section DB.
   const testimoni = sections.find((s) => s.key === 'testimoni') ?? null
-  const mainSections = sections.filter((s) => s.key !== 'testimoni')
+  const proposalSection = sections.find((s) => s.key === 'proposal') ?? null
+  const programSection = sections.find((s) => s.key === 'program') ?? null
+  const mainSections = sections.filter(
+    (s) => s.key !== 'testimoni' && s.key !== 'proposal' && s.key !== 'program',
+  )
   const jumatIndex = mainSections.findIndex((s) => s.key === 'jumat')
 
   let beforeFinance: Section[]
@@ -173,8 +178,8 @@ export default async function BerandaPage() {
       <SectionRenderer sections={beforeFinance} articles={articles} whatsapp={whatsapp} />
       <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
       <QuranMurottalSection surahs={surahs} />
-      <FeaturedProposalSection proposals={featuredProposals} />
-      <FeaturedProgramSection programs={featuredPrograms} />
+      <FeaturedProposalSection proposals={featuredProposals} section={proposalSection} />
+      <FeaturedProgramSection programs={featuredPrograms} section={programSection} />
       <DonationSection qris={qris} rekening={rekening} whatsapp={whatsapp} />
       <SectionRenderer sections={afterFinance} articles={articles} whatsapp={whatsapp} />
       {!hasPengumumanSection && <LatestNews articles={articles} />}

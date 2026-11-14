@@ -117,6 +117,34 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
       helper: 'Contoh: 7123456789012345678 (kosongkan jika ingin menyematkan profil kreator).',
     },
   ],
+  proposal: [
+    {
+      name: 'subjudul',
+      label: 'Subjudul / Badge Atas',
+      helper: 'Label kecil di atas judul section (contoh: Peluang Amal Jariyah).',
+    },
+    {
+      name: 'text',
+      label: 'Deskripsi Pengantar',
+      widget: 'textarea',
+      rows: 3,
+      helper: 'Penjelasan singkat ajakan berpartisipasi pada proposal pilihan. Data proposal dikelola lewat menu Program & Proposal > Proposal Terbuka.',
+    },
+  ],
+  program: [
+    {
+      name: 'subjudul',
+      label: 'Subjudul / Badge Atas',
+      helper: 'Label kecil di atas judul section (contoh: Amanah & Khidmah).',
+    },
+    {
+      name: 'text',
+      label: 'Deskripsi Pengantar',
+      widget: 'textarea',
+      rows: 3,
+      helper: 'Penjelasan ringkas rencana strategis DKM. Data program dikelola lewat menu Program & Proposal > Program Kerja.',
+    },
+  ],
 }
 
 export interface SectionFormSection {
