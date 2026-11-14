@@ -95,13 +95,22 @@ export function JadwalJumatEditor({ value, onChange, helper }: JadwalJumatEditor
         </ul>
       )}
 
-      <button
-        type="button"
-        onClick={() => emit([...rows, { tanggal: '', khatib: '', imam: '' }])}
-        className="rounded-md border border-green-900 bg-white px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
-      >
-        + Tambah jadwal
-      </button>
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => emit([...rows, { tanggal: '', khatib: '', imam: '' }])}
+          className="rounded-md border border-green-900 bg-white px-3 py-2 text-sm font-semibold text-green-900 hover:bg-green-50"
+        >
+          + Tambah jadwal
+        </button>
+
+        <a
+          href="/admin/pengaturan/pengurus"
+          className="rounded-md border border-emerald-700 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 hover:bg-emerald-100 transition"
+        >
+          ⚡ Auto Generate Khotib &amp; Pengurus →
+        </a>
+      </div>
 
       {helper ? <p className="text-xs text-neutral-500">{helper}</p> : null}
     </div>

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { getSetting } from '@/lib/settings'
 import { parseQris } from '@/lib/qris'
 import { requireRole } from '@/lib/rbac'
@@ -107,6 +108,46 @@ export default async function PengaturanPage() {
         Identitas &amp; favicon, lokasi &amp; jadwal sholat, rekening &amp; QRIS donasi,
         SEO global, verifikasi webmaster, sitemap &amp; robots, dan analitik.
       </p>
+
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <Link
+          href="/admin/pengaturan/pengurus"
+          className="flex items-center gap-3 rounded-xl border border-emerald-300 bg-emerald-50/70 p-4 transition hover:bg-emerald-100/70 shadow-xs"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-800 text-lg text-white">
+            👥
+          </span>
+          <div>
+            <p className="text-sm font-bold text-neutral-900">Pengurus &amp; Khotib</p>
+            <p className="text-xs text-neutral-600">Struktur DKM &amp; auto generate khotib</p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/pengaturan/kontak"
+          className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 transition hover:bg-neutral-50 shadow-xs"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-lg text-white">
+            📞
+          </span>
+          <div>
+            <p className="text-sm font-bold text-neutral-900">Kontak &amp; Peta</p>
+            <p className="text-xs text-neutral-600">Alamat, peta Google, dan WhatsApp</p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/sections"
+          className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 transition hover:bg-neutral-50 shadow-xs"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-neutral-800 text-lg text-white">
+            🧩
+          </span>
+          <div>
+            <p className="text-sm font-bold text-neutral-900">Sections Halaman</p>
+            <p className="text-xs text-neutral-600">Susunan blok dan tampilan beranda</p>
+          </div>
+        </Link>
+      </div>
+
       <div className="mt-6">
         <PengaturanForm
           initial={initial}
