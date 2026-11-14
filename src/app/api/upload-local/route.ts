@@ -40,9 +40,9 @@ export async function PUT(req: Request) {
   }
 
   const declared = Number(req.headers.get('content-length') ?? '0')
-  if (Number.isFinite(declared) && declared > 5 * 1024 * 1024) {
+  if (Number.isFinite(declared) && declared > 15 * 1024 * 1024) {
     return NextResponse.json(
-      { error: 'Ukuran file maksimal 5MB' },
+      { error: 'Ukuran file maksimal 15MB' },
       { status: 413 },
     )
   }

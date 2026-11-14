@@ -22,6 +22,13 @@ export const ADMIN_NAV: readonly NavItem[] = [
   { label: 'Artikel', href: '/admin/artikel', action: 'manage_articles' },
   { label: 'Galeri', href: '/admin/galeri', action: 'manage_sections' },
   {
+    label: 'Program & Proposal',
+    children: [
+      { label: 'Program Kerja', href: '/admin/program', action: 'manage_sections' },
+      { label: 'Proposal Terbuka', href: '/admin/proposal', action: 'manage_sections' },
+    ],
+  },
+  {
     label: 'Kas',
     action: 'manage_transactions',
     children: [
