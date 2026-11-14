@@ -7,13 +7,16 @@ import { ensureDefaultSections } from '@/lib/sections-init'
 import { getSetting } from '@/lib/settings'
 import { getWhatsAppNumber } from '@/lib/whatsapp-server'
 import { DonationSection, type RekeningDisplayItem } from '@/components/public/DonationSection'
+import { FeaturedProgramSection } from '@/components/public/FeaturedProgramSection'
 import { FeaturedProposalSection } from '@/components/public/FeaturedProposalSection'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { QuranMurottalSection } from '@/components/public/QuranMurottalSection'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
+import { getAllPrograms } from '@/lib/program'
 import { getAllProposals, calculateProposalFunding } from '@/lib/proposal'
 import type { ProposalWithFunding } from '@/components/public/ProposalCard'
+import type { ProgramWithRelations } from '@/components/public/ProgramCard'
 
 export const revalidate = 60
 
@@ -52,10 +55,11 @@ export default async function BerandaPage() {
   let rekening: RekeningDisplayItem[] = []
   let whatsapp = ''
   let featuredProposals: ProposalWithFunding[] = []
+  let featuredPrograms: ProgramWithRelations[] = []
 
   try {
     await ensureDefaultSections().catch(() => {})
-    const [rawSections, rawArticles, rawPeriod, rawQris, rawRekening, rawWhatsapp, rawProposals] = await Promise.all([
+    const [rawSections, rawArticles, rawPeriod, rawQris, rawRekening, rawWhatsapp, rawProposals, rawPrograms] = await Promise.all([
       db.section.findMany({
         where: { isVisible: true, key: { not: 'footer' } },
         orderBy: { order: 'asc' },
@@ -82,6 +86,7 @@ export default async function BerandaPage() {
       getSetting<unknown>('donasi.rekening', []),
       getWhatsAppNumber(),
       getAllProposals({ featuredOnly: true, status: 'ALL' }).catch(() => []),
+      getAllPrograms({ featuredOnly: true, take: 3 }).catch(() => []),
     ])
     sections = rawSections
     articles = rawArticles
@@ -100,6 +105,14 @@ export default async function BerandaPage() {
         } as ProposalWithFunding
       }),
     )
+
+    // Jika belum ada program berstatus featured, ambil hingga 3 program aktif teratas
+    if (rawPrograms && rawPrograms.length > 0) {
+      featuredPrograms = rawPrograms as unknown as ProgramWithRelations[]
+    } else {
+      const fallbackPrograms = await getAllPrograms({ take: 3 }).catch(() => [])
+      featuredPrograms = (fallbackPrograms || []) as unknown as ProgramWithRelations[]
+    }
   } catch (error) {
     console.error('[BerandaPage] Gagal memuat data awal beranda:', error)
   }
@@ -161,6 +174,7 @@ export default async function BerandaPage() {
       <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
       <QuranMurottalSection surahs={surahs} />
       <FeaturedProposalSection proposals={featuredProposals} />
+      <FeaturedProgramSection programs={featuredPrograms} />
       <DonationSection qris={qris} rekening={rekening} whatsapp={whatsapp} />
       <SectionRenderer sections={afterFinance} articles={articles} whatsapp={whatsapp} />
       {!hasPengumumanSection && <LatestNews articles={articles} />}

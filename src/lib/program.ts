@@ -12,6 +12,8 @@ export interface ProgramFilter {
   status?: ProgramStatus | 'ALL'
   category?: ProgramCategory | 'ALL'
   search?: string
+  featuredOnly?: boolean
+  take?: number
 }
 
 export async function getAllPrograms(filter?: ProgramFilter) {
@@ -26,6 +28,9 @@ export async function getAllPrograms(filter?: ProgramFilter) {
   if (filter?.category && filter.category !== 'ALL') {
     where.category = filter.category
   }
+  if (filter?.featuredOnly) {
+    where.isFeatured = true
+  }
   if (filter?.search?.trim()) {
     const term = filter.search.trim()
     where.OR = [
@@ -38,6 +43,7 @@ export async function getAllPrograms(filter?: ProgramFilter) {
   return db.program.findMany({
     where,
     orderBy: [{ order: 'asc' }, { createdAt: 'desc' }],
+    take: filter?.take,
     include: {
       proposals: {
         select: {
