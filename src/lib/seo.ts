@@ -114,7 +114,12 @@ function resolveIcons(favicon?: string | null): Metadata['icons'] {
   const iconUrl = favicon?.trim()
   if (!iconUrl) {
     return {
-      icon: [{ url: '/favicon.ico' }],
+      icon: [
+        { url: '/favicon.ico' },
+        { url: '/icon.png', sizes: '32x32', type: 'image/png' },
+      ],
+      shortcut: [{ url: '/favicon.ico' }],
+      apple: [{ url: '/apple-icon.png' }],
     }
   }
   return {

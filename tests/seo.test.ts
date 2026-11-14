@@ -254,6 +254,18 @@ describe('buildRootMetadata', () => {
     expect(buildRootMetadata({ seoDescription: '  ' }).description).toBe(DEFAULT_DESCRIPTION)
     expect(buildRootMetadata().description).toBe(DEFAULT_DESCRIPTION)
   })
+
+  it('default icons menyediakan favicon.ico, icon.png, dan apple-icon.png', () => {
+    const md = buildRootMetadata()
+    expect(md.icons).toEqual({
+      icon: [
+        { url: '/favicon.ico' },
+        { url: '/icon.png', sizes: '32x32', type: 'image/png' },
+      ],
+      shortcut: [{ url: '/favicon.ico' }],
+      apple: [{ url: '/apple-icon.png' }],
+    })
+  })
 })
 
 describe('buildPublicMetadata (layout (public))', () => {
