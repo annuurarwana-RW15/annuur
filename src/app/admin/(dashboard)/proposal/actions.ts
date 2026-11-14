@@ -113,8 +113,11 @@ export async function saveProposal(input: SaveProposalInput): Promise<ActionResu
     revalidatePath('/admin/proposal')
     revalidatePath('/')
     return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message || 'Gagal menyimpan proposal' }
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Gagal menyimpan proposal',
+    }
   }
 }
 
@@ -128,7 +131,10 @@ export async function deleteProposalAction(id: string): Promise<ActionResult> {
     revalidatePath('/admin/proposal')
     revalidatePath('/')
     return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message || 'Gagal menghapus proposal' }
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Gagal menghapus proposal',
+    }
   }
 }

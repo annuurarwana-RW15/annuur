@@ -14,10 +14,9 @@ const ALLOWED_TYPES: Record<string, string[]> = {
   'image/x-icon': ['ico'],
   'image/vnd.microsoft.icon': ['ico'],
   'image/svg+xml': ['svg'],
-  'application/pdf': ['pdf'],
 }
 
-const MAX_SIZE = 15 * 1024 * 1024
+const MAX_SIZE = 5 * 1024 * 1024
 const PREFIX_RE = /^[a-z0-9-]+(\/[a-z0-9-]+)*$/
 
 export async function POST(req: Request) {

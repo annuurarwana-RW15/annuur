@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import type { ProposalStatus } from '@prisma/client'
 import { formatRupiah } from '@/lib/format'
-import { uploadImage } from '@/lib/upload-image'
 import {
   saveProposal,
   deleteProposalAction,
@@ -163,10 +162,17 @@ export function ProposalAdminClient({
     setIsUploading(true)
     setFormError(null)
     try {
-      const url = await uploadImage(file, 'proposals')
-      setFormData((prev) => ({ ...prev, coverImage: url }))
-    } catch (err: any) {
-      setFormError(err.message || 'Gagal mengunggah gambar cover')
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/upload-proposal', {
+        method: 'POST',
+        body: fd,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Gagal mengunggah gambar cover')
+      setFormData((prev) => ({ ...prev, coverImage: data.url }))
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Gagal mengunggah gambar cover')
     } finally {
       setIsUploading(false)
     }
@@ -184,15 +190,23 @@ export function ProposalAdminClient({
     setIsUploading(true)
     setFormError(null)
     try {
-      const url = await uploadImage(file, 'proposals')
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/upload-proposal', {
+        method: 'POST',
+        body: fd,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Gagal mengunggah berkas PDF')
+
       const sizeStr = formatBytes(file.size)
       setFormData((prev) => ({
         ...prev,
-        filePdf: url,
+        filePdf: data.url,
         filePdfSize: sizeStr,
       }))
-    } catch (err: any) {
-      setFormError(err.message || 'Gagal mengunggah file PDF proposal')
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : 'Gagal mengunggah file PDF proposal')
     } finally {
       setIsUploading(false)
     }
@@ -287,7 +301,7 @@ export function ProposalAdminClient({
         <div className="flex items-center gap-2">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => setStatusFilter(e.target.value as ProposalStatus | 'ALL')}
             className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs focus:border-hijau focus:outline-hidden"
           >
             <option value="ALL">Semua Status</option>
@@ -669,7 +683,7 @@ export function ProposalAdminClient({
                   </label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as ProposalStatus })}
                     className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
                   >
                     <option value="DIBUKA">Penggalangan Dibuka</option>

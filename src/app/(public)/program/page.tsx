@@ -28,7 +28,7 @@ export default async function ProgramPage() {
         </div>
 
         {/* Client Listing & Filtering */}
-        <ProgramListClient initialPrograms={programs as any} />
+        <ProgramListClient initialPrograms={programs} />
       </div>
     </section>
   )

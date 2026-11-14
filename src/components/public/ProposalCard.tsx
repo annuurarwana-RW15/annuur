@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import type { ProposalStatus } from '@prisma/client'
+import type { ProposalStatus, Prisma } from '@prisma/client'
 import { formatRupiah } from '@/lib/format'
 import type { ProposalFunding } from '@/lib/proposal'
 import { ProposalPdfModal } from './ProposalPdfModal'
@@ -17,8 +17,8 @@ export interface ProposalWithFunding {
   coverImage: string | null
   filePdf: string | null
   filePdfSize: string | null
-  targetAmount: any
-  collectedManual: any
+  targetAmount: Prisma.Decimal | number
+  collectedManual: Prisma.Decimal | number
   categoryId: string | null
   category?: { id: string; name: string; color?: string | null } | null
   programId: string | null

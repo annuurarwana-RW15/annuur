@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent, cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { ProgramCard, type ProgramWithRelations } from '@/components/public/ProgramCard'
@@ -19,7 +19,7 @@ describe('ProgramCard Component', () => {
     status: 'BERJALAN',
     progress: 65,
     targetDate: new Date('2026-12-31'),
-    budgetEstimate: 50000000 as unknown as any,
+    budgetEstimate: 50000000,
     picName: 'H. Ruslan',
     picPhone: '081234567890',
     order: 1,
@@ -32,7 +32,7 @@ describe('ProgramCard Component', () => {
         title: 'Proposal Karpet',
         slug: 'proposal-karpet',
         status: 'DIBUKA',
-        targetAmount: 50000000 as unknown as any,
+        targetAmount: 50000000,
       },
     ],
   }

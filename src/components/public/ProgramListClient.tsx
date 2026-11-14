@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import type { ProgramCategory, ProgramPeriodType } from '@prisma/client'
+import type { ProgramCategory } from '@prisma/client'
 import { ProgramCard, type ProgramWithRelations } from './ProgramCard'
 
 interface ProgramListClientProps {
@@ -78,7 +78,7 @@ export function ProgramListClient({ initialPrograms }: ProgramListClientProps) {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
           <select
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value as any)}
+            onChange={(e) => setCategoryFilter(e.target.value as ProgramCategory | 'ALL')}
             className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs focus:border-hijau focus:outline-hidden"
           >
             <option value="ALL">Semua Bidang</option>

@@ -97,8 +97,11 @@ export async function saveProgram(input: SaveProgramInput): Promise<ActionResult
     revalidatePath('/admin/program')
     revalidatePath('/')
     return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message || 'Gagal menyimpan program kerja' }
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Gagal menyimpan program kerja',
+    }
   }
 }
 
@@ -119,8 +122,11 @@ export async function updateQuickProgress(
     revalidatePath('/admin/program')
     revalidatePath('/')
     return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message || 'Gagal memperbarui progress' }
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Gagal memperbarui progress',
+    }
   }
 }
 
@@ -134,7 +140,10 @@ export async function deleteProgramAction(id: string): Promise<ActionResult> {
     revalidatePath('/admin/program')
     revalidatePath('/')
     return { ok: true }
-  } catch (err: any) {
-    return { ok: false, error: err?.message || 'Gagal menghapus program' }
+  } catch (err: unknown) {
+    return {
+      ok: false,
+      error: err instanceof Error ? err.message : 'Gagal menghapus program',
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { render, screen, cleanup, fireEvent } from '@testing-library/react'
+import { render, screen, cleanup } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { ProposalCard, type ProposalWithFunding } from '@/components/public/ProposalCard'
 import { ProposalPdfModal } from '@/components/public/ProposalPdfModal'
@@ -18,8 +18,8 @@ describe('ProposalCard Component', () => {
     coverImage: '/images/genset.jpg',
     filePdf: '/uploads/proposal-genset.pdf',
     filePdfSize: '3.1 MB',
-    targetAmount: 60000000 as any,
-    collectedManual: 20000000 as any,
+    targetAmount: 60000000,
+    collectedManual: 20000000,
     categoryId: 'cat-sarana',
     category: { id: 'cat-sarana', name: 'Infaq Sarana & Pembangunan', color: '#10B981' },
     programId: 'prog-1',

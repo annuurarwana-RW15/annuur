@@ -228,7 +228,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
         <div className="flex flex-wrap items-center gap-2">
           <select
             value={filterPeriod}
-            onChange={(e) => setFilterPeriod(e.target.value as any)}
+            onChange={(e) => setFilterPeriod(e.target.value as ProgramPeriodType | 'ALL')}
             className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs focus:border-hijau focus:outline-hidden"
           >
             <option value="ALL">Semua Periode</option>
@@ -238,7 +238,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
 
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
+            onChange={(e) => setFilterStatus(e.target.value as ProgramStatus | 'ALL')}
             className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs focus:border-hijau focus:outline-hidden"
           >
             <option value="ALL">Semua Status</option>
@@ -448,7 +448,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
                   </label>
                   <select
                     value={formData.periodType}
-                    onChange={(e) => setFormData({ ...formData, periodType: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, periodType: e.target.value as ProgramPeriodType })}
                     className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
                   >
                     <option value="PENDEK">Jangka Pendek (Tahunan)</option>
@@ -462,7 +462,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
                   </label>
                   <select
                     value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value as ProgramCategory })}
                     className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
                   >
                     <option value="IMARAH">Imarah (Kemakmuran Ibadah)</option>
@@ -480,7 +480,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
                   </label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as ProgramStatus })}
                     className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
                   >
                     <option value="DIRENCANAKAN">Direncanakan</option>
