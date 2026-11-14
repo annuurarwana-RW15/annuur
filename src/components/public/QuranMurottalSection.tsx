@@ -309,11 +309,11 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
         </div>
 
         {/* Kontainer Utama Terbagi 2: Kolom Kiri Player & Kolom Kanan Playlist */}
-        <div className="grid gap-6 lg:grid-cols-12 lg:items-stretch">
+        <div className="mt-8 sm:mt-10 grid gap-6 lg:grid-cols-12 lg:items-stretch">
           {/* ======================================================== */}
           {/* KOLOM 1: PLAYER UTAMA (5 Kolom)                          */}
           {/* ======================================================== */}
-          <div className="lg:col-span-5 flex flex-col">
+          <div className="lg:col-span-5 flex flex-col min-w-0">
             <div className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-emas/40 bg-gradient-to-br from-hijau via-[#0F4C3A] to-[#092B21] p-4 sm:p-6 lg:p-8 text-krem shadow-2xl">
               {/* Ornamen Latar Kubah */}
               <div
@@ -348,20 +348,20 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
                   <p
                     dir="rtl"
                     lang="ar"
-                    className="font-arabic text-3xl sm:text-4xl lg:text-5xl text-emas-muda drop-shadow-sm select-none py-0.5 sm:py-1"
+                    className="font-arabic text-3xl sm:text-4xl lg:text-5xl text-emas-muda drop-shadow-sm select-none py-0.5 sm:py-1 leading-normal break-words"
                   >
                     {selectedSurah.nama}
                   </p>
-                  <h3 className="mt-2 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-wide">
+                  <h3 className="mt-1.5 sm:mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-bold text-white tracking-wide truncate">
                     {selectedSurah.namaLatin}
                   </h3>
-                  <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-krem/80 italic">
+                  <p className="mt-0.5 sm:mt-1 text-xs sm:text-sm text-krem/80 italic truncate">
                     &ldquo;{selectedSurah.arti}&rdquo;
                   </p>
 
-                  <div className="mt-3 sm:mt-4 inline-flex items-center gap-1.5 rounded-full border border-emas/30 bg-white/5 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs text-krem/85">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emas animate-pulse" />
-                    <span>Qari: Syaikh Misyari Rasyid Al-Afasi</span>
+                  <div className="mt-3 sm:mt-4 inline-flex items-center gap-1.5 rounded-full border border-emas/30 bg-white/5 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[11px] sm:text-xs text-krem/85 max-w-full">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emas animate-pulse shrink-0" />
+                    <span className="truncate">Qari: Syaikh Misyari Rasyid Al-Afasi</span>
                   </div>
                 </div>
               </div>
@@ -594,10 +594,11 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
                 <div className="pt-1 sm:pt-2">
                   <Link
                     href={`/quran/${selectedSurah.nomor}`}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-emas/60 bg-white/10 py-2 sm:py-2.5 text-xs font-semibold text-emas-muda shadow-xs transition hover:bg-emas hover:text-hijau active:scale-[0.99]"
+                    aria-label={`Baca Teks Lengkap Surah ${selectedSurah.namaLatin}`}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-emas/60 bg-white/10 px-3 py-2 sm:py-2.5 text-xs font-semibold text-emas-muda shadow-xs transition hover:bg-emas hover:text-hijau active:scale-[0.99]"
                   >
-                    <span>Baca Teks Lengkap Surah {selectedSurah.namaLatin}</span>
-                    <span aria-hidden="true">→</span>
+                    <span className="truncate">Baca Teks Lengkap Surah {selectedSurah.namaLatin}</span>
+                    <span aria-hidden="true" className="shrink-0">→</span>
                   </Link>
                 </div>
               </div>
@@ -607,13 +608,13 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
           {/* ======================================================== */}
           {/* KOLOM 2: PLAYLIST SURAH (7 Kolom)                        */}
           {/* ======================================================== */}
-          <div className="lg:col-span-7 flex flex-col">
+          <div className="lg:col-span-7 flex flex-col min-w-0">
             <div className="flex flex-1 flex-col overflow-hidden rounded-3xl border border-emas/30 bg-white p-4 sm:p-6 shadow-xl">
               {/* Header Playlist & Tab Kategori */}
               <div className="border-b border-emas/20 pb-3 sm:pb-4">
                 <div className="flex flex-wrap items-center justify-between gap-2.5 sm:gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-xl bg-hijau text-emas shadow-xs">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-xl bg-hijau text-emas shadow-xs shrink-0">
                       <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 sm:h-4 sm:w-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="8" y1="6" x2="21" y2="6" />
                         <line x1="8" y1="12" x2="21" y2="12" />
@@ -623,11 +624,11 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
                         <line x1="3" y1="18" x2="3.01" y2="18" />
                       </svg>
                     </span>
-                    <div>
-                      <h3 className="font-display text-base sm:text-lg font-bold text-hijau">
+                    <div className="min-w-0">
+                      <h3 className="font-display text-base sm:text-lg font-bold text-hijau truncate">
                         Playlist Surah Al-Qur&apos;an
                       </h3>
-                      <p className="text-[11px] sm:text-xs text-hijau-tua/60">
+                      <p className="text-[11px] sm:text-xs text-hijau-tua/60 truncate">
                         {filteredSurahs.length} dari 114 surah tersedia
                       </p>
                     </div>
@@ -635,7 +636,7 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
 
                   <Link
                     href="/quran"
-                    className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-emas-tua transition hover:text-hijau hover:underline"
+                    className="inline-flex items-center gap-1 text-[11px] sm:text-xs font-semibold text-emas-tua transition hover:text-hijau hover:underline shrink-0"
                   >
                     <span>Buka Menu Al-Qur&apos;an</span>
                     <span aria-hidden="true">→</span>
@@ -775,11 +776,11 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
                         </div>
 
                         {/* Kanan: Kaligrafi Arab & Aksi */}
-                        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
                           <p
                             dir="rtl"
                             lang="ar"
-                            className="font-arabic text-lg sm:text-xl text-hijau-tua/90 group-hover:text-hijau leading-none"
+                            className="font-arabic text-base sm:text-xl text-hijau-tua/90 group-hover:text-hijau leading-tight max-w-[75px] sm:max-w-none truncate text-right"
                           >
                             {surah.nama}
                           </p>
@@ -796,7 +797,7 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
                               }
                             }}
                             aria-label={`Putar Surah ${surah.namaLatin}`}
-                            className={`grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full transition ${
+                            className={`grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-full transition ${
                               isCurrentlyPlaying
                                 ? 'bg-hijau text-emas shadow-xs'
                                 : 'bg-krem text-hijau-tua group-hover:bg-emas group-hover:text-hijau'

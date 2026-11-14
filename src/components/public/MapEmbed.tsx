@@ -184,7 +184,7 @@ export function GoogleMapEmbed({
 
       {/* Bar Tombol Aksi Peta - Responsif & Rata Presisi di Mobile */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-neutral-50 p-3 sm:px-4 sm:py-3 border-t border-black/5">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-hijau-tua min-w-0">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-hijau-tua min-w-0 flex-1">
           <PinIcon className="h-3.5 w-3.5 shrink-0 text-emas-tua" />
           <span className="truncate max-w-full sm:max-w-xs">
             {alamat || 'Masjid An-nuur Arwana'}
