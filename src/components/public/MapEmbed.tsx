@@ -101,6 +101,34 @@ export function MapLink({
   )
 }
 
+function PinIcon({ className = 'h-4 w-4' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  )
+}
+
+function MapActionIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+      <line x1="8" y1="2" x2="8" y2="18" />
+      <line x1="16" y1="6" x2="16" y2="22" />
+    </svg>
+  )
+}
+
+function CompassIcon({ className = 'h-3.5 w-3.5' }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+    </svg>
+  )
+}
+
 export interface GoogleMapEmbedProps {
   mapQuery?: string
   mapUrl?: string
@@ -133,8 +161,8 @@ export function GoogleMapEmbed({
     <div
       className={`overflow-hidden rounded-2xl border border-emas/30 bg-white shadow-sm flex flex-col ${className}`}
     >
-      {/* Container Iframe Peta Interaktif */}
-      <div className="relative w-full aspect-video min-h-[260px] sm:min-h-[300px] bg-neutral-100">
+      {/* Container Iframe Peta Interaktif - Tinggi Proporsional & Rata di Mobile */}
+      <div className="relative w-full h-56 sm:h-72 lg:h-80 bg-neutral-100">
         {embedUrl ? (
           <iframe
             title={title}
@@ -154,26 +182,28 @@ export function GoogleMapEmbed({
         )}
       </div>
 
-      {/* Bar Tombol Aksi Peta */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 bg-neutral-50 px-4 py-3 border-t border-black/5">
+      {/* Bar Tombol Aksi Peta - Responsif & Rata Presisi di Mobile */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 bg-neutral-50 p-3 sm:px-4 sm:py-3 border-t border-black/5">
         <div className="flex items-center gap-1.5 text-xs font-semibold text-hijau-tua min-w-0">
-          <span>📍</span>
-          <span className="truncate max-w-[200px] sm:max-w-xs">
+          <PinIcon className="h-3.5 w-3.5 shrink-0 text-emas-tua" />
+          <span className="truncate max-w-full sm:max-w-xs">
             {alamat || 'Masjid An-nuur Arwana'}
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
+        {/* Tombol Aksi: Grid 2 Kolom Seimbang di Mobile, Flex di Desktop */}
+        <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:items-center shrink-0">
           {directLink && (
             <a
               href={directLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-green-900 px-3 py-1.5 text-xs font-semibold text-white shadow-xs hover:bg-green-800 transition"
+              aria-label="Buka di Google Maps"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-hijau px-3 py-2 text-[11px] sm:text-xs font-semibold text-white shadow-xs hover:bg-hijau-tua active:scale-95 transition"
               title="Buka lokasi di Google Maps"
             >
-              <span>🗺️</span>
-              <span>Buka di Google Maps</span>
+              <MapActionIcon className="h-3.5 w-3.5 shrink-0 text-emas" />
+              <span className="truncate">Google Maps</span>
             </a>
           )}
           {directionsLink && (
@@ -181,11 +211,12 @@ export function GoogleMapEmbed({
               href={directionsLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-emas/50 bg-white px-3 py-1.5 text-xs font-semibold text-hijau hover:bg-krem transition"
+              aria-label="Petunjuk Arah"
+              className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-emas/50 bg-white px-3 py-2 text-[11px] sm:text-xs font-semibold text-hijau hover:bg-krem active:scale-95 transition shadow-2xs"
               title="Dapatkan rute petunjuk arah menuju masjid"
             >
-              <span>🧭</span>
-              <span>Petunjuk Arah</span>
+              <CompassIcon className="h-3.5 w-3.5 shrink-0 text-emas-tua" />
+              <span className="truncate">Petunjuk Arah</span>
             </a>
           )}
         </div>

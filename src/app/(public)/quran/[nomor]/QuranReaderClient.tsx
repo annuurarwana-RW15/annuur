@@ -792,25 +792,32 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
             </span>
 
             {/* Tombol Audio Murottal: Mode Sinkron Tiap Ayat & Mode Full Surah */}
-            <div className="flex flex-wrap sm:justify-end items-center gap-2">
+            <div className="grid grid-cols-2 gap-2 w-full sm:w-auto sm:flex sm:justify-end sm:items-center">
               <button
                 type="button"
                 onClick={() => handleToggleAyatAudio(1)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-semibold shadow transition ${
+                aria-label={
+                  activeAudio?.mode === 'ayat' && isPlaying
+                    ? 'Jeda Bacaan Ayat'
+                    : activeAudio?.mode === 'ayat'
+                      ? 'Lanjut Bacaan Ayat'
+                      : 'Putar Sinkron Tiap Ayat'
+                }
+                className={`inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold shadow transition ${
                   activeAudio?.mode === 'ayat' && isPlaying
                     ? 'bg-emerald-600 text-white animate-pulse ring-2 ring-emerald-300'
                     : 'bg-emerald-900/90 text-krem hover:bg-emerald-800 border border-emerald-500/40'
                 }`}
                 title="Putar murottal ayat demi ayat secara berurutan dengan sinkronisasi 100% presisi"
               >
-                <span>
+                <span className="truncate">
                   {activeAudio?.mode === 'ayat' && isPlaying
-                    ? '⏸ Jeda Bacaan Ayat'
+                    ? '⏸ Jeda Ayat'
                     : activeAudio?.mode === 'ayat'
-                      ? '▶ Lanjut Bacaan Ayat'
-                      : '▶ Putar Sinkron Tiap Ayat'}
+                      ? '▶ Lanjut Ayat'
+                      : '▶ Sinkron Ayat'}
                 </span>
-                <span className="rounded bg-emas/20 px-1.5 py-0.5 text-[10px] text-emas-muda font-bold">
+                <span className="hidden sm:inline rounded bg-emas/20 px-1.5 py-0.5 text-[10px] text-emas-muda font-bold shrink-0">
                   ★ Presisi
                 </span>
               </button>
@@ -818,7 +825,16 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               <button
                 type="button"
                 onClick={handleToggleFullSurahAudio}
-                className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold shadow transition ${
+                aria-label={
+                  isFullLoading
+                    ? 'Menyiapkan Audio'
+                    : isFullPlaying
+                      ? 'Jeda Murottal Surah'
+                      : activeAudio?.mode === 'full'
+                        ? 'Lanjutkan Murottal Surah'
+                        : 'Putar Murottal Surah'
+                }
+                className={`inline-flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-semibold shadow transition ${
                   isFullPlaying
                     ? 'bg-rose-600 text-white animate-pulse'
                     : isFullLoading
@@ -827,16 +843,16 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
                 }`}
                 title="Putar audio full satu surah utuh"
               >
-                <span>
+                <span className="truncate">
                   {isFullLoading
-                    ? '⏳ Menyiapkan Audio...'
+                    ? '⏳ Loading...'
                     : isFullPlaying
-                      ? '⏸ Jeda Murottal Surah'
+                      ? '⏸ Jeda Surah'
                       : activeAudio?.mode === 'full'
-                        ? '▶ Lanjutkan Murottal Surah'
-                        : '▶ Putar Murottal Surah'}
+                        ? '▶ Lanjut Surah'
+                        : '▶ Full Surah'}
                 </span>
-                <span className="text-[10px] opacity-75 font-normal">(Syaikh Al-Afasy)</span>
+                <span className="hidden sm:inline text-[10px] opacity-75 font-normal shrink-0">(Al-Afasy)</span>
               </button>
             </div>
 
@@ -1249,45 +1265,45 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
       {activeAudio && (
         <aside
           aria-label="Pemutar Murottal Audio"
-          className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-emas/50 bg-[#092b21]/95 text-krem backdrop-blur-md p-4 shadow-2xl transition animate-in fade-in slide-in-from-bottom-3"
+          className="fixed bottom-2 left-2 right-2 sm:bottom-4 sm:left-4 sm:right-4 z-50 mx-auto max-w-2xl rounded-2xl border border-emas/50 bg-[#092b21]/95 text-krem backdrop-blur-md p-2.5 sm:p-4 shadow-2xl transition animate-in fade-in slide-in-from-bottom-3"
         >
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emas/20 text-emas border border-emas/40">
+          <div className="flex items-center justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-emas/20 text-emas border border-emas/40">
                 {isPlaying ? (
-                  <span className="flex items-end gap-0.5 h-4">
-                    <span className="w-1 bg-emas rounded-full animate-bounce h-4" />
-                    <span className="w-1 bg-emas rounded-full animate-bounce h-2 delay-100" />
-                    <span className="w-1 bg-emas rounded-full animate-bounce h-3 delay-200" />
+                  <span className="flex items-end gap-0.5 h-3.5 sm:h-4">
+                    <span className="w-0.5 sm:w-1 bg-emas rounded-full animate-bounce h-3.5 sm:h-4" />
+                    <span className="w-0.5 sm:w-1 bg-emas rounded-full animate-bounce h-2 delay-100" />
+                    <span className="w-0.5 sm:w-1 bg-emas rounded-full animate-bounce h-2.5 sm:h-3 delay-200" />
                   </span>
                 ) : (
-                  <span>🎵</span>
+                  <span className="text-xs sm:text-base">🎵</span>
                 )}
               </div>
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-[11px] font-semibold text-emas-muda uppercase tracking-wider truncate">
-                    Murottal Syaikh Al-Afasy
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <p className="text-[10px] sm:text-[11px] font-semibold text-emas-muda uppercase tracking-wider truncate">
+                    Al-Afasy
                   </p>
                   {activeMurottalAyat && (
-                    <span className="rounded bg-emas/20 px-1.5 py-0.2 text-[10px] font-bold text-emas-muda border border-emas/30 shrink-0">
+                    <span className="rounded bg-emas/20 px-1.5 py-0.2 text-[9px] sm:text-[10px] font-bold text-emas-muda border border-emas/30 shrink-0">
                       Ayat {activeMurottalAyat}
                     </span>
                   )}
                 </div>
-                <h4 className="text-sm font-bold text-krem truncate">
+                <h4 className="text-xs sm:text-sm font-bold text-krem truncate">
                   {activeAudio.title}
                 </h4>
               </div>
             </div>
 
             {/* Kontrol Player: Auto Scroll Murottal, Prev, Play/Pause, Next, Tutup */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               {/* Tombol Toggle Auto Scroll Murottal */}
               <button
                 type="button"
                 onClick={toggleMurottalAutoScroll}
-                className={`flex h-9 items-center gap-1.5 px-3 rounded-full text-xs font-semibold transition ${
+                className={`flex h-8 sm:h-9 items-center gap-1 px-2 sm:px-3 rounded-full text-[11px] sm:text-xs font-semibold transition ${
                   murottalAutoScroll
                     ? 'bg-emas/20 text-emas-muda border border-emas/40 shadow-xs'
                     : 'bg-white/10 text-krem/50 hover:bg-white/15'
@@ -1301,10 +1317,10 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               >
                 <span>{murottalAutoScroll ? '📜' : '🖐️'}</span>
                 <span className="hidden sm:inline">
-                  Scroll: {murottalAutoScroll ? 'ON (Otomatis)' : 'OFF (Manual)'}
+                  Scroll: {murottalAutoScroll ? 'ON' : 'OFF'}
                 </span>
-                <span className="sm:hidden">
-                  {murottalAutoScroll ? 'Auto' : 'Manual'}
+                <span className="sm:hidden text-[10px]">
+                  {murottalAutoScroll ? 'Auto' : 'Off'}
                 </span>
               </button>
 
@@ -1313,7 +1329,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
                 type="button"
                 onClick={handlePrevAudio}
                 disabled={!canPrev}
-                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm transition ${
+                className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm transition ${
                   canPrev
                     ? 'bg-white/10 text-krem hover:bg-white/20 active:scale-95'
                     : 'bg-white/5 text-krem/30 cursor-not-allowed'
@@ -1332,7 +1348,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
                     ? handleToggleFullSurahAudio
                     : () => handleToggleAyatAudio(activeAudio.ayatNomor || 1)
                 }
-                className="flex h-11 w-11 items-center justify-center rounded-full bg-emas text-hijau hover:bg-emas-muda font-bold shadow-md transition active:scale-95 text-base"
+                className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-full bg-emas text-hijau hover:bg-emas-muda font-bold shadow-md transition active:scale-95 text-sm sm:text-base"
                 title={isPlaying ? 'Jeda Audio' : 'Putar Audio'}
                 aria-label={isPlaying ? 'Jeda Audio' : 'Putar Audio'}
               >
@@ -1344,7 +1360,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
                 type="button"
                 onClick={handleNextAudio}
                 disabled={!canNext}
-                className={`flex h-9 w-9 items-center justify-center rounded-full text-sm transition ${
+                className={`flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm transition ${
                   canNext
                     ? 'bg-white/10 text-krem hover:bg-white/20 active:scale-95'
                     : 'bg-white/5 text-krem/30 cursor-not-allowed'
@@ -1359,7 +1375,7 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               <button
                 type="button"
                 onClick={handleStopAudio}
-                className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-krem/80 hover:bg-white/20 transition text-xs"
+                className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-full bg-white/10 text-krem/80 hover:bg-white/20 transition text-[10px] sm:text-xs"
                 title="Hentikan & Tutup Pemutar"
                 aria-label="Hentikan & Tutup Pemutar"
               >
@@ -1369,8 +1385,8 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
           </div>
 
           {/* Progress Bar & Durasi */}
-          <div className="mt-3 flex items-center gap-3">
-            <span className="text-[11px] font-mono text-krem/70 w-10 text-right">
+          <div className="mt-2 sm:mt-3 flex items-center gap-2 sm:gap-3">
+            <span className="text-[10px] sm:text-[11px] font-mono text-krem/70 w-8 sm:w-10 text-right shrink-0">
               {formatTime(currentTime)}
             </span>
             <input
@@ -1380,9 +1396,9 @@ export function QuranReaderClient({ surah, initialAutoplay }: QuranReaderClientP
               value={currentTime}
               onChange={handleSeek}
               disabled={!duration}
-              className="h-1.5 flex-1 cursor-pointer appearance-none rounded-lg bg-white/20 accent-emas"
+              className="h-1 sm:h-1.5 flex-1 cursor-pointer appearance-none rounded-lg bg-white/20 accent-emas"
             />
-            <span className="text-[11px] font-mono text-krem/70 w-10">
+            <span className="text-[10px] sm:text-[11px] font-mono text-krem/70 w-8 sm:w-10 shrink-0">
               {formatTime(duration)}
             </span>
           </div>

@@ -336,7 +336,7 @@ export function DonationSection({
                       width={280}
                       height={280}
                       loading="lazy"
-                      className="h-64 w-64 max-w-full object-contain cursor-pointer transition duration-200 group-hover:scale-102"
+                      className="h-48 w-48 sm:h-64 sm:w-64 max-w-full object-contain cursor-pointer transition duration-200 group-hover:scale-102"
                       onClick={() => setShowModal(true)}
                     />
                     <button
@@ -492,3 +492,4 @@ export function DonationSection({
     </section>
   )
 }
+

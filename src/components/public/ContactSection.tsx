@@ -84,11 +84,11 @@ export function ContactSection({
           </p>
         </div>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-12 items-start">
+        <div className="mt-8 grid gap-6 lg:gap-8 lg:grid-cols-12 items-start">
           {/* Kolom Kiri: Kartu Informasi Kontak Lengkap */}
-          <div className="lg:col-span-5 rounded-2xl border border-emas/30 bg-white p-6 sm:p-8 shadow-sm flex flex-col justify-between">
+          <div className="lg:col-span-5 rounded-2xl border border-emas/30 bg-white p-5 sm:p-7 shadow-sm flex flex-col justify-between">
             <div>
-              <h3 className="font-display text-xl font-bold text-hijau-tua border-b border-black/5 pb-3">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-hijau-tua border-b border-black/5 pb-2.5 sm:pb-3">
                 Informasi Kontak
               </h3>
 
@@ -222,8 +222,8 @@ export function ContactSection({
 
           {/* Kolom Kanan: Peta Google Maps Interaktif */}
           <div className="lg:col-span-7">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-display text-xl font-bold text-hijau-tua flex items-center gap-2">
+            <div className="mb-2.5 sm:mb-3 flex items-center justify-between gap-2">
+              <h3 className="font-display text-lg sm:text-xl font-bold text-hijau-tua flex items-center gap-2">
                 <span>🗺️</span>
                 <span>Peta Lokasi Google Maps</span>
               </h3>
@@ -231,7 +231,7 @@ export function ContactSection({
                 <MapLink
                   query={mapQuery || alamat}
                   directUrl={mapUrl}
-                  className="text-xs font-semibold text-green-900 hover:underline"
+                  className="text-xs font-semibold text-green-900 hover:underline shrink-0"
                 >
                   Buka Peta Penuh ↗
                 </MapLink>

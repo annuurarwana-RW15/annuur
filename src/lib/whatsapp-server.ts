@@ -35,3 +35,4 @@ export async function getWhatsAppNumber(): Promise<string> {
     return ''
   }
 }
+
