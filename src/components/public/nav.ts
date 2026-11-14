@@ -14,7 +14,26 @@ export const PUBLIC_NAV: readonly PublicNavItem[] = [
   { label: 'Beranda', href: '/' },
   { label: 'Profil', href: '/profil' },
   { label: "Al-Qur'an", href: '/quran' },
-  { label: 'Kegiatan & Program', href: '/kegiatan' },
+  {
+    label: 'Kegiatan & Program',
+    children: [
+      {
+        label: 'Agenda Kegiatan',
+        href: '/kegiatan',
+        description: 'Jadwal kajian, pengajian rutin, dan agenda keumatan',
+      },
+      {
+        label: 'Program Kerja',
+        href: '/program',
+        description: 'Rencana kerja jangka pendek & panjang beserta capaian',
+      },
+      {
+        label: 'Proposal Terbuka',
+        href: '/proposal',
+        description: 'Peluang amal jariyah, target RAB, & unduh proposal resmi',
+      },
+    ],
+  },
   { label: 'Berita & Artikel', href: '/berita' },
   {
     label: 'Donasi & Kas',

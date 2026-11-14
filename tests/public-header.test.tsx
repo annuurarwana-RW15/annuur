@@ -84,5 +84,25 @@ describe('PublicHeader Auth Menu', () => {
       expect(link.getAttribute('href')).toContain('wa.me/6281234567890')
     }
   })
+
+  it('menampilkan dropdown Kegiatan & Program beserta sub-menu Agenda Kegiatan, Program Kerja, dan Proposal Terbuka', () => {
+    render(<PublicHeader siteName="Masjid An-Nuur" user={null} />)
+
+    // Temukan tombol dropdown Kegiatan & Program
+    const dropdownButtons = screen.getAllByRole('button', { name: /kegiatan & program/i })
+    expect(dropdownButtons.length).toBeGreaterThan(0)
+
+    // Buka dropdown
+    fireEvent.click(dropdownButtons[0])
+
+    const agendaLinks = screen.getAllByRole('link', { name: /agenda kegiatan/i })
+    expect(agendaLinks.some((l) => l.getAttribute('href') === '/kegiatan')).toBe(true)
+
+    const programLinks = screen.getAllByRole('link', { name: /program kerja/i })
+    expect(programLinks.some((l) => l.getAttribute('href') === '/program')).toBe(true)
+
+    const proposalLinks = screen.getAllByRole('link', { name: /proposal terbuka/i })
+    expect(proposalLinks.some((l) => l.getAttribute('href') === '/proposal')).toBe(true)
+  })
 })
 
