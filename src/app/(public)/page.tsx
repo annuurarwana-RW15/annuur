@@ -7,10 +7,13 @@ import { ensureDefaultSections } from '@/lib/sections-init'
 import { getSetting } from '@/lib/settings'
 import { getWhatsAppNumber } from '@/lib/whatsapp-server'
 import { DonationSection, type RekeningDisplayItem } from '@/components/public/DonationSection'
+import { FeaturedProposalSection } from '@/components/public/FeaturedProposalSection'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { QuranMurottalSection } from '@/components/public/QuranMurottalSection'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
+import { getAllProposals, calculateProposalFunding } from '@/lib/proposal'
+import type { ProposalWithFunding } from '@/components/public/ProposalCard'
 
 export const revalidate = 60
 
@@ -48,10 +51,11 @@ export default async function BerandaPage() {
   let qris: Awaited<ReturnType<typeof getQris>> = null
   let rekening: RekeningDisplayItem[] = []
   let whatsapp = ''
+  let featuredProposals: ProposalWithFunding[] = []
 
   try {
     await ensureDefaultSections().catch(() => {})
-    const res = await Promise.all([
+    const [rawSections, rawArticles, rawPeriod, rawQris, rawRekening, rawWhatsapp, rawProposals] = await Promise.all([
       db.section.findMany({
         where: { isVisible: true, key: { not: 'footer' } },
         orderBy: { order: 'asc' },
@@ -77,13 +81,25 @@ export default async function BerandaPage() {
       getQris(),
       getSetting<unknown>('donasi.rekening', []),
       getWhatsAppNumber(),
+      getAllProposals({ featuredOnly: true, status: 'ALL' }).catch(() => []),
     ])
-    sections = res[0]
-    articles = res[1]
-    period = res[2]
-    qris = res[3]
-    rekening = parseRekening(res[4])
-    whatsapp = res[5]
+    sections = rawSections
+    articles = rawArticles
+    period = rawPeriod
+    qris = rawQris
+    rekening = parseRekening(rawRekening)
+    whatsapp = rawWhatsapp
+
+    const publicFeatured = (rawProposals || []).filter((p) => p.status !== 'DRAFT').slice(0, 3)
+    featuredProposals = await Promise.all(
+      publicFeatured.map(async (p) => {
+        const funding = await calculateProposalFunding(p)
+        return {
+          ...p,
+          funding,
+        } as ProposalWithFunding
+      }),
+    )
   } catch (error) {
     console.error('[BerandaPage] Gagal memuat data awal beranda:', error)
   }
@@ -144,6 +160,7 @@ export default async function BerandaPage() {
       <SectionRenderer sections={beforeFinance} articles={articles} whatsapp={whatsapp} />
       <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
       <QuranMurottalSection surahs={surahs} />
+      <FeaturedProposalSection proposals={featuredProposals} />
       <DonationSection qris={qris} rekening={rekening} whatsapp={whatsapp} />
       <SectionRenderer sections={afterFinance} articles={articles} whatsapp={whatsapp} />
       {!hasPengumumanSection && <LatestNews articles={articles} />}
