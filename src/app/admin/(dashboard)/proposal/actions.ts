@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/rbac'
 import { uniqueProposalSlug } from '@/lib/proposal'
+import { ensureProgramAndProposalTables } from '@/lib/program-proposal-init'
 import type { ProposalStatus } from '@prisma/client'
 
 export interface SaveProposalInput {
@@ -33,6 +34,7 @@ export interface ActionResult {
 
 export async function saveProposal(input: SaveProposalInput): Promise<ActionResult> {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureProgramAndProposalTables()
 
   const title = input.title?.trim()
   if (!title) return { ok: false, error: 'Judul proposal wajib diisi' }
@@ -123,6 +125,7 @@ export async function saveProposal(input: SaveProposalInput): Promise<ActionResu
 
 export async function deleteProposalAction(id: string): Promise<ActionResult> {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureProgramAndProposalTables()
 
   try {
     await db.proposal.delete({ where: { id } })

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { requireRole } from '@/lib/rbac'
 import { db } from '@/lib/db'
 import { getAllProposals, calculateProposalFunding } from '@/lib/proposal'
+import { ensureProgramAndProposalTables } from '@/lib/program-proposal-init'
 import {
   ProposalAdminClient,
   type AdminProposalItem,
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 
 export default async function AdminProposalPage() {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureProgramAndProposalTables()
 
   let proposals: Awaited<ReturnType<typeof getAllProposals>> = []
   let categories: AdminCategoryOption[] = []

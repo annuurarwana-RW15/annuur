@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getAllPrograms, serializeProgram } from '@/lib/program'
+import { ensureProgramAndProposalTables } from '@/lib/program-proposal-init'
 import { SectionHeading } from '@/components/public/SectionHeading'
 import { ProgramListClient } from '@/components/public/ProgramListClient'
 
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ProgramPage() {
+  await ensureProgramAndProposalTables()
   let programs: Awaited<ReturnType<typeof getAllPrograms>> = []
   try {
     programs = await getAllPrograms()

@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { db } from '@/lib/db'
 import { requireRole } from '@/lib/rbac'
 import { uniqueProgramSlug } from '@/lib/program'
+import { ensureProgramAndProposalTables } from '@/lib/program-proposal-init'
 import type {
   ProgramPeriodType,
   ProgramCategory,
@@ -33,6 +34,7 @@ export interface ActionResult {
 
 export async function saveProgram(input: SaveProgramInput): Promise<ActionResult> {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureProgramAndProposalTables()
 
   const title = input.title?.trim()
   if (!title) return { ok: false, error: 'Judul program wajib diisi' }
@@ -110,6 +112,7 @@ export async function updateQuickProgress(
   progress: number,
 ): Promise<ActionResult> {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureProgramAndProposalTables()
 
   const clampedProgress = Math.max(0, Math.min(100, Math.round(progress)))
   try {
@@ -132,6 +135,7 @@ export async function updateQuickProgress(
 
 export async function deleteProgramAction(id: string): Promise<ActionResult> {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureProgramAndProposalTables()
 
   try {
     await db.program.delete({ where: { id } })

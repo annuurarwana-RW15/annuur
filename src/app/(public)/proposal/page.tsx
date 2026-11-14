@@ -4,6 +4,7 @@ import {
   calculateProposalFunding,
   serializeProposal,
 } from '@/lib/proposal'
+import { ensureProgramAndProposalTables } from '@/lib/program-proposal-init'
 import { SectionHeading } from '@/components/public/SectionHeading'
 import { ProposalCard, type ProposalWithFunding } from '@/components/public/ProposalCard'
 
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
 }
 
 export default async function ProposalListingPage() {
+  await ensureProgramAndProposalTables()
   let proposalsWithFunding: ProposalWithFunding[] = []
 
   try {

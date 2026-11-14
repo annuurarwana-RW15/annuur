@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { requireRole } from '@/lib/rbac'
 import { getAllPrograms } from '@/lib/program'
+import { ensureProgramAndProposalTables } from '@/lib/program-proposal-init'
 import { ProgramAdminClient, type AdminProgramItem } from './ProgramAdminClient'
 
 export const metadata: Metadata = {
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
 
 export default async function AdminProgramPage() {
   await requireRole('ADMIN', 'KONTEN')
+  await ensureProgramAndProposalTables()
 
   let programs: Awaited<ReturnType<typeof getAllPrograms>> = []
   try {
