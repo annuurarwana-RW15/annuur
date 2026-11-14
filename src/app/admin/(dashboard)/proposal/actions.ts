@@ -34,7 +34,13 @@ export interface ActionResult {
 
 export async function saveProposal(input: SaveProposalInput): Promise<ActionResult> {
   await requireRole('ADMIN', 'KONTEN')
-  await ensureProgramAndProposalTables()
+  const ensureResult = await ensureProgramAndProposalTables()
+  if (!ensureResult.ok) {
+    return {
+      ok: false,
+      error: `Tabel database belum siap: ${ensureResult.error}. Silakan coba lagi.`,
+    }
+  }
 
   const title = input.title?.trim()
   if (!title) return { ok: false, error: 'Judul proposal wajib diisi' }

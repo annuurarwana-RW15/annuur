@@ -14,6 +14,12 @@ vi.mock('@/lib/rbac', () => ({
   requireRole: h.requireRoleMock,
 }))
 
+vi.mock('@/lib/program-proposal-init', () => ({
+  ensureProgramAndProposalTables: vi.fn().mockResolvedValue({ ok: true }),
+  checkProgramAndProposalTables: vi.fn().mockResolvedValue({ program: true, proposal: true }),
+  resetTablesInitCache: vi.fn(),
+}))
+
 vi.mock('next/cache', () => ({
   revalidatePath: h.revalidatePathMock,
 }))

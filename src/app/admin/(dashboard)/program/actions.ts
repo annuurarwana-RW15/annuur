@@ -32,9 +32,28 @@ export interface ActionResult {
   error?: string
 }
 
+export async function syncDatabaseTablesAction(): Promise<ActionResult> {
+  await requireRole('ADMIN', 'KONTEN')
+  const res = await ensureProgramAndProposalTables()
+  if (!res.ok) {
+    return { ok: false, error: res.error || 'Gagal sinkronisasi database' }
+  }
+  revalidatePath('/admin/program')
+  revalidatePath('/admin/proposal')
+  revalidatePath('/program')
+  revalidatePath('/proposal')
+  return { ok: true }
+}
+
 export async function saveProgram(input: SaveProgramInput): Promise<ActionResult> {
   await requireRole('ADMIN', 'KONTEN')
-  await ensureProgramAndProposalTables()
+  const ensureResult = await ensureProgramAndProposalTables()
+  if (!ensureResult.ok) {
+    return {
+      ok: false,
+      error: `Tabel database belum siap: ${ensureResult.error}. Silakan klik tombol 'Sinkronkan Database'.`,
+    }
+  }
 
   const title = input.title?.trim()
   if (!title) return { ok: false, error: 'Judul program wajib diisi' }

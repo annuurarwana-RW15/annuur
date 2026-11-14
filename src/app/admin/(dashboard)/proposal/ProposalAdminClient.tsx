@@ -10,6 +10,7 @@ import {
   deleteProposalAction,
   type SaveProposalInput,
 } from './actions'
+import { syncDatabaseTablesAction } from '../program/actions'
 import type { ProposalFunding } from '@/lib/proposal'
 
 export interface AdminProposalItem {
@@ -99,7 +100,21 @@ export function ProposalAdminClient({
     picPhone: '',
   })
   const [formError, setFormError] = useState<string | null>(null)
+  const [syncStatus, setSyncStatus] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
+
+  async function handleSyncDb() {
+    setSyncStatus('Sedang mensinkronkan database...')
+    const res = await syncDatabaseTablesAction()
+    if (res.ok) {
+      setSyncStatus('Database berhasil disinkronkan!')
+      setFormError(null)
+      router.refresh()
+      setTimeout(() => setSyncStatus(null), 4000)
+    } else {
+      setSyncStatus(`Gagal: ${res.error}`)
+    }
+  }
 
   const coverInputRef = useRef<HTMLInputElement>(null)
   const pdfInputRef = useRef<HTMLInputElement>(null)
@@ -264,17 +279,37 @@ export function ProposalAdminClient({
             Kelola penggalangan dana program, unggah dokumen PDF resmi (RAB), atur target capaian, dan tampilkan di beranda.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-hijau px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-hijau-tua transition"
-        >
-          <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-            <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
-          </svg>
-          <span>Buat Proposal Baru</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSyncDb}
+            title="Klik jika tabel database belum terbuat di server hosting"
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-slate-500">
+              <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H4.5a.75.75 0 0 0-.75.75v3.733a.75.75 0 0 0 1.5 0v-2.144l.432.433a7 7 0 0 0 11.714-3.144.75.75 0 0 0-1.084-.783Zm-10.624-2.848a5.5 5.5 0 0 1 9.201-2.466l.312.311H11.77a.75.75 0 0 0 0 1.5h3.733a.75.75 0 0 0 .75-.75V3.438a.75.75 0 0 0-1.5 0v2.144l-.432-.433a7 7 0 0 0-11.714 3.144.75.75 0 0 0 1.084.783Z" clipRule="evenodd" />
+            </svg>
+            <span>Sinkronkan Database</span>
+          </button>
+          <button
+            type="button"
+            onClick={openCreateModal}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-hijau px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-hijau-tua transition"
+          >
+            <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+              <path d="M10.75 4.75a.75.75 0 0 0-1.5 0v4.5h-4.5a.75.75 0 0 0 0 1.5h4.5v4.5a.75.75 0 0 0 1.5 0v-4.5h4.5a.75.75 0 0 0 0-1.5h-4.5v-4.5Z" />
+            </svg>
+            <span>Buat Proposal Baru</span>
+          </button>
+        </div>
       </div>
+
+      {syncStatus && (
+        <div className="rounded-xl bg-blue-50 p-3 text-xs font-medium text-blue-800 ring-1 ring-blue-200 flex items-center justify-between">
+          <span>{syncStatus}</span>
+          <button type="button" onClick={() => setSyncStatus(null)} className="text-blue-500 hover:text-blue-700">✕</button>
+        </div>
+      )}
 
       {/* Metrics */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
@@ -478,7 +513,24 @@ export function ProposalAdminClient({
 
             {formError && (
               <div className="mt-3 rounded-xl bg-rose-50 p-3 text-xs font-medium text-rose-700 ring-1 ring-rose-200">
-                {formError}
+                <p>{formError}</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSyncDb}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-rose-600 px-3 py-1.5 text-[11px] font-semibold text-white shadow-2xs hover:bg-rose-700 transition"
+                  >
+                    <span>⚡ Sinkronkan Database Sekarang</span>
+                  </button>
+                  <a
+                    href="/api/admin/sync-db"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-[11px] text-rose-700 underline hover:text-rose-900"
+                  >
+                    Cek status sync API
+                  </a>
+                </div>
               </div>
             )}
 
