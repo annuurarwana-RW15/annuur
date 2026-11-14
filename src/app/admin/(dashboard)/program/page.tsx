@@ -10,7 +10,12 @@ export const metadata: Metadata = {
 export default async function AdminProgramPage() {
   await requireRole('ADMIN', 'KONTEN')
 
-  const programs = await getAllPrograms()
+  let programs: Awaited<ReturnType<typeof getAllPrograms>> = []
+  try {
+    programs = await getAllPrograms()
+  } catch (err) {
+    console.error('[AdminProgramPage] Gagal mengambil daftar program:', err)
+  }
 
   const serializedPrograms: AdminProgramItem[] = programs.map((p) => ({
     id: p.id,

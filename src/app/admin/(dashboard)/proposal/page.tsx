@@ -16,18 +16,29 @@ export const metadata: Metadata = {
 export default async function AdminProposalPage() {
   await requireRole('ADMIN', 'KONTEN')
 
-  const [proposals, categories, programs] = await Promise.all([
-    getAllProposals(),
-    db.category.findMany({
-      where: { type: 'MASUK', isActive: true },
-      select: { id: true, name: true },
-      orderBy: { name: 'asc' },
-    }),
-    db.program.findMany({
-      select: { id: true, title: true },
-      orderBy: { title: 'asc' },
-    }),
-  ])
+  let proposals: Awaited<ReturnType<typeof getAllProposals>> = []
+  let categories: AdminCategoryOption[] = []
+  let programs: AdminProgramOption[] = []
+
+  try {
+    const [p, c, pr] = await Promise.all([
+      getAllProposals(),
+      db.category.findMany({
+        where: { type: 'MASUK', isActive: true },
+        select: { id: true, name: true },
+        orderBy: { name: 'asc' },
+      }),
+      db.program.findMany({
+        select: { id: true, title: true },
+        orderBy: { title: 'asc' },
+      }),
+    ])
+    proposals = p
+    categories = c
+    programs = pr
+  } catch (err) {
+    console.error('[AdminProposalPage] Gagal mengambil data proposal admin:', err)
+  }
 
   const serializedProposals: AdminProposalItem[] = await Promise.all(
     proposals.map(async (p) => {

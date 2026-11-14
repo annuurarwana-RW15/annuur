@@ -12,7 +12,13 @@ export const metadata: Metadata = {
 }
 
 export default async function ProgramPage() {
-  const programs = await getAllPrograms()
+  let programs: Awaited<ReturnType<typeof getAllPrograms>> = []
+  try {
+    programs = await getAllPrograms()
+  } catch (err) {
+    console.error('[ProgramPage] Gagal memuat daftar program:', err)
+  }
+
   const serialized = programs.map(serializeProgram)
 
   return (

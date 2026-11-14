@@ -14,25 +14,36 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const proposal = await getProposalBySlug(slug)
-  if (!proposal || proposal.status === 'DRAFT') {
-    return { title: 'Proposal Tidak Ditemukan' }
-  }
+  try {
+    const proposal = await getProposalBySlug(slug)
+    if (!proposal || proposal.status === 'DRAFT') {
+      return { title: 'Proposal Tidak Ditemukan' }
+    }
 
-  return {
-    title: `${proposal.title} — Proposal Terbuka`,
-    description: proposal.summary,
-    openGraph: {
-      title: proposal.title,
+    return {
+      title: `${proposal.title} — Proposal Terbuka`,
       description: proposal.summary,
-      images: proposal.coverImage ? [proposal.coverImage] : [],
-    },
+      openGraph: {
+        title: proposal.title,
+        description: proposal.summary,
+        images: proposal.coverImage ? [proposal.coverImage] : [],
+      },
+    }
+  } catch (err) {
+    console.error('[generateMetadata] Gagal memuat metadata proposal:', err)
+    return { title: 'Proposal Terbuka' }
   }
 }
 
 export default async function ProposalDetailPage({ params }: Props) {
   const { slug } = await params
-  const proposal = await getProposalBySlug(slug)
+  let proposal: Awaited<ReturnType<typeof getProposalBySlug>> = null
+
+  try {
+    proposal = await getProposalBySlug(slug)
+  } catch (err) {
+    console.error('[ProposalDetailPage] Gagal mengambil proposal:', err)
+  }
 
   if (!proposal || proposal.status === 'DRAFT') {
     notFound()

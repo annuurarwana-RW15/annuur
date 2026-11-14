@@ -16,16 +16,22 @@ export const metadata: Metadata = {
 }
 
 export default async function ProposalListingPage() {
-  const all = await getAllProposals()
-  // Filter out internal drafts from public listing
-  const publicProposals = all.filter((p) => p.status !== 'DRAFT')
+  let proposalsWithFunding: ProposalWithFunding[] = []
 
-  const proposalsWithFunding: ProposalWithFunding[] = await Promise.all(
-    publicProposals.map(async (p) => {
-      const funding = await calculateProposalFunding(p)
-      return serializeProposal(p, funding)
-    }),
-  )
+  try {
+    const all = await getAllProposals()
+    // Filter out internal drafts from public listing
+    const publicProposals = all.filter((p) => p.status !== 'DRAFT')
+
+    proposalsWithFunding = await Promise.all(
+      publicProposals.map(async (p) => {
+        const funding = await calculateProposalFunding(p)
+        return serializeProposal(p, funding)
+      }),
+    )
+  } catch (err) {
+    console.error('[ProposalListingPage] Gagal memuat daftar proposal:', err)
+  }
 
   return (
     <section className="bg-krem min-h-screen py-10 md:py-14">
