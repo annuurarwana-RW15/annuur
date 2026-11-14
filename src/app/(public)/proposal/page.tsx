@@ -1,5 +1,9 @@
 import type { Metadata } from 'next'
-import { getAllProposals, calculateProposalFunding } from '@/lib/proposal'
+import {
+  getAllProposals,
+  calculateProposalFunding,
+  serializeProposal,
+} from '@/lib/proposal'
 import { SectionHeading } from '@/components/public/SectionHeading'
 import { ProposalCard, type ProposalWithFunding } from '@/components/public/ProposalCard'
 
@@ -19,10 +23,7 @@ export default async function ProposalListingPage() {
   const proposalsWithFunding: ProposalWithFunding[] = await Promise.all(
     publicProposals.map(async (p) => {
       const funding = await calculateProposalFunding(p)
-      return {
-        ...p,
-        funding,
-      } as ProposalWithFunding
+      return serializeProposal(p, funding)
     }),
   )
 

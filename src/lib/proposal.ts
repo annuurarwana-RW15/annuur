@@ -145,3 +145,79 @@ export async function calculateProposalFunding(proposal: {
   }
 }
 
+export function serializeProposal(
+  p: {
+    id: string
+    title: string
+    slug: string
+    summary: string
+    description: string
+    coverImage?: string | null
+    filePdf?: string | null
+    filePdfSize?: string | null
+    targetAmount: Prisma.Decimal | number
+    collectedManual: Prisma.Decimal | number
+    categoryId?: string | null
+    category?: { id: string; name: string; color?: string | null } | null
+    programId?: string | null
+    program?: { id: string; title: string; slug: string } | null
+    startDate?: Date | string | null
+    endDate?: Date | string | null
+    status: ProposalStatus
+    isFeatured: boolean
+    picName?: string | null
+    picPhone?: string | null
+    createdAt: Date | string
+    updatedAt: Date | string
+  },
+  funding: ProposalFunding,
+) {
+  return {
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    summary: p.summary,
+    description: p.description,
+    coverImage: p.coverImage ?? null,
+    filePdf: p.filePdf ?? null,
+    filePdfSize: p.filePdfSize ?? null,
+    targetAmount: Number(p.targetAmount || 0),
+    collectedManual: Number(p.collectedManual || 0),
+    categoryId: p.categoryId ?? null,
+    category: p.category
+      ? {
+          id: p.category.id,
+          name: p.category.name,
+          color: p.category.color ?? null,
+        }
+      : null,
+    programId: p.programId ?? null,
+    program: p.program
+      ? {
+          id: p.program.id,
+          title: p.program.title,
+          slug: p.program.slug,
+        }
+      : null,
+    startDate: p.startDate
+      ? p.startDate instanceof Date
+        ? p.startDate.toISOString()
+        : String(p.startDate)
+      : null,
+    endDate: p.endDate
+      ? p.endDate instanceof Date
+        ? p.endDate.toISOString()
+        : String(p.endDate)
+      : null,
+    status: p.status,
+    isFeatured: Boolean(p.isFeatured),
+    picName: p.picName ?? null,
+    picPhone: p.picPhone ?? null,
+    createdAt:
+      p.createdAt instanceof Date ? p.createdAt.toISOString() : String(p.createdAt),
+    updatedAt:
+      p.updatedAt instanceof Date ? p.updatedAt.toISOString() : String(p.updatedAt),
+    funding,
+  }
+}
+

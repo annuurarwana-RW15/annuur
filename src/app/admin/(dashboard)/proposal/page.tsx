@@ -44,9 +44,13 @@ export default async function AdminProposalPage() {
         targetAmount: Number(p.targetAmount),
         collectedManual: Number(p.collectedManual),
         categoryId: p.categoryId,
-        category: p.category,
+        category: p.category
+          ? { id: p.category.id, name: p.category.name }
+          : null,
         programId: p.programId,
-        program: p.program,
+        program: p.program
+          ? { id: p.program.id, title: p.program.title, slug: p.program.slug }
+          : null,
         startDate: p.startDate ? p.startDate.toISOString() : null,
         endDate: p.endDate ? p.endDate.toISOString() : null,
         status: p.status,

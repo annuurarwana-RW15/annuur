@@ -13,8 +13,12 @@ import { FinanceSummary } from '@/components/public/FinanceSummary'
 import { LatestNews } from '@/components/public/LatestNews'
 import { QuranMurottalSection } from '@/components/public/QuranMurottalSection'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
-import { getAllPrograms } from '@/lib/program'
-import { getAllProposals, calculateProposalFunding } from '@/lib/proposal'
+import { getAllPrograms, serializeProgram } from '@/lib/program'
+import {
+  getAllProposals,
+  calculateProposalFunding,
+  serializeProposal,
+} from '@/lib/proposal'
 import type { ProposalWithFunding } from '@/components/public/ProposalCard'
 import type { ProgramWithRelations } from '@/components/public/ProgramCard'
 
@@ -99,19 +103,16 @@ export default async function BerandaPage() {
     featuredProposals = await Promise.all(
       publicFeatured.map(async (p) => {
         const funding = await calculateProposalFunding(p)
-        return {
-          ...p,
-          funding,
-        } as ProposalWithFunding
+        return serializeProposal(p, funding)
       }),
     )
 
     // Jika belum ada program berstatus featured, ambil hingga 3 program aktif teratas
     if (rawPrograms && rawPrograms.length > 0) {
-      featuredPrograms = rawPrograms as unknown as ProgramWithRelations[]
+      featuredPrograms = rawPrograms.map(serializeProgram)
     } else {
       const fallbackPrograms = await getAllPrograms({ take: 3 }).catch(() => [])
-      featuredPrograms = (fallbackPrograms || []) as unknown as ProgramWithRelations[]
+      featuredPrograms = (fallbackPrograms || []).map(serializeProgram)
     }
   } catch (error) {
     console.error('[BerandaPage] Gagal memuat data awal beranda:', error)

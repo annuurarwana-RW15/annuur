@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getAllPrograms } from '@/lib/program'
+import { getAllPrograms, serializeProgram } from '@/lib/program'
 import { SectionHeading } from '@/components/public/SectionHeading'
 import { ProgramListClient } from '@/components/public/ProgramListClient'
 
@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 export default async function ProgramPage() {
   const programs = await getAllPrograms()
+  const serialized = programs.map(serializeProgram)
 
   return (
     <section className="bg-krem min-h-screen py-10 md:py-14">
@@ -28,7 +29,7 @@ export default async function ProgramPage() {
         </div>
 
         {/* Client Listing & Filtering */}
-        <ProgramListClient initialPrograms={programs} />
+        <ProgramListClient initialPrograms={serialized} />
       </div>
     </section>
   )

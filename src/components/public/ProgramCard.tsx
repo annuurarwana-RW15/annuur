@@ -3,7 +3,6 @@ import type {
   ProgramPeriodType,
   ProgramCategory,
   ProgramStatus,
-  Prisma,
 } from '@prisma/client'
 import { formatRupiah } from '@/lib/format'
 import { formatWhatsAppLink } from '@/lib/whatsapp'
@@ -17,20 +16,20 @@ export interface ProgramWithRelations {
   category: ProgramCategory
   status: ProgramStatus
   progress: number
-  targetDate: Date | string | null
-  budgetEstimate: Prisma.Decimal | number | null
+  targetDate: string | null
+  budgetEstimate: number | null
   picName: string | null
   picPhone: string | null
   order: number
   isFeatured: boolean
-  createdAt: Date | string
-  updatedAt: Date | string
+  createdAt: string
+  updatedAt: string
   proposals?: Array<{
     id: string
     title: string
     slug: string
     status: string
-    targetAmount: Prisma.Decimal | number
+    targetAmount: number
   }>
 }
 

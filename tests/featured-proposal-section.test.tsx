@@ -29,8 +29,8 @@ describe('FeaturedProposalSection Component', () => {
       isFeatured: true,
       picName: 'Pak Wahyu',
       picPhone: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: '2026-11-14T10:00:00.000Z',
+      updatedAt: '2026-11-14T10:00:00.000Z',
       funding: {
         targetAmount: 35000000,
         collectedManual: 15000000,

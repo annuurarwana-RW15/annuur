@@ -29,7 +29,11 @@ export default async function AdminProgramPage() {
     isFeatured: p.isFeatured,
     createdAt: p.createdAt.toISOString(),
     updatedAt: p.updatedAt.toISOString(),
-    proposals: p.proposals,
+    proposals: (p.proposals || []).map((prop) => ({
+      id: prop.id,
+      title: prop.title,
+      slug: prop.slug,
+    })),
   }))
 
   return <ProgramAdminClient initialPrograms={serializedPrograms} />

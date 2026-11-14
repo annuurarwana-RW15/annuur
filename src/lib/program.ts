@@ -104,3 +104,61 @@ export async function updateProgramProgress(id: string, progress: number) {
   })
 }
 
+export function serializeProgram(p: {
+  id: string
+  title: string
+  slug: string
+  description: string
+  periodType: ProgramPeriodType
+  category: ProgramCategory
+  status: ProgramStatus
+  progress: number
+  targetDate: Date | string | null
+  budgetEstimate: Prisma.Decimal | number | null
+  picName: string | null
+  picPhone: string | null
+  order: number
+  isFeatured: boolean
+  createdAt: Date | string
+  updatedAt: Date | string
+  proposals?: Array<{
+    id: string
+    title: string
+    slug: string
+    status?: string
+    targetAmount?: Prisma.Decimal | number
+  }>
+}) {
+  return {
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    description: p.description,
+    periodType: p.periodType,
+    category: p.category,
+    status: p.status,
+    progress: p.progress,
+    targetDate: p.targetDate
+      ? p.targetDate instanceof Date
+        ? p.targetDate.toISOString()
+        : String(p.targetDate)
+      : null,
+    budgetEstimate: p.budgetEstimate != null ? Number(p.budgetEstimate) : null,
+    picName: p.picName ?? null,
+    picPhone: p.picPhone ?? null,
+    order: p.order,
+    isFeatured: Boolean(p.isFeatured),
+    createdAt:
+      p.createdAt instanceof Date ? p.createdAt.toISOString() : String(p.createdAt),
+    updatedAt:
+      p.updatedAt instanceof Date ? p.updatedAt.toISOString() : String(p.updatedAt),
+    proposals: (p.proposals || []).map((prop) => ({
+      id: prop.id,
+      title: prop.title,
+      slug: prop.slug,
+      status: prop.status || 'DIBUKA',
+      targetAmount: Number(prop.targetAmount || 0),
+    })),
+  }
+}
+

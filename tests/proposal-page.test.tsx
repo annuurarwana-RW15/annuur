@@ -30,8 +30,8 @@ describe('ProposalCard Component', () => {
     isFeatured: true,
     picName: 'H. Sudirman',
     picPhone: '081234567890',
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: '2026-11-14T10:00:00.000Z',
+    updatedAt: '2026-11-14T10:00:00.000Z',
     funding: {
       targetAmount: 60000000,
       collectedManual: 20000000,

@@ -21,14 +21,14 @@ describe('FeaturedProgramSection', () => {
         category: 'RIAYAH',
         status: 'BERJALAN',
         progress: 65,
-        targetDate: new Date('2026-12-31'),
+        targetDate: '2026-12-31',
         budgetEstimate: 45000000,
         picName: 'H. Bambang',
         picPhone: '08123456789',
         order: 1,
         isFeatured: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: '2026-11-14T10:00:00.000Z',
+        updatedAt: '2026-11-14T10:00:00.000Z',
         proposals: [
           {
             id: 'prop-1',
@@ -69,8 +69,8 @@ describe('FeaturedProgramSection', () => {
         picPhone: null,
         order: 1,
         isFeatured: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: '2026-11-14T10:00:00.000Z',
+        updatedAt: '2026-11-14T10:00:00.000Z',
       },
     ]
 
@@ -108,8 +108,8 @@ describe('FeaturedProgramSection', () => {
         picPhone: null,
         order: 1,
         isFeatured: true,
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: '2026-11-14T10:00:00.000Z',
+        updatedAt: '2026-11-14T10:00:00.000Z',
       },
     ]
 
