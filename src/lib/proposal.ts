@@ -144,3 +144,4 @@ export async function calculateProposalFunding(proposal: {
     onlineDonationsCount: onlineCount,
   }
 }
+

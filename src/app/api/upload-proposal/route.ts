@@ -66,3 +66,4 @@ export async function POST(req: Request) {
   const publicUrl = `/uploads/proposals/${filename}`
   return NextResponse.json({ url: publicUrl, size: file.size })
 }
+

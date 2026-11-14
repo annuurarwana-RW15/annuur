@@ -12,7 +12,6 @@ export interface PublicNavItem {
 
 export const PUBLIC_NAV: readonly PublicNavItem[] = [
   { label: 'Beranda', href: '/' },
-  { label: 'Profil', href: '/profil' },
   { label: "Al-Qur'an", href: '/quran' },
   {
     label: 'Kegiatan & Program',
@@ -60,6 +59,24 @@ export const PUBLIC_NAV: readonly PublicNavItem[] = [
       },
     ],
   },
-  { label: 'Galeri', href: '/galeri' },
-  { label: 'Kontak', href: '/kontak' },
+  {
+    label: 'Hubungi',
+    children: [
+      {
+        label: 'Profil',
+        href: '/profil',
+        description: 'Sejarah, visi misi, & struktur kepengurusan',
+      },
+      {
+        label: 'Galeri',
+        href: '/galeri',
+        description: 'Dokumentasi foto sarana & kegiatan masjid',
+      },
+      {
+        label: 'Kontak',
+        href: '/kontak',
+        description: 'Alamat, lokasi Google Maps, & nomor pengurus',
+      },
+    ],
+  },
 ]

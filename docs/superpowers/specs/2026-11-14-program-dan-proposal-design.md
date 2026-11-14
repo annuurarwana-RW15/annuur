@@ -170,3 +170,4 @@ model Proposal {
 - Unit & integration tests untuk query program dan kalkulasi dana proposal.
 - Test rendering komponen dropdown navbar, halaman `/program`, `/proposal`, dan cuplikan homepage.
 - Typecheck `tsc --noEmit`, ESLint, Vitest, dan Next.js production build.
+

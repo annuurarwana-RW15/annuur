@@ -132,3 +132,4 @@ describe('Proposal Data Access & Funding Calculation', () => {
     expect(h.donationAggregate).not.toHaveBeenCalled()
   })
 })
+

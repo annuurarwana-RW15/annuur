@@ -33,3 +33,4 @@ describe('Program and Proposal Prisma Schema Enums', () => {
     expect(ProposalStatus.SELESAI).toBe('SELESAI')
   })
 })
+

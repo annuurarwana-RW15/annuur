@@ -53,3 +53,4 @@ export function FeaturedProposalSection({ proposals }: FeaturedProposalSectionPr
     </section>
   )
 }
+

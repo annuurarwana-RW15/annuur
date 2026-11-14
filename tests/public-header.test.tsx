@@ -75,14 +75,30 @@ describe('PublicHeader Auth Menu', () => {
     expect(h.signOutMock).toHaveBeenCalledWith({ callbackUrl: '/' })
   })
 
-  it('saat nomor WhatsApp diberikan: menampilkan tombol Kontak WA dengan tautan wa.me', () => {
+  it('tidak menampilkan tombol Kontak WA di navbar meskipun nomor WhatsApp diberikan', () => {
     render(<PublicHeader siteName="Masjid An-Nuur" user={null} whatsapp="081234567890" />)
 
-    const waLinks = screen.getAllByRole('link', { name: /kontak wa/i })
-    expect(waLinks.length).toBeGreaterThan(0)
-    for (const link of waLinks) {
-      expect(link.getAttribute('href')).toContain('wa.me/6281234567890')
-    }
+    expect(screen.queryByRole('link', { name: /kontak wa/i })).not.toBeInTheDocument()
+  })
+
+  it('menampilkan dropdown Hubungi beserta sub-menu Profil, Galeri, dan Kontak', () => {
+    render(<PublicHeader siteName="Masjid An-Nuur" user={null} />)
+
+    // Temukan tombol dropdown Hubungi
+    const hubungiButtons = screen.getAllByRole('button', { name: /^hubungi$/i })
+    expect(hubungiButtons.length).toBeGreaterThan(0)
+
+    // Buka dropdown
+    fireEvent.click(hubungiButtons[0])
+
+    const profilLinks = screen.getAllByRole('link', { name: /profil/i })
+    expect(profilLinks.some((l) => l.getAttribute('href') === '/profil')).toBe(true)
+
+    const galeriLinks = screen.getAllByRole('link', { name: /galeri/i })
+    expect(galeriLinks.some((l) => l.getAttribute('href') === '/galeri')).toBe(true)
+
+    const kontakLinks = screen.getAllByRole('link', { name: /kontak/i })
+    expect(kontakLinks.some((l) => l.getAttribute('href') === '/kontak')).toBe(true)
   })
 
   it('menampilkan dropdown Kegiatan & Program beserta sub-menu Agenda Kegiatan, Program Kerja, dan Proposal Terbuka', () => {

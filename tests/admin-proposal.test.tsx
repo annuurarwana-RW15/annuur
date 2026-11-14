@@ -108,3 +108,4 @@ describe('Admin Proposal Server Actions', () => {
     expect(h.revalidatePathMock).toHaveBeenCalledWith('/proposal')
   })
 })
+

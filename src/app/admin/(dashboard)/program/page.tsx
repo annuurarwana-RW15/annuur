@@ -34,3 +34,4 @@ export default async function AdminProgramPage() {
 
   return <ProgramAdminClient initialPrograms={serializedPrograms} />
 }
+
