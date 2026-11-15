@@ -120,5 +120,18 @@ describe('PublicHeader Auth Menu', () => {
     const proposalLinks = screen.getAllByRole('link', { name: /proposal terbuka/i })
     expect(proposalLinks.some((l) => l.getAttribute('href') === '/proposal')).toBe(true)
   })
+
+  it('menampilkan logo kustom saat logoUrl diberikan, atau fallback ikon kubah saat kosong', () => {
+    const { rerender } = render(<PublicHeader siteName="Masjid An-Nuur" logoUrl="https://cdn.example.com/logo.png" />)
+
+    const logoImg = screen.getByRole('img', { name: 'Masjid An-Nuur' })
+    expect(logoImg).toBeInTheDocument()
+    expect(logoImg).toHaveAttribute('src', 'https://cdn.example.com/logo.png')
+
+    // Tanpa logoUrl -> render fallback tanpa img nama masjid
+    rerender(<PublicHeader siteName="Masjid An-Nuur" logoUrl="" />)
+    expect(screen.queryByRole('img', { name: 'Masjid An-Nuur' })).not.toBeInTheDocument()
+  })
 })
+
 

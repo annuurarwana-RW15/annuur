@@ -337,11 +337,12 @@ export interface PublicHeaderUser {
 
 export interface PublicHeaderProps {
   siteName: string
+  logoUrl?: string
   user?: PublicHeaderUser | null
   whatsapp?: string
 }
 
-export function PublicHeader({ siteName, user }: PublicHeaderProps) {
+export function PublicHeader({ siteName, logoUrl, user }: PublicHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
   const [mobileExpanded, setMobileExpanded] = useState<Record<string, boolean>>({
@@ -431,9 +432,18 @@ export function PublicHeader({ siteName, user }: PublicHeaderProps) {
           href="/"
           className="flex min-w-0 shrink-0 items-center gap-2.5 transition hover:text-emas-muda"
         >
-          <span className="grid h-8 w-8 xl:h-9 xl:w-9 shrink-0 place-items-center rounded-full bg-emas text-hijau shadow-xs">
-            <DomeMark />
-          </span>
+          {logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logoUrl}
+              alt={siteName}
+              className="h-8 w-8 xl:h-9 xl:w-9 shrink-0 rounded-full bg-white/10 p-0.5 object-contain"
+            />
+          ) : (
+            <span className="grid h-8 w-8 xl:h-9 xl:w-9 shrink-0 place-items-center rounded-full bg-emas text-hijau shadow-xs">
+              <DomeMark />
+            </span>
+          )}
           <span className="truncate font-display text-base font-bold leading-tight sm:text-lg">
             {siteName}
           </span>

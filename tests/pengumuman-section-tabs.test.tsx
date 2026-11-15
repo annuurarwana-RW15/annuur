@@ -3,48 +3,44 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { cleanup, fireEvent, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { PengumumanSectionTabs } from '@/components/public/PengumumanSectionTabs'
-import type { KegiatanRutinItem } from '@/types/kegiatan-rutin'
-import type { ArticleMeta } from '@/lib/articles'
+import type { KegiatanRutinItem } from '@/lib/kegiatan-rutin'
+import type { ArticleCardData } from '@/components/public/ArticleCard'
 
 const MOCK_KEGIATAN: KegiatanRutinItem[] = [
   {
     id: 'kegiatan-1',
     nama: 'Kajian Subuh Berjamaah',
-    hari: 'ahad',
+    hari: 'AHAD',
     waktu: 'Ba’da Subuh - 06.30 WIB',
     lokasi: 'Ruang Utama Masjid',
     pemateri: 'Ust. H. Ahmad Fauzi, Lc.',
-    kategori: 'kajian_umum',
+    kategori: 'KAJIAN_UMUM',
     deskripsi: 'Tafsir ayat-ayat pilihan.',
     isActive: true,
     urutan: 1,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
   },
   {
     id: 'kegiatan-2',
     nama: 'Tahsin & Tahfidz Al-Quran',
-    hari: 'senin',
+    hari: 'SENIN',
     waktu: 'Ba’da Maghrib - Isya',
     lokasi: 'Serambi Masjid',
     pemateri: 'Ustadz Pembina Tahfidz',
-    kategori: 'tahsin_tahfidz',
+    kategori: 'REMAJA',
     deskripsi: 'Bimbingan makhraj dan tajwid.',
     isActive: true,
     urutan: 2,
-    createdAt: '2026-01-01T00:00:00Z',
-    updatedAt: '2026-01-01T00:00:00Z',
   },
 ]
 
-const MOCK_ARTICLES: ArticleMeta[] = [
+const MOCK_ARTICLES: ArticleCardData[] = [
   {
     slug: 'berita-santunan-ramadhan',
     title: 'Penyaluran Santunan Anak Yatim',
-    description: 'Dokumentasi penyaluran santunan.',
-    date: '2026-11-10',
+    excerpt: 'Dokumentasi penyaluran santunan.',
+    coverImage: null,
+    publishedAt: new Date('2026-11-10T00:00:00Z'),
     category: 'Kegiatan Sosial',
-    readTime: '3 menit',
   },
 ]
 
@@ -115,3 +111,4 @@ describe('PengumumanSectionTabs — Desktop Grid & Mobile 1-Card Slider Looping'
     expect(screen.getAllByText('Kajian Subuh Berjamaah').length).toBeGreaterThan(0)
   })
 })
+

@@ -29,9 +29,10 @@ export function PengaturanForm({
   const [message, setMessage] = useState<{ ok: boolean; text: string } | null>(null)
   const [busy, startTransition] = useTransition()
 
-  // State identitas & favicon
+  // State identitas & favicon/logo
   const [siteName, setSiteName] = useState(initial.site.name)
   const [favicon, setFavicon] = useState(initial.site.favicon ?? '')
+  const [logo, setLogo] = useState(initial.site.logo ?? '')
 
   // State SEO & Meta
   const [seoTitle, setSeoTitle] = useState(initial.seo.title)
@@ -78,6 +79,7 @@ export function PengaturanForm({
           phone: String(fd.get('sitePhone') ?? '').trim(),
           city: String(fd.get('siteCity') ?? '').trim(),
           favicon: favicon.trim(),
+          logo: logo.trim(),
         },
         seo: {
           title: String(fd.get('seoTitle') ?? '').trim(),
@@ -215,6 +217,55 @@ export function PengaturanForm({
                 </div>
               </div>
               <div className="h-4 rounded-b border border-t-0 border-neutral-300 bg-white" />
+            </div>
+          </div>
+        </div>
+
+        {/* Upload Logo Masjid & Header Preview */}
+        <div className="mt-6 rounded-lg border border-neutral-200 bg-neutral-50/70 p-4">
+          <p className="text-sm font-semibold text-neutral-800 flex items-center gap-1.5">
+            <span>🕌</span>
+            <span>Logo Resmi Masjid</span>
+          </p>
+          <p className="mt-1 text-xs text-neutral-500 leading-relaxed">
+            Logo resmi yang ditampilkan di navigasi header utama, kop cetak laporan, dan dokumen masjid.
+            Format disarankan: <strong>PNG, SVG, atau WebP</strong> (disarankan latar belakang transparan).
+          </p>
+
+          <div className="mt-4 grid gap-6 sm:grid-cols-[max-content_1fr] sm:items-center">
+            <ImageField
+              value={logo}
+              onChange={setLogo}
+              prefix="logo"
+              label="Unggah Logo"
+              accept="image/png,image/svg+xml,image/webp,image/jpeg"
+            />
+
+            {/* Pratinjau Header Navbar */}
+            <div className="max-w-md">
+              <span className="text-xs font-medium text-neutral-600 block mb-1.5">
+                Pratinjau Header Navbar:
+              </span>
+              <div className="flex items-center gap-3 rounded-lg border border-emerald-950/20 bg-emerald-900 px-4 py-2.5 text-white shadow-xs">
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logo}
+                    alt="Logo preview"
+                    className="h-9 w-9 shrink-0 rounded-full bg-white/10 p-0.5 object-contain"
+                  />
+                ) : (
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-amber-400 text-emerald-950 text-base font-bold shadow-xs">
+                    🕌
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold leading-tight text-white">
+                    {siteName || 'Masjid An-nuur Arwana'}
+                  </p>
+                  <p className="text-[10px] text-amber-200/90 font-medium">Website Resmi Masjid</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>

@@ -23,6 +23,7 @@ export interface PengaturanInput {
     phone: string
     city: string
     favicon?: string
+    logo?: string
   }
   seo: {
     title: string
@@ -52,6 +53,7 @@ export async function setPengaturan(
     await setSetting('site.phone', data.site.phone)
     await setSetting('site.city', data.site.city)
     await setSetting('site.favicon', data.site.favicon ?? '')
+    await setSetting('site.logo', data.site.logo ?? '')
     await setSetting('seo.title', data.seo.title)
     await setSetting('seo.description', data.seo.description)
     await setSetting('seo.keywords', data.seo.keywords ?? '')

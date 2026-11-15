@@ -39,6 +39,7 @@ export default async function PengaturanPage() {
     sitePhone,
     siteCity,
     siteFavicon,
+    siteLogo,
     seoTitle,
     seoDescription,
     seoKeywords,
@@ -58,6 +59,7 @@ export default async function PengaturanPage() {
     getSetting('site.phone', ''),
     getSetting('site.city', ''),
     getSetting('site.favicon', ''),
+    getSetting('site.logo', ''),
     getSetting('seo.title', ''),
     getSetting('seo.description', ''),
     getSetting('seo.keywords', ''),
@@ -80,6 +82,7 @@ export default async function PengaturanPage() {
       phone: sitePhone,
       city: siteCity,
       favicon: siteFavicon,
+      logo: siteLogo,
     },
     seo: {
       title: seoTitle,

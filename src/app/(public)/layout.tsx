@@ -61,8 +61,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const [siteName, address, phone, footer, ga4Raw, session, whatsapp, maintenance] = await Promise.all([
+  const [siteName, siteLogo, address, phone, footer, ga4Raw, session, whatsapp, maintenance] = await Promise.all([
     getSetting('site.name', 'Masjid An-nuur Arwana'),
+    getSetting('site.logo', ''),
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
     db.section.findUnique({ where: { key: 'footer' } }).catch((err) => {
@@ -134,7 +135,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         Lewati ke konten
       </a>
 
-      <PublicHeader siteName={name} user={user} whatsapp={whatsapp} />
+      <PublicHeader siteName={name} logoUrl={asText(siteLogo, '')} user={user} whatsapp={whatsapp} />
       <LiveTimeBar />
 
       <main id="konten" className="flex-1">

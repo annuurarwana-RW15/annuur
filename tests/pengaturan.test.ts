@@ -80,6 +80,7 @@ describe('setPengaturan', () => {
       'site.phone',
       'site.city',
       'site.favicon',
+      'site.logo',
       'seo.title',
       'seo.description',
       'seo.keywords',
@@ -93,6 +94,33 @@ describe('setPengaturan', () => {
       'donasi.qris',
       'ga4.id',
     ])
+  })
+
+  it('menyimpan site.favicon dan site.logo dengan benar', async () => {
+    await setPengaturan({
+      ...INPUT,
+      site: {
+        ...INPUT.site,
+        favicon: 'https://cdn.example.com/favicon.png',
+        logo: 'https://cdn.example.com/logo-masjid.png',
+      },
+    })
+
+    const faviconCall = h.settingUpsertMock.mock.calls.find(
+      (call) => (call[0] as { where: { key: string } }).where.key === 'site.favicon',
+    )
+    const logoCall = h.settingUpsertMock.mock.calls.find(
+      (call) => (call[0] as { where: { key: string } }).where.key === 'site.logo',
+    )
+
+    expect(faviconCall?.[0]).toMatchObject({
+      update: { value: 'https://cdn.example.com/favicon.png' },
+      create: { key: 'site.favicon', value: 'https://cdn.example.com/favicon.png' },
+    })
+    expect(logoCall?.[0]).toMatchObject({
+      update: { value: 'https://cdn.example.com/logo-masjid.png' },
+      create: { key: 'site.logo', value: 'https://cdn.example.com/logo-masjid.png' },
+    })
   })
 
   it('nilai donasi.qris tersimpan persis (gambar + keterangan)', async () => {
