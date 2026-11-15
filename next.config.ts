@@ -12,12 +12,13 @@ const isSecureSite = (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith(
 
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.tiktok.com https://*.tiktok.com https://*.byteoversea.com https://*.ibytedtos.com",
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https:",
+  "img-src 'self' data: blob: https: https://*.tiktokcdn.com https://*.tiktok.com https://*.byteoversea.com https://*.ibytedtos.com",
   "font-src 'self' data: https:",
   "media-src 'self' blob: https://cdn.equran.id https://*.equran.id https:",
-  "connect-src 'self' https://api.myquran.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https:",
+  "frame-src 'self' blob: https://www.tiktok.com https://*.tiktok.com https://www.google.com https://maps.google.com",
+  "connect-src 'self' https://api.myquran.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.tiktok.com https://*.tiktok.com https://*.byteoversea.com https:",
   "frame-ancestors 'none'",
   "object-src 'none'",
   "base-uri 'self'",
