@@ -135,170 +135,244 @@ export function TikTokWidget({
           </blockquote>
         )}
 
-        {/* Feed Video TikTok (Kartu Video Vertikal Khas TikTok 9:16) */}
+        {/* 4 Feeds Terbaru TikTok */}
         <div className="w-full">
           <div className="mb-4 flex items-center justify-between">
             <div className="flex items-center gap-2 text-sm font-semibold text-hijau-tua">
-              <span className={`flex h-2 w-2 rounded-full ${scriptLoaded ? 'bg-emerald-500' : 'bg-red-500'} animate-pulse`} />
-              <span>Video Pendek &amp; Dakwah TikTok Terbaru</span>
+              <span className={`flex h-2 w-2 rounded-full ${scriptLoaded ? 'bg-emerald-500' : 'bg-emas'} animate-pulse`} />
+              <span>4 Feeds Terbaru @{cleanUsername}</span>
             </div>
             <a
               href={finalAccountUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-medium text-emas hover:underline inline-flex items-center gap-1"
+              className="text-xs font-semibold text-emas-tua hover:text-hijau inline-flex items-center gap-1 transition"
             >
               <span>Lihat Semua di TikTok</span>
               <span aria-hidden="true">→</span>
             </a>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {/* Card 1: Kajian */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Feed 1: Kajian & Kultum */}
             <a
               href={finalAccountUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative aspect-[9/16] max-h-[460px] w-full overflow-hidden rounded-2xl bg-gradient-to-b from-gray-900 via-emerald-950 to-black p-4 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-white/10"
+              className="group flex flex-col justify-between rounded-2xl border border-emas/25 bg-white p-3.5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emas hover:shadow-md"
             >
-              {/* Overlay Pattern & Glow */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emas/20 via-transparent to-black/80" />
-              
-              {/* Badge TikTok & Durasi */}
-              <div className="relative z-10 flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-krem border border-white/10">
-                  <SocialIcon platform="tiktok" className="h-3.5 w-3.5 text-white" />
-                  <span>TikTok</span>
-                </span>
-                <span className="rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-mono text-white/80">
-                  01:00
-                </span>
+              <div>
+                {/* Visual Video Cover Preview */}
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gradient-to-br from-hijau via-hijau-tua to-black p-3 text-white shadow-inner">
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-krem backdrop-blur-xs">
+                      <SocialIcon platform="tiktok" className="h-3 w-3 text-white" />
+                      <span>TikTok</span>
+                    </span>
+                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-mono text-white/80">
+                      01:00
+                    </span>
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 backdrop-blur-xs text-white shadow transition group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
+                      <svg className="h-5 w-5 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-2 left-3 right-3 text-[11px] text-white/85 line-clamp-1">
+                    ♫ Suara Asli - Dakwah Ringkas
+                  </div>
+                </div>
+
+                {/* Deskripsi & Judul Feed */}
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-hijau">
+                    <span>🕌</span>
+                    <span>Kajian &amp; Kultum</span>
+                  </div>
+                  <h4 className="mt-1 font-bold text-sm text-neutral-900 line-clamp-2 leading-snug group-hover:text-hijau transition">
+                    Pesan Kebaikan, Adab Penuntut Ilmu &amp; Mutiara Hadits
+                  </h4>
+                  <p className="mt-1.5 text-xs text-neutral-600 line-clamp-2 leading-relaxed">
+                    Pesan kebaikan, adab harian penuntut ilmu, dan mutiara hadits ringkas.
+                  </p>
+                </div>
               </div>
 
-              {/* Icon Play di Tengah */}
-              <div className="absolute inset-0 z-10 flex items-center justify-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
-                  <svg className="h-6 w-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-              </div>
-
-              {/* Info Video di Bawah */}
-              <div className="relative z-10 mt-auto flex flex-col justify-end pt-32">
-                <div className="flex items-center gap-1.5 text-xs text-emas-muda font-semibold">
-                  <span>🕌</span>
-                  <span>Kajian &amp; Mutiara Hadits</span>
-                </div>
-                <h4 className="mt-1 font-bold text-sm text-white line-clamp-2 leading-snug group-hover:text-emas-muda transition-colors">
-                  Pesan Kebaikan, Adab Menuntut Ilmu &amp; Keutamaan Berjamaah
-                </h4>
-                <p className="mt-1.5 text-[11px] text-white/70">
-                  #kajianislam #masjidannuur #dakwahtiktok
-                </p>
-                <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/15 text-[11px] text-white/80">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  <span className="truncate">@{cleanUsername}</span>
-                  <span className="ml-auto flex items-center gap-1 text-[10px] text-white/60">
-                    <span>♫ Suara Asli</span>
-                  </span>
-                </div>
+              <div className="mt-4 pt-2.5 border-t border-black/5 flex items-center justify-between text-xs">
+                <span className="text-[11px] font-medium text-neutral-500">#KajianIslam</span>
+                <span className="font-semibold text-hijau group-hover:text-emas-tua transition inline-flex items-center gap-0.5">
+                  <span>Tonton</span>
+                  <span>→</span>
+                </span>
               </div>
             </a>
 
-            {/* Card 2: Ibadah & Suasana */}
+            {/* Feed 2: Dokumentasi Ibadah */}
             <a
               href={finalAccountUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative aspect-[9/16] max-h-[460px] w-full overflow-hidden rounded-2xl bg-gradient-to-b from-gray-900 via-hijau-tua to-black p-4 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-white/10"
+              className="group flex flex-col justify-between rounded-2xl border border-emas/25 bg-white p-3.5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emas hover:shadow-md"
             >
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-500/20 via-transparent to-black/80" />
-              
-              <div className="relative z-10 flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-krem border border-white/10">
-                  <SocialIcon platform="tiktok" className="h-3.5 w-3.5 text-white" />
-                  <span>TikTok</span>
-                </span>
-                <span className="rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-mono text-white/80">
-                  00:45
-                </span>
+              <div>
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gradient-to-br from-emerald-800 via-teal-900 to-black p-3 text-white shadow-inner">
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-krem backdrop-blur-xs">
+                      <SocialIcon platform="tiktok" className="h-3 w-3 text-white" />
+                      <span>TikTok</span>
+                    </span>
+                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-mono text-white/80">
+                      00:45
+                    </span>
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 backdrop-blur-xs text-white shadow transition group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
+                      <svg className="h-5 w-5 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-2 left-3 right-3 text-[11px] text-white/85 line-clamp-1">
+                    ♫ Lantunan Murottal Jamaah
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-hijau">
+                    <span>📖</span>
+                    <span>Dokumentasi Ibadah</span>
+                  </div>
+                  <h4 className="mt-1 font-bold text-sm text-neutral-900 line-clamp-2 leading-snug group-hover:text-hijau transition">
+                    Sholat Berjamaah, Qiyamul Lail &amp; Kebersamaan Jamaah
+                  </h4>
+                  <p className="mt-1.5 text-xs text-neutral-600 line-clamp-2 leading-relaxed">
+                    Cuplikan sholat Jumat, tarawih, qiyamul lail, dan tadarus Al-Qur&apos;an.
+                  </p>
+                </div>
               </div>
 
-              <div className="absolute inset-0 z-10 flex items-center justify-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
-                  <svg className="h-6 w-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-              </div>
-
-              <div className="relative z-10 mt-auto flex flex-col justify-end pt-32">
-                <div className="flex items-center gap-1.5 text-xs text-emas-muda font-semibold">
-                  <span>📖</span>
-                  <span>Dokumentasi Ibadah</span>
-                </div>
-                <h4 className="mt-1 font-bold text-sm text-white line-clamp-2 leading-snug group-hover:text-emas-muda transition-colors">
-                  Suasana Sholat Berjamaah, Qiyamul Lail &amp; Kebersamaan Jamaah
-                </h4>
-                <p className="mt-1.5 text-[11px] text-white/70">
-                  #sholatberjamaah #masjidannuur #tadarus
-                </p>
-                <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/15 text-[11px] text-white/80">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  <span className="truncate">@{cleanUsername}</span>
-                  <span className="ml-auto flex items-center gap-1 text-[10px] text-white/60">
-                    <span>♫ Murottal Merdu</span>
-                  </span>
-                </div>
+              <div className="mt-4 pt-2.5 border-t border-black/5 flex items-center justify-between text-xs">
+                <span className="text-[11px] font-medium text-neutral-500">#SholatBerjamaah</span>
+                <span className="font-semibold text-hijau group-hover:text-emas-tua transition inline-flex items-center gap-0.5">
+                  <span>Tonton</span>
+                  <span>→</span>
+                </span>
               </div>
             </a>
 
-            {/* Card 3: Kegiatan Sosial DKM */}
+            {/* Feed 3: Khutbah & Tausiyah Jumat */}
             <a
               href={finalAccountUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative aspect-[9/16] max-h-[460px] w-full overflow-hidden rounded-2xl bg-gradient-to-b from-gray-900 via-amber-950 to-black p-4 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-white/10"
+              className="group flex flex-col justify-between rounded-2xl border border-emas/25 bg-white p-3.5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emas hover:shadow-md"
             >
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-black/80" />
-              
-              <div className="relative z-10 flex items-center justify-between">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-krem border border-white/10">
-                  <SocialIcon platform="tiktok" className="h-3.5 w-3.5 text-white" />
-                  <span>TikTok</span>
-                </span>
-                <span className="rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-mono text-white/80">
-                  01:15
-                </span>
+              <div>
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gradient-to-br from-amber-900 via-stone-900 to-black p-3 text-white shadow-inner">
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-krem backdrop-blur-xs">
+                      <SocialIcon platform="tiktok" className="h-3 w-3 text-white" />
+                      <span>TikTok</span>
+                    </span>
+                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-mono text-white/80">
+                      01:30
+                    </span>
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 backdrop-blur-xs text-white shadow transition group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
+                      <svg className="h-5 w-5 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-2 left-3 right-3 text-[11px] text-white/85 line-clamp-1">
+                    ♫ Nasehat Jumat Penuh Hikmah
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-hijau">
+                    <span>🎙️</span>
+                    <span>Tausiyah Jumat</span>
+                  </div>
+                  <h4 className="mt-1 font-bold text-sm text-neutral-900 line-clamp-2 leading-snug group-hover:text-hijau transition">
+                    Intisari Khutbah &amp; Nasihat Keimanan Mingguan
+                  </h4>
+                  <p className="mt-1.5 text-xs text-neutral-600 line-clamp-2 leading-relaxed">
+                    Pengingat amal shalih, tazkiyatun nufus, dan penguatan ukhuwah islamiyah.
+                  </p>
+                </div>
               </div>
 
-              <div className="absolute inset-0 z-10 flex items-center justify-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
-                  <svg className="h-6 w-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
+              <div className="mt-4 pt-2.5 border-t border-black/5 flex items-center justify-between text-xs">
+                <span className="text-[11px] font-medium text-neutral-500">#JumatBerkah</span>
+                <span className="font-semibold text-hijau group-hover:text-emas-tua transition inline-flex items-center gap-0.5">
+                  <span>Tonton</span>
+                  <span>→</span>
+                </span>
+              </div>
+            </a>
+
+            {/* Feed 4: Kegiatan Sosial DKM */}
+            <a
+              href={finalAccountUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col justify-between rounded-2xl border border-emas/25 bg-white p-3.5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emas hover:shadow-md"
+            >
+              <div>
+                <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gradient-to-br from-hijau-tua via-emerald-950 to-black p-3 text-white shadow-inner">
+                  <div className="relative z-10 flex items-center justify-between">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-black/60 px-2 py-0.5 text-[11px] font-medium text-krem backdrop-blur-xs">
+                      <SocialIcon platform="tiktok" className="h-3 w-3 text-white" />
+                      <span>TikTok</span>
+                    </span>
+                    <span className="rounded bg-black/50 px-1.5 py-0.5 text-[10px] font-mono text-white/80">
+                      01:15
+                    </span>
+                  </div>
+
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-white/25 backdrop-blur-xs text-white shadow transition group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
+                      <svg className="h-5 w-5 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-2 left-3 right-3 text-[11px] text-white/85 line-clamp-1">
+                    ♫ Suara Asli - Khidmah Umat
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-hijau">
+                    <span>🤝</span>
+                    <span>Kegiatan Sosial DKM</span>
+                  </div>
+                  <h4 className="mt-1 font-bold text-sm text-neutral-900 line-clamp-2 leading-snug group-hover:text-hijau transition">
+                    Laporan Santunan Yatim &amp; Penyaluran Sedekah
+                  </h4>
+                  <p className="mt-1.5 text-xs text-neutral-600 line-clamp-2 leading-relaxed">
+                    Laporan santunan anak yatim, pembagian sembako, dan gotong royong.
+                  </p>
                 </div>
               </div>
 
-              <div className="relative z-10 mt-auto flex flex-col justify-end pt-32">
-                <div className="flex items-center gap-1.5 text-xs text-emas-muda font-semibold">
-                  <span>🤝</span>
-                  <span>Kegiatan Sosial DKM</span>
-                </div>
-                <h4 className="mt-1 font-bold text-sm text-white line-clamp-2 leading-snug group-hover:text-emas-muda transition-colors">
-                  Laporan Santunan Anak Yatim, Berbagi Sembako &amp; Khidmah Umat
-                </h4>
-                <p className="mt-1.5 text-[11px] text-white/70">
-                  #santunan #sedekahjariyah #khidmahumat
-                </p>
-                <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/15 text-[11px] text-white/80">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  <span className="truncate">@{cleanUsername}</span>
-                  <span className="ml-auto flex items-center gap-1 text-[10px] text-white/60">
-                    <span>♫ Suara Asli DKM</span>
-                  </span>
-                </div>
+              <div className="mt-4 pt-2.5 border-t border-black/5 flex items-center justify-between text-xs">
+                <span className="text-[11px] font-medium text-neutral-500">#SedekahJariyah</span>
+                <span className="font-semibold text-hijau group-hover:text-emas-tua transition inline-flex items-center gap-0.5">
+                  <span>Tonton</span>
+                  <span>→</span>
+                </span>
               </div>
             </a>
           </div>
