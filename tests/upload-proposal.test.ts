@@ -78,5 +78,37 @@ describe('POST /api/upload-proposal', () => {
     expect(json.url).toMatch(/^\/uploads\/proposals\/.*\.pdf$/)
     expect(h.writeFileMock).toHaveBeenCalled()
   })
+
+  it('returns 400 when extension does not match MIME type (mismatch / attack attempt)', async () => {
+    const fd = new FormData()
+    const file = new File(['<script>alert(1)</script>'], 'proposal.html', {
+      type: 'application/pdf',
+    })
+    fd.append('file', file)
+
+    const req = new Request('http://localhost/api/upload-proposal', {
+      method: 'POST',
+      body: fd,
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toMatch(/tidak cocok dengan tipe/i)
+  })
+
+  it('returns 400 when magic bytes do not match declared PDF format', async () => {
+    const fd = new FormData()
+    const file = new File(['INVALID_HEADER_CONTENT'], 'proposal-masjid.pdf', {
+      type: 'application/pdf',
+    })
+    fd.append('file', file)
+
+    const req = new Request('http://localhost/api/upload-proposal', {
+      method: 'POST',
+      body: fd,
+    })
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toMatch(/verifikasi header gagal/i)
+  })
 })
 

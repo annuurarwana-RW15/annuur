@@ -52,8 +52,19 @@ function baseDir(): string {
 }
 
 /**
+ * Validasi ketat untuk berkas SVG agar tidak memuat executable payload/XSS.
+ */
+function isSafeSvg(content: string): boolean {
+  const lower = content.toLowerCase()
+  if (/<(script|foreignobject|embed|object|iframe)\b/i.test(lower)) return false
+  if (/\bon[a-z]+\s*=/i.test(lower)) return false
+  if (/href\s*=\s*['"]?\s*javascript:/i.test(lower)) return false
+  return true
+}
+
+/**
  * Tulis file ke `public/uploads/<key>` dengan validasi bertingkat
- * (key, tipe, ekstensi, ukuran) + guard path traversal.
+ * (key, tipe, ekstensi, ukuran) + guard path traversal + mitigasi SVG XSS.
  */
 export async function writeLocalUpload(
   key: string,
@@ -79,6 +90,13 @@ export async function writeLocalUpload(
   if (data.byteLength === 0) return { ok: false, error: 'File kosong' }
   if (data.byteLength > LOCAL_MAX_SIZE) {
     return { ok: false, error: 'Ukuran file maksimal 5MB' }
+  }
+
+  if (ext === 'svg' || contentType === 'image/svg+xml') {
+    const text = Buffer.from(data).toString('utf-8')
+    if (!isSafeSvg(text)) {
+      return { ok: false, error: 'Berkas SVG mengandung script atau atribut yang tidak aman' }
+    }
   }
 
   const target = path.join(baseDir(), key)

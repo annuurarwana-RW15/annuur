@@ -25,6 +25,10 @@ export async function saveUser(
     return { ok: false, error: 'Tidak bisa nonaktifkan diri sendiri' }
   }
 
+  if (data.password && data.password.length < 8) {
+    return { ok: false, error: 'Password minimal 8 karakter' }
+  }
+
   try {
     if (data.id) {
       await db.user.update({
