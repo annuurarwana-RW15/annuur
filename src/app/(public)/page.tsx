@@ -6,12 +6,8 @@ import { getAllSurahs } from '@/lib/quran'
 import { ensureDefaultSections } from '@/lib/sections-init'
 import { getSetting } from '@/lib/settings'
 import { getWhatsAppNumber } from '@/lib/whatsapp-server'
-import { DonationSection, type RekeningDisplayItem } from '@/components/public/DonationSection'
-import { FeaturedProgramSection } from '@/components/public/FeaturedProgramSection'
-import { FeaturedProposalSection } from '@/components/public/FeaturedProposalSection'
-import { FinanceSummary } from '@/components/public/FinanceSummary'
+import type { RekeningDisplayItem } from '@/components/public/DonationSection'
 import { LatestNews } from '@/components/public/LatestNews'
-import { QuranMurottalSection } from '@/components/public/QuranMurottalSection'
 import { SectionRenderer } from '@/components/public/SectionRenderer'
 import { getAllPrograms, serializeProgram } from '@/lib/program'
 import {
@@ -149,42 +145,26 @@ export default async function BerandaPage() {
     }
   }
 
-  // Posisi tetap di luar urutan DB:
-  // - Laporan Keuangan tepat setelah section `jumat` (bila jumat disembunyikan → setelah semua section).
-  // - Testimoni selalu block terakhir sebelum footer.
-  // - Proposal dan Program memiliki komponen cuplikan khusus yang dikendalikan oleh section DB.
-  const testimoni = sections.find((s) => s.key === 'testimoni') ?? null
-  const proposalSection = sections.find((s) => s.key === 'proposal') ?? null
-  const programSection = sections.find((s) => s.key === 'program') ?? null
-  const mainSections = sections.filter(
-    (s) => s.key !== 'testimoni' && s.key !== 'proposal' && s.key !== 'program',
-  )
-  const jumatIndex = mainSections.findIndex((s) => s.key === 'jumat')
-
-  let beforeFinance: Section[]
-  let afterFinance: Section[]
-  if (jumatIndex >= 0) {
-    beforeFinance = mainSections.slice(0, jumatIndex + 1)
-    afterFinance = mainSections.slice(jumatIndex + 1)
-  } else {
-    beforeFinance = mainSections
-    afterFinance = []
-  }
-
   const hasPengumumanSection = sections.some((s) => s.key === 'pengumuman')
   const surahs = getAllSurahs()
 
   return (
     <>
-      <SectionRenderer sections={beforeFinance} articles={articles} whatsapp={whatsapp} />
-      <FinanceSummary saldo={saldo} daily={daily} qris={qris} />
-      <QuranMurottalSection surahs={surahs} />
-      <FeaturedProposalSection proposals={featuredProposals} section={proposalSection} />
-      <FeaturedProgramSection programs={featuredPrograms} section={programSection} />
-      <DonationSection qris={qris} rekening={rekening} whatsapp={whatsapp} />
-      <SectionRenderer sections={afterFinance} articles={articles} whatsapp={whatsapp} />
+      <SectionRenderer
+        sections={sections}
+        context={{
+          articles,
+          whatsapp,
+          saldo,
+          daily,
+          qris,
+          rekening,
+          surahs,
+          proposals: featuredProposals,
+          programs: featuredPrograms,
+        }}
+      />
       {!hasPengumumanSection && <LatestNews articles={articles} />}
-      {testimoni && <SectionRenderer sections={[testimoni]} whatsapp={whatsapp} />}
     </>
   )
 }

@@ -2,6 +2,9 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import type { Section } from '@prisma/client'
+import { readField } from '@/app/admin/(dashboard)/sections/section-content'
+import { asText } from './content'
 import type { QrisInfo } from '@/lib/qris'
 import { formatWhatsAppLink } from '@/lib/whatsapp'
 import { SectionHeading } from './SectionHeading'
@@ -17,6 +20,7 @@ export interface DonationSectionProps {
   qris: QrisInfo | null
   rekening?: readonly RekeningDisplayItem[]
   whatsapp?: string
+  section?: Section | null
 }
 
 function QrCodeIcon({ className = 'h-5 w-5' }: { className?: string }) {
@@ -135,9 +139,19 @@ export function DonationSection({
   qris,
   rekening = [],
   whatsapp,
+  section,
 }: DonationSectionProps) {
   const [copiedAccount, setCopiedAccount] = useState<string | null>(null)
   const [showModal, setShowModal] = useState(false)
+
+  if (section && !section.isVisible) return null
+
+  const title = section?.title || 'Salurkan Infaq & Sedekah Terbaik Anda'
+  const subjudul =
+    asText(readField(section?.content, 'donasi', 'subjudul')) || 'Infaq, Sedekah & Wakaf'
+  const text =
+    asText(readField(section?.content, 'donasi', 'text')) ||
+    'Menjadi ladang amal jariyah yang pahalanya terus mengalir untuk kelancaran ibadah, santunan keumatan, serta pemeliharaan sarana Masjid An-nuur Arwana.'
 
   const copyToClipboard = (accountNo: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -175,15 +189,15 @@ export function DonationSection({
         <div className="text-center max-w-3xl mx-auto">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-emas/15 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-emas shadow-xs">
             <span className="h-1.5 w-1.5 rounded-full bg-emas animate-pulse" />
-            Infaq, Sedekah &amp; Wakaf
+            {subjudul}
           </span>
           <div className="mt-3">
             <SectionHeading id="donasi-judul" light>
-              Salurkan Infaq &amp; Sedekah Terbaik Anda
+              {title}
             </SectionHeading>
           </div>
           <p className="mt-2 text-sm text-krem/80 sm:text-base leading-relaxed">
-            Menjadi ladang amal jariyah yang pahalanya terus mengalir untuk kelancaran ibadah, santunan keumatan, serta pemeliharaan sarana Masjid An-nuur Arwana.
+            {text}
           </p>
         </div>
 

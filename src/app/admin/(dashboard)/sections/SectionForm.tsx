@@ -145,6 +145,48 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
       helper: 'Penjelasan ringkas rencana strategis DKM. Data program dikelola lewat menu Program & Proposal > Program Kerja.',
     },
   ],
+  keuangan: [
+    {
+      name: 'subjudul',
+      label: 'Keterangan Saldo Kas',
+      helper: 'Teks di bawah nominal saldo (contoh: Saldo kas periode berjalan).',
+    },
+    {
+      name: 'text',
+      label: 'Deskripsi Tambahan (opsional)',
+      widget: 'textarea',
+      rows: 3,
+      helper: 'Penjelasan transparansi kas masjid yang tampil di halaman beranda.',
+    },
+  ],
+  quran: [
+    {
+      name: 'subjudul',
+      label: 'Badge / Label Atas',
+      helper: 'Label kecil di atas judul section (contoh: Lantunan Ayat Suci Al-Qur\'an).',
+    },
+    {
+      name: 'text',
+      label: 'Deskripsi Pengantar',
+      widget: 'textarea',
+      rows: 3,
+      helper: 'Deskripsi pemutar murottal online 30 juz di bawah judul.',
+    },
+  ],
+  donasi: [
+    {
+      name: 'subjudul',
+      label: 'Badge / Label Atas',
+      helper: 'Label kecil di atas judul section (contoh: Infaq, Sedekah & Wakaf).',
+    },
+    {
+      name: 'text',
+      label: 'Deskripsi Pengantar',
+      widget: 'textarea',
+      rows: 3,
+      helper: 'Pesan ajakan berdonasi dan keutamaan amal jariyah.',
+    },
+  ],
 }
 
 export interface SectionFormSection {

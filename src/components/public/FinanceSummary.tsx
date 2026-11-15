@@ -1,4 +1,7 @@
 import Link from 'next/link'
+import type { Section } from '@prisma/client'
+import { readField } from '@/app/admin/(dashboard)/sections/section-content'
+import { asText } from './content'
 import { formatRupiah } from '@/lib/format'
 import type { DailyMonthSeries } from '@/lib/kas-daily'
 import type { QrisInfo } from '@/lib/qris'
@@ -9,11 +12,20 @@ export function FinanceSummary({
   saldo,
   daily,
   qris,
+  section,
 }: {
   saldo: number | null
   daily: DailyMonthSeries
   qris: QrisInfo | null
+  section?: Section | null
 }) {
+  if (section && !section.isVisible) return null
+
+  const title = section?.title || 'Laporan Keuangan'
+  const subjudul =
+    asText(readField(section?.content, 'keuangan', 'subjudul')) || 'Saldo kas periode berjalan'
+  const text = asText(readField(section?.content, 'keuangan', 'text'))
+
   return (
     <section
       id="laporan-keuangan"
@@ -24,17 +36,22 @@ export function FinanceSummary({
         <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
           <div>
             <SectionHeading id="kas-judul" light>
-              Laporan Keuangan
+              {title}
             </SectionHeading>
             <p className="mt-6 font-display text-4xl font-bold text-emas sm:text-5xl">
               {saldo === null ? '—' : formatRupiah(saldo)}
             </p>
             <p className="mt-2 text-sm text-krem/75">
-              Saldo kas periode berjalan
+              {subjudul}
             </p>
+            {text && (
+              <p className="mt-3 text-xs sm:text-sm text-krem/80 leading-relaxed max-w-md">
+                {text}
+              </p>
+            )}
             <Link
               href="/laporan-kas"
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-emas px-6 py-3 font-semibold text-hijau transition hover:bg-emas-muda"
+              className="mt-6 inline-flex items-center justify-center rounded-full bg-emas px-6 py-3 font-semibold text-hijau transition hover:bg-emas-muda shadow-sm"
             >
               Lihat laporan lengkap
             </Link>
@@ -67,7 +84,9 @@ export function FinanceSummary({
             )}
           </div>
 
-          <FinanceChart points={daily.points} bulan={daily.bulan} />
+          <div>
+            <FinanceChart points={daily.points} bulan={daily.bulan} />
+          </div>
         </div>
       </div>
     </section>

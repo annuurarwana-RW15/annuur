@@ -4,19 +4,39 @@ import type { Section } from '@prisma/client'
 import { readField } from '@/app/admin/(dashboard)/sections/section-content'
 import { asText } from './content'
 import { ContactSection } from './ContactSection'
+import { DonationSection, type RekeningDisplayItem } from './DonationSection'
+import { FeaturedProgramSection } from './FeaturedProgramSection'
+import { FeaturedProposalSection } from './FeaturedProposalSection'
+import { FinanceSummary } from './FinanceSummary'
 import { Footer } from './Footer'
 import { GallerySection } from './GallerySection'
 import { Hero } from './Hero'
 import { JumatSection } from './JumatSection'
 import { PrayerSchedule } from './PrayerSchedule'
 import { ProfilSection } from './ProfilSection'
+import { QuranMurottalSection } from './QuranMurottalSection'
 import { TestimoniSection } from './TestimoniSection'
 import { TikTokSection } from './TikTokSection'
-
 import type { ArticleCardData } from './ArticleCard'
-
+import type { DailyMonthSeries } from '@/lib/kas-daily'
+import type { QrisInfo } from '@/lib/qris'
+import type { SurahMeta } from '@/lib/quran'
+import type { ProposalWithFunding } from './ProposalCard'
+import type { ProgramWithRelations } from './ProgramCard'
 import { PengumumanSectionTabs } from './PengumumanSectionTabs'
 import { getKegiatanRutinList } from '@/lib/kegiatan-rutin-server'
+
+export interface SectionRendererContext {
+  articles?: ArticleCardData[]
+  whatsapp?: string
+  saldo?: number | null
+  daily?: DailyMonthSeries
+  qris?: QrisInfo | null
+  rekening?: readonly RekeningDisplayItem[]
+  surahs?: SurahMeta[]
+  proposals?: ProposalWithFunding[]
+  programs?: ProgramWithRelations[]
+}
 
 async function PengumumanSection({
   section,
@@ -49,14 +69,39 @@ async function PengumumanSection({
 
 const RENDERERS: Record<
   string,
-  (section: Section, articles?: ArticleCardData[], whatsapp?: string) => ReactNode
+  (section: Section, ctx: SectionRendererContext) => ReactNode
 > = {
-  hero: (section, _articles, whatsapp) => <Hero section={section} whatsapp={whatsapp} />,
+  hero: (section, ctx) => <Hero section={section} whatsapp={ctx.whatsapp} />,
   profil: (section) => <ProfilSection section={section} />,
   jadwal: (section) => <PrayerSchedule section={section} />,
   jumat: (section) => <JumatSection section={section} />,
-  pengumuman: (section, articles) => (
-    <PengumumanSection section={section} articles={articles} />
+  keuangan: (section, ctx) => (
+    <FinanceSummary
+      saldo={ctx.saldo ?? null}
+      daily={ctx.daily ?? { bulan: '', points: [] }}
+      qris={ctx.qris ?? null}
+      section={section}
+    />
+  ),
+  quran: (section, ctx) => (
+    <QuranMurottalSection surahs={ctx.surahs ?? []} section={section} />
+  ),
+  proposal: (section, ctx) => (
+    <FeaturedProposalSection proposals={ctx.proposals ?? []} section={section} />
+  ),
+  program: (section, ctx) => (
+    <FeaturedProgramSection programs={ctx.programs ?? []} section={section} />
+  ),
+  donasi: (section, ctx) => (
+    <DonationSection
+      qris={ctx.qris ?? null}
+      rekening={ctx.rekening ?? []}
+      whatsapp={ctx.whatsapp}
+      section={section}
+    />
+  ),
+  pengumuman: (section, ctx) => (
+    <PengumumanSection section={section} articles={ctx.articles} />
   ),
   galeri: (section) => <GallerySection section={section} />,
   testimoni: (section) => <TestimoniSection section={section} />,
@@ -69,17 +114,25 @@ export function SectionRenderer({
   sections,
   articles,
   whatsapp,
+  context,
 }: {
   sections: Section[]
   articles?: ArticleCardData[]
   whatsapp?: string
+  context?: SectionRendererContext
 }) {
+  const mergedContext: SectionRendererContext = {
+    articles,
+    whatsapp,
+    ...context,
+  }
+
   return (
     <>
       {sections.map((section) => {
         const render = RENDERERS[section.key]
         if (!render) return null
-        return <Fragment key={section.id}>{render(section, articles, whatsapp)}</Fragment>
+        return <Fragment key={section.id}>{render(section, mergedContext)}</Fragment>
       })}
     </>
   )

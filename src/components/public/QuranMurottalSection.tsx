@@ -2,12 +2,16 @@
 
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { Section } from '@prisma/client'
+import { readField } from '@/app/admin/(dashboard)/sections/section-content'
+import { asText } from './content'
 import type { SurahMeta } from '@/lib/quran'
 import { getAudioFullUrl, getBackupAudioFullUrl, POPULAR_SURAHS } from '@/lib/quran'
 import { getSingletonQuranAudio } from '@/lib/quran-audio'
 
 interface QuranMurottalSectionProps {
   surahs: SurahMeta[]
+  section?: Section | null
 }
 
 type FilterTab = 'semua' | 'populer' | 'juz30' | 'mekah' | 'madinah'
@@ -19,7 +23,14 @@ function formatTime(seconds: number): string {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
-export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
+export function QuranMurottalSection({ surahs, section }: QuranMurottalSectionProps) {
+  const title = section?.title || "Murottal Al-Qur'an 30 Juz"
+  const subjudul =
+    asText(readField(section?.content, 'quran', 'subjudul')) || "Lantunan Ayat Suci Al-Qur'an"
+  const text =
+    asText(readField(section?.content, 'quran', 'text')) ||
+    "Dengarkan lantunan merdu 114 surah Al-Qur'an lengkap oleh Syaikh Misyari Rasyid Al-Afasi dengan pemutar audio jernih dan playlist interaktif yang terhubung langsung ke mushaf digital."
+
   // Surah aktif yang sedang diputar (default: Surah Al-Fatihah / nomor 1)
   const [selectedSurah, setSelectedSurah] = useState<SurahMeta>(
     () => surahs[0] ?? {
@@ -268,6 +279,8 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0
 
+  if (section && !section.isVisible) return null
+
   return (
     <section
       id="murottal"
@@ -292,19 +305,17 @@ export function QuranMurottalSection({ surahs }: QuranMurottalSectionProps) {
               <circle cx="6" cy="18" r="3" />
               <circle cx="18" cy="16" r="3" />
             </svg>
-            <span>Lantunan Ayat Suci Al-Qur&apos;an</span>
+            <span>{subjudul}</span>
           </div>
 
           <h2
             id="murottal-heading"
             className="mt-3 font-display text-3xl font-bold tracking-tight text-hijau sm:text-4xl lg:text-5xl"
           >
-            Murottal Al-Qur&apos;an 30 Juz
+            {title}
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm sm:text-base text-hijau-tua/75 leading-relaxed">
-            Dengarkan lantunan merdu 114 surah Al-Qur&apos;an lengkap oleh Syaikh
-            Misyari Rasyid Al-Afasi dengan pemutar audio jernih dan playlist
-            interaktif yang terhubung langsung ke mushaf digital.
+            {text}
           </p>
         </div>
 

@@ -60,3 +60,4 @@ describe('JumatScheduleClient — Desktop Grid & Mobile Auto Slide (2 Cards) Loo
     expect(screen.getByText('Jadwal khotib sedang disiapkan.')).toBeInTheDocument()
   })
 })
+
