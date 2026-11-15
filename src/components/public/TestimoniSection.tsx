@@ -10,29 +10,12 @@ export function TestimoniSection({ section }: { section: Section }) {
   const items = testimoniItems(readField(section.content, 'testimoni', 'items'))
   const headingId = useId()
 
-  // Kelompokkan 3 card dalam 1 kontainer untuk tampilan desktop
-  const desktopSlides: TestimoniItem[][] = []
-  for (let i = 0; i < items.length; i += 3) {
-    desktopSlides.push(items.slice(i, i + 3))
-  }
-
-  const [desktopIndex, setDesktopIndex] = useState(0)
   const [mobileIndex, setMobileIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
   const touchStartXRef = useRef(0)
 
-  const totalDesktopSlides = desktopSlides.length
   const totalMobileCards = items.length
-
-  const nextDesktop = useCallback(() => {
-    if (totalDesktopSlides <= 1) return
-    setDesktopIndex((prev) => (prev + 1) % totalDesktopSlides)
-  }, [totalDesktopSlides])
-
-  const prevDesktop = useCallback(() => {
-    if (totalDesktopSlides <= 1) return
-    setDesktopIndex((prev) => (prev - 1 + totalDesktopSlides) % totalDesktopSlides)
-  }, [totalDesktopSlides])
 
   const nextMobile = useCallback(() => {
     if (totalMobileCards <= 1) return
@@ -44,21 +27,16 @@ export function TestimoniSection({ section }: { section: Section }) {
     setMobileIndex((prev) => (prev - 1 + totalMobileCards) % totalMobileCards)
   }, [totalMobileCards])
 
-  // Auto-play bergantian yang halus (jeda saat hover/sentuh)
+  // Auto-play mobile card
   useEffect(() => {
     if (isPaused || totalMobileCards <= 1) return
 
     const timer = setInterval(() => {
-      // Auto-slide mobile tiap interval
       setMobileIndex((prev) => (prev + 1) % totalMobileCards)
-      // Auto-slide desktop
-      if (totalDesktopSlides > 1) {
-        setDesktopIndex((prev) => (prev + 1) % totalDesktopSlides)
-      }
-    }, 5500)
+    }, 4500)
 
     return () => clearInterval(timer)
-  }, [isPaused, totalMobileCards, totalDesktopSlides])
+  }, [isPaused, totalMobileCards])
 
   // Touch Swipe untuk Mobile
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -79,13 +57,17 @@ export function TestimoniSection({ section }: { section: Section }) {
     setIsPaused(false)
   }
 
+  // Gandakan item jika jumlahnya sedikit agar track looping desktop cukup lebar
+  const baseRollingItems: TestimoniItem[] =
+    items.length > 0 && items.length < 4 ? [...items, ...items, ...items] : items
+
+  const rollDuration = Math.max(baseRollingItems.length * 7, 24)
+
   return (
     <section
       id="testimoni"
       aria-labelledby={headingId}
       className="bg-krem-tua/60 overflow-hidden"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
     >
       <div className="mx-auto max-w-6xl px-4 py-14">
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
@@ -96,28 +78,30 @@ export function TestimoniSection({ section }: { section: Section }) {
             </p>
           </div>
 
-          {/* Navigasi Slide Desktop (≥ md) */}
-          {totalDesktopSlides > 1 && (
-            <div className="hidden md:flex items-center gap-2">
+          {/* Indikator & Kontrol Auto Rolling Desktop (≥ md) */}
+          {items.length > 0 && (
+            <div className="hidden md:flex items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-white/80 px-3 py-1 text-xs font-semibold text-hijau shadow-2xs">
+                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Auto Rolling &amp; Looping</span>
+              </span>
               <button
                 type="button"
-                onClick={prevDesktop}
-                aria-label="Slide testimoni sebelumnya"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-emas/40 bg-white text-hijau transition hover:border-emas hover:bg-emas/15 active:scale-95 shadow-sm"
+                onClick={() => setIsPaused((p) => !p)}
+                aria-label={isPaused ? 'Lanjutkan auto rolling testimoni' : 'Jeda auto rolling testimoni'}
+                className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-white px-3.5 py-1 text-xs font-semibold text-hijau-tua shadow-2xs transition hover:border-emas hover:bg-emas/15 active:scale-95"
               >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={nextDesktop}
-                aria-label="Slide testimoni berikutnya"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-emas/40 bg-white text-hijau transition hover:border-emas hover:bg-emas/15 active:scale-95 shadow-sm"
-              >
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
+                {isPaused ? (
+                  <>
+                    <span>▶</span>
+                    <span>Lanjutkan</span>
+                  </>
+                ) : (
+                  <>
+                    <span>⏸</span>
+                    <span>Jeda</span>
+                  </>
+                )}
               </button>
             </div>
           )}
@@ -127,71 +111,84 @@ export function TestimoniSection({ section }: { section: Section }) {
           <p className="mt-6 text-hijau-tua/70">Belum ada testimoni.</p>
         ) : (
           <>
-            {/* 1. TAMPILAN DESKTOP: Slide Smooth, tiap slide 3 card dalam 1 kontainer */}
-            <div className="hidden md:block mt-8 overflow-hidden">
+            {/* 1. TAMPILAN DESKTOP: Auto Rolling dan Looping Mulus (Pause saat Hover) */}
+            <div
+              className="hidden md:block mt-8 overflow-hidden relative mask-marquee group"
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
               <div
-                className="flex transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                className="flex w-max animate-rolling-marquee group-hover:[animation-play-state:paused]"
                 style={{
-                  transform: `translateX(-${desktopIndex * 100}%)`,
+                  animationPlayState: isPaused || isHovered ? 'paused' : 'running',
+                  animationDuration: `${rollDuration}s`,
                 }}
               >
-                {desktopSlides.map((slideGroup, slideIdx) => (
-                  <div
-                    key={`desktop-slide-${slideIdx}`}
-                    className="w-full shrink-0 grid grid-cols-3 gap-6 px-1"
-                  >
-                    {slideGroup.map((item, itemIdx) => (
-                      <article
-                        key={`${item.nama}-${slideIdx}-${itemIdx}`}
-                        className="flex flex-col justify-between rounded-2xl border border-emas/25 bg-white p-6 shadow-sm transition-all duration-300 hover:border-emas/50 hover:shadow-md"
-                      >
-                        <div>
-                          <div className="flex items-center justify-between">
-                            <span aria-hidden="true" className="font-display text-5xl leading-none text-emas/60">
-                              &ldquo;
-                            </span>
-                            {item.rating !== null && (
-                              <p
-                                className="text-emas text-sm tracking-wider"
-                                aria-label={`Penilaian ${item.rating} dari 5`}
-                              >
-                                {'★'.repeat(item.rating)}
-                                {'☆'.repeat(5 - item.rating)}
-                              </p>
-                            )}
-                          </div>
-                          <p className="mt-3 leading-relaxed text-hijau-tua/85 italic text-sm lg:text-base">
-                            &ldquo;{item.teks}&rdquo;
-                          </p>
+                {/* Track Set 1 */}
+                <div className="flex shrink-0 gap-6 pr-6">
+                  {baseRollingItems.map((item, idx) => (
+                    <article
+                      key={`roll-1-${item.nama}-${idx}`}
+                      className="w-[360px] lg:w-[380px] shrink-0 flex flex-col justify-between rounded-2xl border-2 border-emas/30 bg-white p-6 shadow-xs transition-all duration-300 hover:border-emas hover:shadow-md hover:-translate-y-1"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span aria-hidden="true" className="font-display text-5xl leading-none text-emas/60">
+                            &ldquo;
+                          </span>
+                          {item.rating !== null && (
+                            <p
+                              className="text-emas text-sm tracking-wider"
+                              aria-label={`Penilaian ${item.rating} dari 5`}
+                            >
+                              {'★'.repeat(item.rating)}
+                              {'☆'.repeat(5 - item.rating)}
+                            </p>
+                          )}
                         </div>
-                        <footer className="mt-6 border-t border-emas/20 pt-4">
-                          <p className="font-semibold text-hijau">{item.nama}</p>
-                          {item.peran && <p className="text-xs text-hijau-tua/70 mt-0.5">{item.peran}</p>}
-                        </footer>
-                      </article>
-                    ))}
-                  </div>
-                ))}
-              </div>
-
-              {/* Indikator Dots Desktop */}
-              {totalDesktopSlides > 1 && (
-                <div className="mt-8 flex justify-center items-center gap-2">
-                  {desktopSlides.map((_, idx) => (
-                    <button
-                      key={`desktop-dot-${idx}`}
-                      type="button"
-                      onClick={() => setDesktopIndex(idx)}
-                      aria-label={`Buka slide testimoni ke-${idx + 1}`}
-                      className={`h-2.5 rounded-full transition-all duration-300 ${
-                        desktopIndex === idx
-                          ? 'w-8 bg-emas-tua'
-                          : 'w-2.5 bg-emas/30 hover:bg-emas/60'
-                      }`}
-                    />
+                        <p className="mt-3 leading-relaxed text-hijau-tua/85 italic text-sm lg:text-base">
+                          &ldquo;{item.teks}&rdquo;
+                        </p>
+                      </div>
+                      <footer className="mt-6 border-t border-emas/20 pt-4">
+                        <p className="font-semibold text-hijau">{item.nama}</p>
+                        {item.peran && <p className="text-xs text-hijau-tua/70 mt-0.5">{item.peran}</p>}
+                      </footer>
+                    </article>
                   ))}
                 </div>
-              )}
+
+                {/* Track Set 2 (Kloning untuk infinite loop tanpa jeda) */}
+                <div className="flex shrink-0 gap-6 pr-6" aria-hidden="true">
+                  {baseRollingItems.map((item, idx) => (
+                    <article
+                      key={`roll-2-${item.nama}-${idx}`}
+                      className="w-[360px] lg:w-[380px] shrink-0 flex flex-col justify-between rounded-2xl border-2 border-emas/30 bg-white p-6 shadow-xs transition-all duration-300 hover:border-emas hover:shadow-md hover:-translate-y-1"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <span aria-hidden="true" className="font-display text-5xl leading-none text-emas/60">
+                            &ldquo;
+                          </span>
+                          {item.rating !== null && (
+                            <p className="text-emas text-sm tracking-wider">
+                              {'★'.repeat(item.rating)}
+                              {'☆'.repeat(5 - item.rating)}
+                            </p>
+                          )}
+                        </div>
+                        <p className="mt-3 leading-relaxed text-hijau-tua/85 italic text-sm lg:text-base">
+                          &ldquo;{item.teks}&rdquo;
+                        </p>
+                      </div>
+                      <footer className="mt-6 border-t border-emas/20 pt-4">
+                        <p className="font-semibold text-hijau">{item.nama}</p>
+                        {item.peran && <p className="text-xs text-hijau-tua/70 mt-0.5">{item.peran}</p>}
+                      </footer>
+                    </article>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* 2. TAMPILAN MOBILE: Card muncul animasi zoom in bergantian */}

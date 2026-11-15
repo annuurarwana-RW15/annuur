@@ -634,3 +634,4 @@ export function KegiatanRutinClient({ initialList }: Props) {
     </div>
   )
 }
+

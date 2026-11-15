@@ -51,3 +51,4 @@ describe('kegiatan-rutin utils', () => {
     expect(result[1].waktu).toBe('Ba\'da Maghrib')
   })
 })
+

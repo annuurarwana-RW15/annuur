@@ -30,3 +30,4 @@ export async function saveKegiatanRutinList(list: KegiatanRutinItem[]): Promise<
     // Ignore cache error in non-request contexts
   }
 }
+

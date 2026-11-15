@@ -198,3 +198,4 @@ export function normalizeKegiatanRutinList(raw: unknown): KegiatanRutinItem[] {
 
   return result.sort((a, b) => a.urutan - b.urutan)
 }
+

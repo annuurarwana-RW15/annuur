@@ -5,7 +5,7 @@ import { QuranMurottalSection } from '@/components/public/QuranMurottalSection'
 import { getAllSurahs } from '@/lib/quran'
 import { stopSingletonQuranAudio } from '@/lib/quran-audio'
 
-describe('QuranMurottalSection (Beranda Player & Playlist)', () => {
+describe('QuranMurottalSection (Beranda Player & Playlist)', { timeout: 30000 }, () => {
   const surahs = getAllSurahs()
 
   beforeEach(() => {

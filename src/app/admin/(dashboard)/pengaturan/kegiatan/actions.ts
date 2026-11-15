@@ -42,3 +42,4 @@ export async function resetKegiatanRutinAction(): Promise<ActionResult<KegiatanR
     }
   }
 }
+

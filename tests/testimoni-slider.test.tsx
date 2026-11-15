@@ -27,32 +27,36 @@ afterEach(() => {
   cleanup()
 })
 
-describe('TestimoniSection — Slider Smooth & Mobile Zoom In', () => {
-  it('merender judul dan membagi slide desktop 3 card per kontainer', () => {
+describe('TestimoniSection — Desktop Auto Rolling & Mobile Zoom In', () => {
+  it('merender judul dan track auto rolling & looping untuk desktop', () => {
     render(<TestimoniSection section={MOCK_SECTION} />)
 
     expect(screen.getByText('Testimoni Jamaah')).toBeInTheDocument()
 
-    // 5 testimoni terdaftar
+    // Testimoni terdaftar
     expect(screen.getAllByText('Ahmad Fauzi').length).toBeGreaterThan(0)
     expect(screen.getAllByText('H. Ridwan').length).toBeGreaterThan(0)
 
-    // Terdapat tombol navigasi slide desktop (karena 5 item -> 2 slide)
-    const prevDesktop = screen.getByRole('button', { name: /Slide testimoni sebelumnya/i })
-    const nextDesktop = screen.getByRole('button', { name: /Slide testimoni berikutnya/i })
-    expect(prevDesktop).toBeInTheDocument()
-    expect(nextDesktop).toBeInTheDocument()
+    // Indikator auto rolling & looping aktif
+    expect(screen.getByText(/Auto Rolling & Looping/i)).toBeInTheDocument()
+
+    // Tombol kontrol jeda / lanjutkan
+    const pauseBtn = screen.getByRole('button', { name: /Jeda auto rolling testimoni/i })
+    expect(pauseBtn).toBeInTheDocument()
   })
 
-  it('navigasi slide desktop dapat berpindah ke slide berikutnya', () => {
+  it('dapat menjeda dan melanjutkan auto rolling dengan tombol kontrol', () => {
     render(<TestimoniSection section={MOCK_SECTION} />)
 
-    const nextDesktop = screen.getByRole('button', { name: /Slide testimoni berikutnya/i })
-    fireEvent.click(nextDesktop)
+    const pauseBtn = screen.getByRole('button', { name: /Jeda auto rolling testimoni/i })
+    fireEvent.click(pauseBtn)
 
-    // Dot kedua aktif
-    const dot2 = screen.getByRole('button', { name: /Buka slide testimoni ke-2/i })
-    expect(dot2.className).toContain('bg-emas-tua')
+    // Tombol berubah menjadi lanjutkan
+    const resumeBtn = screen.getByRole('button', { name: /Lanjutkan auto rolling testimoni/i })
+    expect(resumeBtn).toBeInTheDocument()
+
+    fireEvent.click(resumeBtn)
+    expect(screen.getByRole('button', { name: /Jeda auto rolling testimoni/i })).toBeInTheDocument()
   })
 
   it('tampilan mobile merender card dengan animasi animate-zoom-in dan navigasi bergantian', () => {

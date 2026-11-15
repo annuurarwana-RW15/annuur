@@ -69,7 +69,7 @@ export function ProgramCard({ program }: { program: ProgramWithRelations }) {
   const activeProposal = program.proposals && program.proposals.length > 0 ? program.proposals[0] : null
 
   return (
-    <article className="flex h-full flex-col justify-between rounded-2xl border border-emas/20 bg-white p-5 shadow-xs transition hover:shadow-md">
+    <article className="flex h-full flex-col justify-between rounded-2xl border-2 border-emerald-900/35 hover:border-emerald-700 bg-white p-5 shadow-sm hover:shadow-lg transition-all duration-300">
       <div>
         {/* Top Badges */}
         <div className="flex flex-wrap items-center gap-2">
@@ -128,22 +128,26 @@ export function ProgramCard({ program }: { program: ProgramWithRelations }) {
         </div>
 
         {/* Info Grid (Budget & Target) */}
-        <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600">
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
           {program.budgetEstimate && Number(program.budgetEstimate) > 0 ? (
-            <div>
-              <span className="block text-[11px] text-slate-600">Estimasi Anggaran:</span>
-              <span className="font-semibold text-slate-800">
+            <div className="rounded-xl border-2 border-emerald-600/35 bg-emerald-50/90 p-2.5 flex flex-col justify-between shadow-2xs">
+              <span className="block text-[11px] font-bold uppercase tracking-wider text-emerald-800">
+                Estimasi Anggaran
+              </span>
+              <span className="mt-1 block text-base sm:text-lg font-extrabold text-emerald-950 tracking-tight">
                 {formatRupiah(Number(program.budgetEstimate))}
               </span>
             </div>
           ) : null}
 
           {program.targetDate ? (
-            <div>
-              <span className="block text-[11px] text-slate-600">Target Rampung:</span>
-              <span className="font-semibold text-slate-800">
+            <div className="rounded-xl border border-slate-200/90 bg-slate-50/80 p-2.5 flex flex-col justify-between">
+              <span className="block text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+                Target Rampung
+              </span>
+              <span className="mt-1 block text-sm font-bold text-slate-900">
                 {new Date(program.targetDate).toLocaleDateString('id-ID', {
-                  month: 'short',
+                  month: 'long',
                   year: 'numeric',
                 })}
               </span>

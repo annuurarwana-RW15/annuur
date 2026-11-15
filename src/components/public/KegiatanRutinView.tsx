@@ -177,3 +177,4 @@ export function KegiatanRutinView({ items }: Props) {
     </div>
   )
 }
+
