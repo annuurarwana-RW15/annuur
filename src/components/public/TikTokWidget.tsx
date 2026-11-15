@@ -135,55 +135,174 @@ export function TikTokWidget({
           </blockquote>
         )}
 
-        {/* Fallback & Konten Unggulan bila script TikTok belum selesai me-render */}
-        {!scriptLoaded && (
-          <div className="mt-4 w-full grid gap-4 sm:grid-cols-3 text-left">
+        {/* Feed Video TikTok (Kartu Video Vertikal Khas TikTok 9:16) */}
+        <div className="w-full">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm font-semibold text-hijau-tua">
+              <span className={`flex h-2 w-2 rounded-full ${scriptLoaded ? 'bg-emerald-500' : 'bg-red-500'} animate-pulse`} />
+              <span>Video Pendek &amp; Dakwah TikTok Terbaru</span>
+            </div>
             <a
               href={finalAccountUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="group rounded-xl border border-black/10 bg-krem/40 p-4 transition hover:border-emas hover:bg-krem hover:shadow-sm"
+              className="text-xs font-medium text-emas hover:underline inline-flex items-center gap-1"
             >
-              <div className="flex items-center gap-2 text-hijau">
-                <span className="text-xl">🕌</span>
-                <span className="font-semibold text-sm">Kajian &amp; Kultum</span>
-              </div>
-              <p className="mt-2 text-xs text-hijau-tua/75 line-clamp-2">
-                Pesan kebaikan, adab harian, dan mutiara hadits ringkas.
-              </p>
-            </a>
-
-            <a
-              href={finalAccountUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group rounded-xl border border-black/10 bg-krem/40 p-4 transition hover:border-emas hover:bg-krem hover:shadow-sm"
-            >
-              <div className="flex items-center gap-2 text-hijau">
-                <span className="text-xl">📖</span>
-                <span className="font-semibold text-sm">Dokumentasi Ibadah</span>
-              </div>
-              <p className="mt-2 text-xs text-hijau-tua/75 line-clamp-2">
-                Cuplikan sholat Jumat, tarawih, qiyamul lail, dan tadarus.
-              </p>
-            </a>
-
-            <a
-              href={finalAccountUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group rounded-xl border border-black/10 bg-krem/40 p-4 transition hover:border-emas hover:bg-krem hover:shadow-sm"
-            >
-              <div className="flex items-center gap-2 text-hijau">
-                <span className="text-xl">🤝</span>
-                <span className="font-semibold text-sm">Kegiatan Sosial DKM</span>
-              </div>
-              <p className="mt-2 text-xs text-hijau-tua/75 line-clamp-2">
-                Laporan santunan anak yatim, pembagian sembako, dan gotong royong.
-              </p>
+              <span>Lihat Semua di TikTok</span>
+              <span aria-hidden="true">→</span>
             </a>
           </div>
-        )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {/* Card 1: Kajian */}
+            <a
+              href={finalAccountUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative aspect-[9/16] max-h-[460px] w-full overflow-hidden rounded-2xl bg-gradient-to-b from-gray-900 via-emerald-950 to-black p-4 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-white/10"
+            >
+              {/* Overlay Pattern & Glow */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emas/20 via-transparent to-black/80" />
+              
+              {/* Badge TikTok & Durasi */}
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-krem border border-white/10">
+                  <SocialIcon platform="tiktok" className="h-3.5 w-3.5 text-white" />
+                  <span>TikTok</span>
+                </span>
+                <span className="rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-mono text-white/80">
+                  01:00
+                </span>
+              </div>
+
+              {/* Icon Play di Tengah */}
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
+                  <svg className="h-6 w-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Info Video di Bawah */}
+              <div className="relative z-10 mt-auto flex flex-col justify-end pt-32">
+                <div className="flex items-center gap-1.5 text-xs text-emas-muda font-semibold">
+                  <span>🕌</span>
+                  <span>Kajian &amp; Mutiara Hadits</span>
+                </div>
+                <h4 className="mt-1 font-bold text-sm text-white line-clamp-2 leading-snug group-hover:text-emas-muda transition-colors">
+                  Pesan Kebaikan, Adab Menuntut Ilmu &amp; Keutamaan Berjamaah
+                </h4>
+                <p className="mt-1.5 text-[11px] text-white/70">
+                  #kajianislam #masjidannuur #dakwahtiktok
+                </p>
+                <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/15 text-[11px] text-white/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  <span className="truncate">@{cleanUsername}</span>
+                  <span className="ml-auto flex items-center gap-1 text-[10px] text-white/60">
+                    <span>♫ Suara Asli</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+
+            {/* Card 2: Ibadah & Suasana */}
+            <a
+              href={finalAccountUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative aspect-[9/16] max-h-[460px] w-full overflow-hidden rounded-2xl bg-gradient-to-b from-gray-900 via-hijau-tua to-black p-4 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-white/10"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-500/20 via-transparent to-black/80" />
+              
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-krem border border-white/10">
+                  <SocialIcon platform="tiktok" className="h-3.5 w-3.5 text-white" />
+                  <span>TikTok</span>
+                </span>
+                <span className="rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-mono text-white/80">
+                  00:45
+                </span>
+              </div>
+
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
+                  <svg className="h-6 w-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="relative z-10 mt-auto flex flex-col justify-end pt-32">
+                <div className="flex items-center gap-1.5 text-xs text-emas-muda font-semibold">
+                  <span>📖</span>
+                  <span>Dokumentasi Ibadah</span>
+                </div>
+                <h4 className="mt-1 font-bold text-sm text-white line-clamp-2 leading-snug group-hover:text-emas-muda transition-colors">
+                  Suasana Sholat Berjamaah, Qiyamul Lail &amp; Kebersamaan Jamaah
+                </h4>
+                <p className="mt-1.5 text-[11px] text-white/70">
+                  #sholatberjamaah #masjidannuur #tadarus
+                </p>
+                <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/15 text-[11px] text-white/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  <span className="truncate">@{cleanUsername}</span>
+                  <span className="ml-auto flex items-center gap-1 text-[10px] text-white/60">
+                    <span>♫ Murottal Merdu</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+
+            {/* Card 3: Kegiatan Sosial DKM */}
+            <a
+              href={finalAccountUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative aspect-[9/16] max-h-[460px] w-full overflow-hidden rounded-2xl bg-gradient-to-b from-gray-900 via-amber-950 to-black p-4 text-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ring-1 ring-white/10"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/20 via-transparent to-black/80" />
+              
+              <div className="relative z-10 flex items-center justify-between">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-xs font-medium text-krem border border-white/10">
+                  <SocialIcon platform="tiktok" className="h-3.5 w-3.5 text-white" />
+                  <span>TikTok</span>
+                </span>
+                <span className="rounded-md bg-black/50 px-2 py-0.5 text-[11px] font-mono text-white/80">
+                  01:15
+                </span>
+              </div>
+
+              <div className="absolute inset-0 z-10 flex items-center justify-center">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 backdrop-blur-md text-white shadow-lg transition-transform duration-300 group-hover:scale-110 group-hover:bg-emas group-hover:text-hijau">
+                  <svg className="h-6 w-6 fill-current translate-x-0.5" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="relative z-10 mt-auto flex flex-col justify-end pt-32">
+                <div className="flex items-center gap-1.5 text-xs text-emas-muda font-semibold">
+                  <span>🤝</span>
+                  <span>Kegiatan Sosial DKM</span>
+                </div>
+                <h4 className="mt-1 font-bold text-sm text-white line-clamp-2 leading-snug group-hover:text-emas-muda transition-colors">
+                  Laporan Santunan Anak Yatim, Berbagi Sembako &amp; Khidmah Umat
+                </h4>
+                <p className="mt-1.5 text-[11px] text-white/70">
+                  #santunan #sedekahjariyah #khidmahumat
+                </p>
+                <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/15 text-[11px] text-white/80">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  <span className="truncate">@{cleanUsername}</span>
+                  <span className="ml-auto flex items-center gap-1 text-[10px] text-white/60">
+                    <span>♫ Suara Asli DKM</span>
+                  </span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )
