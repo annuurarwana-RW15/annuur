@@ -52,10 +52,10 @@ describe('getQris', () => {
     expect(h.getSettingMock).toHaveBeenCalledWith('donasi.qris', null)
   })
 
-  it('mengembalikan null bila admin sengaja mengosongkan gambar di database', async () => {
+  it('mengembalikan DEFAULT_QRIS bila data gambar kosong di database', async () => {
     h.getSettingMock.mockResolvedValue({ image: '', caption: '' })
 
-    await expect(getQris()).resolves.toBeNull()
+    await expect(getQris()).resolves.toEqual(DEFAULT_QRIS)
   })
 
   it('mengembalikan data ternormalisasi dari penyimpanan', async () => {

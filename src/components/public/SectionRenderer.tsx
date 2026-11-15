@@ -19,7 +19,7 @@ import { TestimoniSection } from './TestimoniSection'
 import { TikTokSection } from './TikTokSection'
 import type { ArticleCardData } from './ArticleCard'
 import type { DailyMonthSeries } from '@/lib/kas-daily'
-import type { QrisInfo } from '@/lib/qris'
+import { DEFAULT_QRIS, type QrisInfo } from '@/lib/qris'
 import type { SurahMeta } from '@/lib/quran'
 import type { ProposalWithFunding } from './ProposalCard'
 import type { ProgramWithRelations } from './ProgramCard'
@@ -79,7 +79,7 @@ const RENDERERS: Record<
     <FinanceSummary
       saldo={ctx.saldo ?? null}
       daily={ctx.daily ?? { bulan: '', points: [] }}
-      qris={ctx.qris ?? null}
+      qris={ctx.qris || DEFAULT_QRIS}
       section={section}
     />
   ),
@@ -94,7 +94,7 @@ const RENDERERS: Record<
   ),
   donasi: (section, ctx) => (
     <DonationSection
-      qris={ctx.qris ?? null}
+      qris={ctx.qris || DEFAULT_QRIS}
       rekening={ctx.rekening ?? []}
       whatsapp={ctx.whatsapp}
       section={section}

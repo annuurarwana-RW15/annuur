@@ -1,7 +1,7 @@
 import type { Section } from '@prisma/client'
 import { db } from '@/lib/db'
 import { buildDailyMonthSeries } from '@/lib/kas-daily'
-import { getQris } from '@/lib/qris'
+import { DEFAULT_QRIS, getQris, type QrisInfo } from '@/lib/qris'
 import { getAllSurahs } from '@/lib/quran'
 import { ensureDefaultSections } from '@/lib/sections-init'
 import { getSetting } from '@/lib/settings'
@@ -51,7 +51,7 @@ export default async function BerandaPage() {
     category?: string | null
   }> = []
   let period: { id: string } | null = null
-  let qris: Awaited<ReturnType<typeof getQris>> = null
+  let qris: QrisInfo = DEFAULT_QRIS
   let rekening: RekeningDisplayItem[] = []
   let whatsapp = ''
   let featuredProposals: ProposalWithFunding[] = []

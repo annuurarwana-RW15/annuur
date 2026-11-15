@@ -24,10 +24,16 @@ export function parseQris(value: unknown): QrisInfo | null {
 }
 
 /** Pengaturan QRIS donasi untuk section Laporan Keuangan beranda dan halaman donasi. */
-export async function getQris(): Promise<QrisInfo | null> {
-  const raw = await getSetting<unknown>('donasi.qris', null)
-  if (raw === null || raw === undefined) {
+export async function getQris(): Promise<QrisInfo> {
+  try {
+    const raw = await getSetting<unknown>('donasi.qris', null)
+    const parsed = parseQris(raw)
+    // Jika belum diatur di DB, atau gambarnya string kosong, gunakan DEFAULT_QRIS resmi DKM
+    if (!parsed || !parsed.image) {
+      return DEFAULT_QRIS
+    }
+    return parsed
+  } catch {
     return DEFAULT_QRIS
   }
-  return parseQris(raw)
 }
