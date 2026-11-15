@@ -650,7 +650,7 @@ export function PengaturanForm({
         <p className="mt-1 text-sm text-neutral-500">
           Kelola informasi kontak dan peta lokasi masjid, tautan media sosial footer, serta sematan feed TikTok di beranda publik.
         </p>
-        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4">
             <div>
               <p className="font-semibold text-neutral-900 text-sm flex items-center gap-1.5">
@@ -707,6 +707,26 @@ export function PengaturanForm({
                 className="inline-flex items-center gap-1.5 rounded-md bg-green-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-green-800 transition"
               >
                 Atur Widget Feed TikTok →
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col justify-between rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+            <div>
+              <p className="font-semibold text-blue-950 text-sm flex items-center gap-1.5">
+                <span>🖥️</span>
+                <span>Server &amp; Database</span>
+              </p>
+              <p className="mt-1 text-xs text-blue-900/80 leading-relaxed">
+                Pantau latensi database, atur mode pemeliharaan publik, unduh cadangan (backup JSON), dan pemulihan data.
+              </p>
+            </div>
+            <div className="mt-3">
+              <Link
+                href="/admin/pengaturan/server"
+                className="inline-flex items-center gap-1.5 rounded-md bg-blue-800 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-blue-700 transition"
+              >
+                Kelola Server &amp; Database →
               </Link>
             </div>
           </div>

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import Script from 'next/script'
 import type { ReactNode } from 'react'
 import { auth } from '@/lib/auth'
 import { db } from '@/lib/db'
 import { getSetting } from '@/lib/settings'
+import { getMaintenanceConfig } from '@/lib/maintenance'
 import { getWhatsAppNumber } from '@/lib/whatsapp-server'
 import { buildPublicMetadata, jsonLd, orgLd } from '@/lib/seo'
 import { asText } from '@/components/public/content'
@@ -11,6 +13,7 @@ import { Footer } from '@/components/public/Footer'
 import { LiveTimeBar } from '@/components/public/LiveTimeBar'
 import { PublicHeader } from '@/components/public/PublicHeader'
 import { Tracker } from '@/components/public/Tracker'
+import { MaintenanceView } from '@/components/public/MaintenanceView'
 
 export const revalidate = 60
 
@@ -58,7 +61,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function PublicLayout({ children }: { children: ReactNode }) {
-  const [siteName, address, phone, footer, ga4Raw, session, whatsapp] = await Promise.all([
+  const [siteName, address, phone, footer, ga4Raw, session, whatsapp, maintenance] = await Promise.all([
     getSetting('site.name', 'Masjid An-nuur Arwana'),
     getSetting('site.address', ''),
     getSetting('site.phone', ''),
@@ -72,6 +75,12 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       return null
     }),
     getWhatsAppNumber(),
+    getMaintenanceConfig().catch(() => ({
+      enabled: false,
+      title: '',
+      message: '',
+      estimatedEnd: null,
+    })),
   ])
   const name = asText(siteName, 'Masjid An-nuur Arwana')
   const user = session?.user
@@ -89,8 +98,35 @@ export default async function PublicLayout({ children }: { children: ReactNode }
     phone: asText(phone),
   })
 
+  const isMaintenanceActive = maintenance.enabled
+  const isAdminBypass = user?.role === 'ADMIN'
+
+  // Jika maintenance aktif dan bukan bypass admin, tampilkan MaintenanceView
+  if (isMaintenanceActive && !isAdminBypass) {
+    return (
+      <div className="flex min-h-screen flex-col bg-krem text-hijau-tua">
+        <MaintenanceView config={maintenance} siteName={name} whatsapp={whatsapp} />
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-krem text-hijau-tua">
+      {isMaintenanceActive && isAdminBypass && (
+        <div className="sticky top-0 z-50 flex items-center justify-between bg-amber-500 px-4 py-2 text-xs font-semibold text-neutral-900 shadow-md">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-red-600 animate-ping" />
+            <span>[MODE PEMELIHARAAN AKTIF] Akses publik sedang ditutup untuk jamaah umum. Anda melihat situs ini via Bypass Admin.</span>
+          </div>
+          <Link
+            href="/admin/pengaturan/server"
+            className="rounded bg-black/20 px-2 py-0.5 text-[11px] font-bold text-white hover:bg-black/30 transition"
+          >
+            Atur di Server &amp; Database →
+          </Link>
+        </div>
+      )}
+
       <a
         href="#konten"
         className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-emas focus:px-5 focus:py-2 focus:font-semibold focus:text-hijau"
