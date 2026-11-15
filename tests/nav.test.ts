@@ -30,6 +30,7 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
       'Pengurus & Khotib',
       'Kegiatan Rutin',
       'Kontak & Peta',
+      'Server & Database',
       'Sections',
     ])
     expect(hrefs(items)).toEqual(
@@ -38,6 +39,7 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
         '/admin/pengaturan/pengurus',
         '/admin/pengaturan/kegiatan',
         '/admin/pengaturan/kontak',
+        '/admin/pengaturan/server',
         '/admin/sections',
       ]),
     )
