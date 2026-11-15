@@ -434,6 +434,18 @@ Lebih mulia lagi, orang yang senantiasa berinteraksi dengan Al-Qur'an dinobatkan
         create: item,
       });
     }
+
+    await prisma.setting.upsert({
+      where: { key: 'donasi.qris' },
+      update: {},
+      create: {
+        key: 'donasi.qris',
+        value: {
+          image: '/images/qris-dkm.jpg',
+          caption: 'NMID: ID1026628438099 - DKM Masjid An-Nur Arwana',
+        },
+      },
+    });
   }
 }
 

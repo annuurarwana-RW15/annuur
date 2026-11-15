@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, render, screen, within } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { buildDailyMonthSeries } from '@/lib/kas-daily'
-import { getQris, parseQris } from '@/lib/qris'
+import { DEFAULT_QRIS, getQris, parseQris } from '@/lib/qris'
 import { FinanceSummary } from '@/components/public/FinanceSummary'
 
 const h = vi.hoisted(() => ({ getSettingMock: vi.fn() }))
@@ -45,11 +45,17 @@ describe('parseQris', () => {
 })
 
 describe('getQris', () => {
-  it('membaca key donasi.qris dan mengembalikan null bila tidak ada', async () => {
+  it('membaca key donasi.qris dan mengembalikan DEFAULT_QRIS bila tidak ada di database', async () => {
     h.getSettingMock.mockResolvedValue(null)
 
-    await expect(getQris()).resolves.toBeNull()
+    await expect(getQris()).resolves.toEqual(DEFAULT_QRIS)
     expect(h.getSettingMock).toHaveBeenCalledWith('donasi.qris', null)
+  })
+
+  it('mengembalikan null bila admin sengaja mengosongkan gambar di database', async () => {
+    h.getSettingMock.mockResolvedValue({ image: '', caption: '' })
+
+    await expect(getQris()).resolves.toBeNull()
   })
 
   it('mengembalikan data ternormalisasi dari penyimpanan', async () => {

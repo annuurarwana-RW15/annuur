@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { getSetting } from '@/lib/settings'
-import { parseQris } from '@/lib/qris'
+import { DEFAULT_QRIS, parseQris } from '@/lib/qris'
 import { requireRole } from '@/lib/rbac'
 import { ensureDefaultSections } from '@/lib/sections-init'
 import { PengaturanForm } from './PengaturanForm'
@@ -96,7 +96,7 @@ export default async function PengaturanPage() {
     },
     donasi: {
       rekening: rekeningList(rekeningRaw),
-      qris: parseQris(qrisRaw) ?? { image: '', caption: '' },
+      qris: parseQris(qrisRaw) ?? (qrisRaw === null ? DEFAULT_QRIS : { image: '', caption: '' }),
     },
     ga4: { id: ga4Id },
   }
