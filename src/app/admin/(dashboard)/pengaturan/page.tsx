@@ -109,7 +109,7 @@ export default async function PengaturanPage() {
         SEO global, verifikasi webmaster, sitemap &amp; robots, dan analitik.
       </p>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Link
           href="/admin/pengaturan/pengurus"
           className="flex items-center gap-3 rounded-xl border border-emerald-300 bg-emerald-50/70 p-4 transition hover:bg-emerald-100/70 shadow-xs"
@@ -119,7 +119,19 @@ export default async function PengaturanPage() {
           </span>
           <div>
             <p className="text-sm font-bold text-neutral-900">Pengurus &amp; Khotib</p>
-            <p className="text-xs text-neutral-600">Struktur DKM &amp; auto generate khotib</p>
+            <p className="text-xs text-neutral-600">Struktur DKM &amp; auto khotib</p>
+          </div>
+        </Link>
+        <Link
+          href="/admin/pengaturan/kegiatan"
+          className="flex items-center gap-3 rounded-xl border border-emerald-300 bg-emerald-50/70 p-4 transition hover:bg-emerald-100/70 shadow-xs"
+        >
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-800 text-lg text-white">
+            🗓️
+          </span>
+          <div>
+            <p className="text-sm font-bold text-neutral-900">Kegiatan Rutin</p>
+            <p className="text-xs text-neutral-600">Jadwal kajian &amp; agenda pekanan</p>
           </div>
         </Link>
         <Link
@@ -131,7 +143,7 @@ export default async function PengaturanPage() {
           </span>
           <div>
             <p className="text-sm font-bold text-neutral-900">Kontak &amp; Peta</p>
-            <p className="text-xs text-neutral-600">Alamat, peta Google, dan WhatsApp</p>
+            <p className="text-xs text-neutral-600">Alamat, Google Maps, &amp; WhatsApp</p>
           </div>
         </Link>
         <Link
@@ -143,7 +155,7 @@ export default async function PengaturanPage() {
           </span>
           <div>
             <p className="text-sm font-bold text-neutral-900">Sections Halaman</p>
-            <p className="text-xs text-neutral-600">Susunan blok dan tampilan beranda</p>
+            <p className="text-xs text-neutral-600">Susunan blok tampilan beranda</p>
           </div>
         </Link>
       </div>

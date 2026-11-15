@@ -54,6 +54,7 @@ export const ADMIN_NAV: readonly NavItem[] = [
     children: [
       { label: 'Umum', href: '/admin/pengaturan', action: 'manage_settings' },
       { label: 'Pengurus & Khotib', href: '/admin/pengaturan/pengurus', action: 'manage_settings' },
+      { label: 'Kegiatan Rutin', href: '/admin/pengaturan/kegiatan', action: 'manage_settings' },
       { label: 'Kontak & Peta', href: '/admin/pengaturan/kontak', action: 'manage_settings' },
       { label: 'Sections', href: '/admin/sections', action: 'manage_sections' },
     ],

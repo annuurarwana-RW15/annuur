@@ -28,6 +28,7 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
     expect(pengaturan?.children?.map((child) => child.label)).toEqual([
       'Umum',
       'Pengurus & Khotib',
+      'Kegiatan Rutin',
       'Kontak & Peta',
       'Sections',
     ])
@@ -35,6 +36,7 @@ describe('visibleAdminNav (urutan & reposisi menu)', () => {
       expect.arrayContaining([
         '/admin/pengaturan',
         '/admin/pengaturan/pengurus',
+        '/admin/pengaturan/kegiatan',
         '/admin/pengaturan/kontak',
         '/admin/sections',
       ]),
