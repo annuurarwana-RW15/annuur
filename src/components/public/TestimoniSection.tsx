@@ -11,8 +11,8 @@ export function TestimoniSection({ section }: { section: Section }) {
   const headingId = useId()
 
   const [mobileIndex, setMobileIndex] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
+  const [isSwiping, setIsSwiping] = useState(false)
   const touchStartXRef = useRef(0)
 
   const totalMobileCards = items.length
@@ -27,21 +27,21 @@ export function TestimoniSection({ section }: { section: Section }) {
     setMobileIndex((prev) => (prev - 1 + totalMobileCards) % totalMobileCards)
   }, [totalMobileCards])
 
-  // Auto-play mobile card
+  // Auto-slide mobile card secara berkala
   useEffect(() => {
-    if (isPaused || totalMobileCards <= 1) return
+    if (isSwiping || totalMobileCards <= 1) return
 
     const timer = setInterval(() => {
       setMobileIndex((prev) => (prev + 1) % totalMobileCards)
     }, 4500)
 
     return () => clearInterval(timer)
-  }, [isPaused, totalMobileCards])
+  }, [isSwiping, totalMobileCards])
 
   // Touch Swipe untuk Mobile
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX
-    setIsPaused(true)
+    setIsSwiping(true)
   }
 
   const handleTouchEnd = (e: React.TouchEvent) => {
@@ -54,7 +54,7 @@ export function TestimoniSection({ section }: { section: Section }) {
         prevMobile()
       }
     }
-    setIsPaused(false)
+    setIsSwiping(false)
   }
 
   // Gandakan item jika jumlahnya sedikit agar track looping desktop cukup lebar
@@ -70,41 +70,11 @@ export function TestimoniSection({ section }: { section: Section }) {
       className="bg-krem-tua/60 overflow-hidden"
     >
       <div className="mx-auto max-w-6xl px-4 py-14">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-          <div>
-            <SectionHeading id={headingId}>{section.title}</SectionHeading>
-            <p className="mt-1 text-sm text-hijau-tua/75">
-              Kesan dan pengalaman jamaah bersama Masjid An-nuur Arwana.
-            </p>
-          </div>
-
-          {/* Indikator & Kontrol Auto Rolling Desktop (≥ md) */}
-          {items.length > 0 && (
-            <div className="hidden md:flex items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-white/80 px-3 py-1 text-xs font-semibold text-hijau shadow-2xs">
-                <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Auto Rolling &amp; Looping</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setIsPaused((p) => !p)}
-                aria-label={isPaused ? 'Lanjutkan auto rolling testimoni' : 'Jeda auto rolling testimoni'}
-                className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-white px-3.5 py-1 text-xs font-semibold text-hijau-tua shadow-2xs transition hover:border-emas hover:bg-emas/15 active:scale-95"
-              >
-                {isPaused ? (
-                  <>
-                    <span>▶</span>
-                    <span>Lanjutkan</span>
-                  </>
-                ) : (
-                  <>
-                    <span>⏸</span>
-                    <span>Jeda</span>
-                  </>
-                )}
-              </button>
-            </div>
-          )}
+        <div>
+          <SectionHeading id={headingId}>{section.title}</SectionHeading>
+          <p className="mt-1 text-sm text-hijau-tua/75">
+            Kesan dan pengalaman jamaah bersama Masjid An-nuur Arwana.
+          </p>
         </div>
 
         {items.length === 0 ? (
@@ -120,7 +90,7 @@ export function TestimoniSection({ section }: { section: Section }) {
               <div
                 className="flex w-max animate-rolling-marquee group-hover:[animation-play-state:paused]"
                 style={{
-                  animationPlayState: isPaused || isHovered ? 'paused' : 'running',
+                  animationPlayState: isHovered ? 'paused' : 'running',
                   animationDuration: `${rollDuration}s`,
                 }}
               >
@@ -242,46 +212,21 @@ export function TestimoniSection({ section }: { section: Section }) {
                 })}
               </div>
 
-              {/* Navigasi & Dots Mobile */}
-              <div className="mt-4 flex items-center justify-between">
-                <button
-                  type="button"
-                  onClick={prevMobile}
-                  aria-label="Testimoni sebelumnya"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-emas/40 bg-white text-hijau shadow-sm transition active:scale-90"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-
-                <div className="flex items-center gap-1.5">
+              {/* Indikator Titik Posisi Mobile (Tanpa Tombol Navigasi) */}
+              {items.length > 1 && (
+                <div className="mt-4 flex items-center justify-center gap-1.5" aria-hidden="true">
                   {items.map((_, idx) => (
-                    <button
+                    <span
                       key={`mobile-dot-${idx}`}
-                      type="button"
-                      onClick={() => setMobileIndex(idx)}
-                      aria-label={`Buka testimoni nomor ${idx + 1}`}
-                      className={`h-2 rounded-full transition-all duration-300 ${
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
                         mobileIndex === idx
                           ? 'w-6 bg-emas-tua'
-                          : 'w-2 bg-emas/30'
+                          : 'w-1.5 bg-emas/30'
                       }`}
                     />
                   ))}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={nextMobile}
-                  aria-label="Testimoni berikutnya"
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-emas/40 bg-white text-hijau shadow-sm transition active:scale-90"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
+              )}
             </div>
           </>
         )}

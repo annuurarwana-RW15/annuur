@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it } from 'vitest'
-import { cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/vitest'
 import { TestimoniSection } from '@/components/public/TestimoniSection'
 import type { Section } from '@prisma/client'
@@ -27,8 +27,8 @@ afterEach(() => {
   cleanup()
 })
 
-describe('TestimoniSection — Desktop Auto Rolling & Mobile Zoom In', () => {
-  it('merender judul dan track auto rolling & looping untuk desktop', () => {
+describe('TestimoniSection — Desktop Auto Rolling & Mobile Auto Slide Tanpa Tombol Navigasi', () => {
+  it('merender judul dan track auto rolling & looping untuk desktop tanpa tombol navigasi/kontrol', () => {
     render(<TestimoniSection section={MOCK_SECTION} />)
 
     expect(screen.getByText('Testimoni Jamaah')).toBeInTheDocument()
@@ -37,29 +37,13 @@ describe('TestimoniSection — Desktop Auto Rolling & Mobile Zoom In', () => {
     expect(screen.getAllByText('Ahmad Fauzi').length).toBeGreaterThan(0)
     expect(screen.getAllByText('H. Ridwan').length).toBeGreaterThan(0)
 
-    // Indikator auto rolling & looping aktif
-    expect(screen.getByText(/Auto Rolling & Looping/i)).toBeInTheDocument()
-
-    // Tombol kontrol jeda / lanjutkan
-    const pauseBtn = screen.getByRole('button', { name: /Jeda auto rolling testimoni/i })
-    expect(pauseBtn).toBeInTheDocument()
+    // Tidak ada tombol jeda / lanjutkan maupun indikator badge
+    expect(screen.queryByText(/Auto Rolling & Looping/i)).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /auto rolling testimoni/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /testimoni/i })).not.toBeInTheDocument()
   })
 
-  it('dapat menjeda dan melanjutkan auto rolling dengan tombol kontrol', () => {
-    render(<TestimoniSection section={MOCK_SECTION} />)
-
-    const pauseBtn = screen.getByRole('button', { name: /Jeda auto rolling testimoni/i })
-    fireEvent.click(pauseBtn)
-
-    // Tombol berubah menjadi lanjutkan
-    const resumeBtn = screen.getByRole('button', { name: /Lanjutkan auto rolling testimoni/i })
-    expect(resumeBtn).toBeInTheDocument()
-
-    fireEvent.click(resumeBtn)
-    expect(screen.getByRole('button', { name: /Jeda auto rolling testimoni/i })).toBeInTheDocument()
-  })
-
-  it('tampilan mobile merender card dengan animasi animate-zoom-in dan navigasi bergantian', () => {
+  it('tampilan mobile merender card dengan animasi animate-zoom-in tanpa tombol navigasi panah', () => {
     render(<TestimoniSection section={MOCK_SECTION} />)
 
     // Card mobile pertama aktif
@@ -67,14 +51,9 @@ describe('TestimoniSection — Desktop Auto Rolling & Mobile Zoom In', () => {
     const activeArticle = screen.getByText('1 / 5').closest('article')
     expect(activeArticle?.className).toContain('animate-zoom-in')
 
-    // Tekan tombol next mobile -> card kedua aktif dengan badge 2 / 5
-    const nextMobile = screen.getByRole('button', { name: /^Testimoni berikutnya$/i })
-    fireEvent.click(nextMobile)
-
-    expect(screen.getByText('2 / 5')).toBeInTheDocument()
-    const secondArticle = screen.getByText('2 / 5').closest('article')
-    expect(secondArticle?.className).toContain('animate-zoom-in')
-    expect(secondArticle?.textContent).toContain('Siti Rahma')
+    // Tidak ada tombol prev/next mobile
+    expect(screen.queryByRole('button', { name: /^Testimoni berikutnya$/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /^Testimoni sebelumnya$/i })).not.toBeInTheDocument()
   })
 
   it('menampilkan fallback teks jika belum ada testimoni', () => {
