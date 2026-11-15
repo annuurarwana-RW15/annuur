@@ -170,19 +170,6 @@ export function TikTokWidget({
                 </a>
               </section>
             </blockquote>
-
-            <div className="mt-4 text-center">
-              <a
-                href={finalAccountUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-full border border-emas/40 bg-krem/40 px-5 py-2 text-xs font-semibold text-hijau hover:bg-emas hover:text-hijau-tua transition shadow-2xs"
-              >
-                <SocialIcon platform="tiktok" className="h-3.5 w-3.5" />
-                <span>Buka Feeds &amp; Update Video Terbaru di TikTok @{cleanUsername}</span>
-                <span aria-hidden="true">↗</span>
-              </a>
-            </div>
           </div>
         )}
       </div>
