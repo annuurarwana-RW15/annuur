@@ -45,13 +45,28 @@ export function formatDateID(d: Date): string {
 
 /**
  * Format string input rupiah dengan pemisah ribuan titik (id-ID) saat penulisan/pengetikan.
- * Mendukung input dengan awalan Rp, angka mentah, titik ribuan, dan koma desimal.
+ * Mendukung input dengan awalan Rp, angka mentah, titik ribuan, dan koma/titik desimal.
  * Contoh: "50000000" → "50.000.000", "12500000,50" → "12.500.000,50"
  */
 export function formatCurrencyInput(val: string | number | null | undefined): string {
   if (val === '' || val === null || val === undefined) return ''
-  const str = String(val).replace(/rp/i, '').trim()
+
+  if (typeof val === 'number') {
+    if (isNaN(val)) return ''
+    const [intPart, decPart] = val.toString().split('.')
+    const formattedInt = new Intl.NumberFormat('id-ID').format(Number(intPart))
+    return decPart ? `${formattedInt},${decPart.slice(0, 2)}` : formattedInt
+  }
+
+  let str = String(val).replace(/rp/i, '').trim()
   if (!str) return ''
+
+  // Deteksi jika pengguna memasukkan desimal dengan titik (misal: "12500000.50" atau "50000.5")
+  // yaitu: ada satu titik, diikuti 1-2 digit, tanpa koma
+  if (!str.includes(',') && /^\d+\.\d{1,2}$/.test(str)) {
+    str = str.replace('.', ',')
+  }
+
   const parts = str.split(',')
   const intDigits = parts[0].replace(/\D/g, '')
   if (!intDigits && parts.length === 1) return ''
@@ -70,12 +85,22 @@ export function formatCurrencyInput(val: string | number | null | undefined): st
 export function parseCurrencyInput(val: string | number | null | undefined): number {
   if (val === null || val === undefined || val === '') return 0
   if (typeof val === 'number') return isNaN(val) ? 0 : val
-  const str = String(val)
-    .replace(/rp/i, '')
+
+  const str = String(val).replace(/rp/i, '').trim()
+  if (!str) return 0
+
+  // Jika formatnya desimal dengan titik murni (misal: "12500000.5")
+  if (!str.includes(',') && /^\d+\.\d{1,2}$/.test(str)) {
+    const n = Number(str)
+    return isNaN(n) ? 0 : n
+  }
+
+  // Jika format Indonesia: titik adalah ribuan, koma adalah desimal
+  const normalized = str
     .replace(/\s/g, '')
     .replace(/\./g, '')
     .replace(/,/g, '.')
-  const n = Number(str)
+  const n = Number(normalized)
   return isNaN(n) ? 0 : n
 }
 

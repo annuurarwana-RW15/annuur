@@ -573,7 +573,13 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
                     <input
                       type="text"
                       inputMode="numeric"
+                      autoComplete="off"
                       value={budgetEstimateInput}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                        }
+                      }}
                       onChange={(e) => {
                         const formatted = formatCurrencyInput(e.target.value)
                         setBudgetEstimateInput(formatted)
@@ -582,6 +588,11 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
                           ...prev,
                           budgetEstimate: val > 0 ? val : null,
                         }))
+                      }}
+                      onBlur={() => {
+                        if (formData.budgetEstimate) {
+                          setBudgetEstimateInput(formatCurrencyInput(formData.budgetEstimate))
+                        }
                       }}
                       placeholder="Contoh: 25.000.000"
                       className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs font-medium text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"

@@ -104,4 +104,20 @@ describe('ProposalAdminClient — Format Currency Indonesia & Tanpa Pembulatan',
     const manualInput = screen.getByPlaceholderText('Contoh: 15.000.000') as HTMLInputElement
     expect(manualInput.value).toBe('5.250.000')
   })
+
+  it('menekan Enter di input anggaran tidak memicu error atau submit prematur', () => {
+    render(<ProposalAdminClient initialProposals={MOCK_PROPOSALS} categories={[]} programs={[]} />)
+
+    const createBtn = screen.getByRole('button', { name: /Buat Proposal Baru/i })
+    fireEvent.click(createBtn)
+
+    const targetInput = screen.getByPlaceholderText('Contoh: 50.000.000') as HTMLInputElement
+    fireEvent.change(targetInput, { target: { value: '25000000' } })
+    expect(targetInput.value).toBe('25.000.000')
+
+    // Tekan Enter
+    const enterEvent = new KeyboardEvent('keydown', { key: 'Enter', cancelable: true, bubbles: true })
+    const wasDefaultPrevented = !targetInput.dispatchEvent(enterEvent)
+    expect(wasDefaultPrevented).toBe(true)
+  })
 })

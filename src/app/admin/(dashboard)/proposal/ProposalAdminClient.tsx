@@ -720,13 +720,24 @@ export function ProposalAdminClient({
                     <input
                       type="text"
                       inputMode="numeric"
+                      autoComplete="off"
                       required
                       value={targetAmountInput}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                        }
+                      }}
                       onChange={(e) => {
                         const formatted = formatCurrencyInput(e.target.value)
                         setTargetAmountInput(formatted)
                         const val = parseCurrencyInput(formatted)
                         setFormData((prev) => ({ ...prev, targetAmount: val }))
+                      }}
+                      onBlur={() => {
+                        if (formData.targetAmount) {
+                          setTargetAmountInput(formatCurrencyInput(formData.targetAmount))
+                        }
                       }}
                       placeholder="Contoh: 50.000.000"
                       className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs font-medium text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
@@ -751,12 +762,23 @@ export function ProposalAdminClient({
                     <input
                       type="text"
                       inputMode="numeric"
+                      autoComplete="off"
                       value={collectedManualInput}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                        }
+                      }}
                       onChange={(e) => {
                         const formatted = formatCurrencyInput(e.target.value)
                         setCollectedManualInput(formatted)
                         const val = parseCurrencyInput(formatted)
                         setFormData((prev) => ({ ...prev, collectedManual: val }))
+                      }}
+                      onBlur={() => {
+                        if (formData.collectedManual) {
+                          setCollectedManualInput(formatCurrencyInput(formData.collectedManual))
+                        }
                       }}
                       placeholder="Contoh: 15.000.000"
                       className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs font-medium text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
