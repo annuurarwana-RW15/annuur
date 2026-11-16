@@ -5,7 +5,9 @@ import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
 import TextAlign from '@tiptap/extension-text-align'
+import Underline from '@tiptap/extension-underline'
 import { Placeholder } from '@tiptap/extensions'
 import { uploadImage, validateImageFile } from '@/lib/upload-image'
 
@@ -76,7 +78,7 @@ function ToolButton({
 }
 
 /**
- * Editor teks-berformat (Tiptap) untuk isi artikel/pengumuman.
+ * Editor teks-berformat (Tiptap) untuk isi artikel/pengumuman/profil.
  * Toolbar lengkap + sisip gambar (unggah file atau tautan URL) + dukungan
  * paste/drag-drop gambar langsung ke area tulis.
  */
@@ -85,7 +87,7 @@ export function RichTextEditor({
   onChange,
   label = 'Isi artikel',
   helper,
-  placeholder = 'Tulis isi artikel di sini…',
+  placeholder = 'Tulis isi di sini…',
   showReadmoreButton = true,
 }: RichTextEditorProps) {
   const [imageDialog, setImageDialog] = useState(false)
@@ -101,17 +103,26 @@ export function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
-        link: { openOnClick: false, autolink: true, linkOnPaste: true },
         horizontalRule: false,
       }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        autolink: true,
+        linkOnPaste: true,
+        HTMLAttributes: {
+          rel: 'noopener noreferrer',
+          target: '_blank',
+        },
+      }),
       CustomHorizontalRule,
-      Image.configure({ allowBase64: false, resize: { enabled: true } }),
+      Image.configure({ allowBase64: false }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({ placeholder }),
     ],
     content: value,
     editorProps: {
-      attributes: { class: 'focus:outline-none' },
+      attributes: { class: 'focus:outline-none min-h-[18rem]' },
       // Tempel gambar dari clipboard → unggah otomatis.
       handlePaste(_view, event) {
         const files = Array.from(event.clipboardData?.files ?? [])
@@ -136,9 +147,11 @@ export function RichTextEditor({
     onUpdate: ({ editor: e }) => onChange(e.getHTML()),
   })
 
-  // Sinkronkan bila nilai induk berubah dari luar (mis. konversi legacy saat muat).
+  // Sinkronkan HANYA bila editor sedang tidak difokuskan user (menghindari cursor reset / loop ketik).
   useEffect(() => {
-    if (editor && editor.getHTML() !== value) {
+    if (!editor) return
+    if (editor.isFocused) return
+    if (editor.getHTML() !== value) {
       editor.commands.setContent(value, { emitUpdate: false })
     }
   }, [editor, value])
@@ -208,22 +221,22 @@ export function RichTextEditor({
 
   if (!editor) {
     return (
-      <label className="block space-y-1">
+      <div className="block space-y-1">
         <span className="block text-sm font-medium text-neutral-700">{label}</span>
         <div className="h-64 animate-pulse rounded-md border border-black/10 bg-neutral-50" />
-      </label>
+      </div>
     )
   }
 
   const align = (value: string) => () => editor.chain().focus().setTextAlign(value).run()
 
   return (
-    <label className="block space-y-1">
+    <div className="block space-y-1">
       <span className="block text-sm font-medium text-neutral-700">{label}</span>
 
-      <div className="rounded-md border border-black/10 bg-white">
+      <div className="rounded-md border border-black/10 bg-white shadow-xs">
         {/* Toolbar */}
-        <div className="flex flex-wrap items-center gap-0.5 border-b border-black/10 p-1">
+        <div className="flex flex-wrap items-center gap-0.5 border-b border-black/10 p-1 bg-neutral-50/60 rounded-t-md">
           <select
             aria-label="Tipe blok"
             value={
@@ -245,7 +258,7 @@ export function RichTextEditor({
                   .toggleHeading({ level: Number(v) as 2 | 3 | 4 })
                   .run()
             }}
-            className="mr-1 rounded border border-black/10 bg-white px-1 py-1 text-sm text-neutral-700"
+            className="mr-1 rounded border border-black/10 bg-white px-1.5 py-1 text-xs text-neutral-700 font-medium focus:outline-none"
           >
             <option value="p">Paragraf</option>
             <option value="h2">Judul 2</option>
@@ -255,25 +268,25 @@ export function RichTextEditor({
 
           <ToolButton
             label="B"
-            title="Tebal"
+            title="Tebal (Bold)"
             active={editor.isActive('bold')}
             onClick={() => editor.chain().focus().toggleBold().run()}
           />
           <ToolButton
             label="I"
-            title="Miring"
+            title="Miring (Italic)"
             active={editor.isActive('italic')}
             onClick={() => editor.chain().focus().toggleItalic().run()}
           />
           <ToolButton
             label="U"
-            title="Garis bawah"
+            title="Garis bawah (Underline)"
             active={editor.isActive('underline')}
             onClick={() => editor.chain().focus().toggleUnderline().run()}
           />
           <ToolButton
             label="S"
-            title="Coret"
+            title="Coret (Strikethrough)"
             active={editor.isActive('strike')}
             onClick={() => editor.chain().focus().toggleStrike().run()}
           />
@@ -394,7 +407,14 @@ export function RichTextEditor({
         </div>
 
         {/* Area tulis */}
-        <div className="article-body article-body-admin">
+        <div
+          className="article-body article-body-admin cursor-text min-h-[20rem]"
+          onClick={() => {
+            if (editor && !editor.isFocused) {
+              editor.commands.focus()
+            }
+          }}
+        >
           <EditorContent editor={editor} />
         </div>
       </div>
@@ -501,6 +521,6 @@ export function RichTextEditor({
           </div>
         </div>
       )}
-    </label>
+    </div>
   )
 }

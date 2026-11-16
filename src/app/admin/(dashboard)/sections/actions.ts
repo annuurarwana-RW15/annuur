@@ -33,6 +33,7 @@ export async function updateSection(
     data: { title: trimmed, content: content as Prisma.InputJsonValue },
   })
   revalidatePath('/')
+  revalidatePath('/profil')
   return { ok: true }
 }
 
