@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { EditorContent, useEditor, type Editor } from '@tiptap/react'
+import { EditorContent, useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Image from '@tiptap/extension-image'
 import TextAlign from '@tiptap/extension-text-align'
 import { Placeholder } from '@tiptap/extensions'
@@ -16,7 +17,29 @@ interface RichTextEditorProps {
   label?: string
   helper?: string
   placeholder?: string
+  /** Tampilkan tombol batas readmore (default: true). */
+  showReadmoreButton?: boolean
 }
+
+const CustomHorizontalRule = HorizontalRule.extend({
+  addAttributes() {
+    return {
+      'data-readmore': {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-readmore'),
+        renderHTML: (attributes) => {
+          if (!attributes['data-readmore']) {
+            return {}
+          }
+          return {
+            'data-readmore': attributes['data-readmore'],
+            class: 'readmore-marker',
+          }
+        },
+      },
+    }
+  },
+})
 
 /** Tombol toolbar kecil. */
 function ToolButton({
@@ -63,10 +86,12 @@ export function RichTextEditor({
   label = 'Isi artikel',
   helper,
   placeholder = 'Tulis isi artikel di sini…',
+  showReadmoreButton = true,
 }: RichTextEditorProps) {
   const [imageDialog, setImageDialog] = useState(false)
   const [imageUrl, setImageUrl] = useState('')
   const [imageAlt, setImageAlt] = useState('')
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
@@ -77,7 +102,9 @@ export function RichTextEditor({
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
         link: { openOnClick: false, autolink: true, linkOnPaste: true },
+        horizontalRule: false,
       }),
+      CustomHorizontalRule,
       Image.configure({ allowBase64: false, resize: { enabled: true } }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({ placeholder }),
@@ -86,23 +113,23 @@ export function RichTextEditor({
     editorProps: {
       attributes: { class: 'focus:outline-none' },
       // Tempel gambar dari clipboard → unggah otomatis.
-      handlePaste(view, event) {
+      handlePaste(_view, event) {
         const files = Array.from(event.clipboardData?.files ?? [])
         const image = files.find((f) => f.type.startsWith('image/'))
         if (!image) return false
         event.preventDefault()
-        void uploadAndInsert(view, image)
+        void uploadAndInsert(image)
         return true
       },
       // Drag-drop gambar dari desktop → unggah otomatis.
-      handleDrop(view, event) {
+      handleDrop(_view, event) {
         const files = Array.from(
           (event as DragEvent).dataTransfer?.files ?? [],
         )
         const image = files.find((f) => f.type.startsWith('image/'))
         if (!image) return false
         event.preventDefault()
-        void uploadAndInsert(view, image)
+        void uploadAndInsert(image)
         return true
       },
     },
@@ -116,7 +143,7 @@ export function RichTextEditor({
     }
   }, [editor, value])
 
-  async function uploadAndInsert(view: unknown, file: File) {
+  async function uploadAndInsert(file: File) {
     const validation = validateImageFile(file)
     if (validation) {
       setError(validation)
@@ -126,7 +153,7 @@ export function RichTextEditor({
     setError(null)
     try {
       const url = await uploadImage(file, 'articles')
-      insertImageAtCursor(view as { editor: Editor }, url, file.name)
+      insertImage(url, file.name)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload gagal')
     } finally {
@@ -134,15 +161,15 @@ export function RichTextEditor({
     }
   }
 
-  function insertImageAtCursor(target: { editor: Editor } | null, src: string, alt = '') {
-    const ed = target?.editor ?? editor
-    if (!ed) return
-    ed.chain().focus().setImage({ src, alt }).run()
+  function insertImage(src: string, alt = '') {
+    if (!editor) return
+    editor.chain().focus().setImage({ src, alt }).run()
   }
 
   function openImageDialog() {
     setImageUrl('')
     setImageAlt('')
+    setImagePreview(null)
     setError(null)
     setImageDialog(true)
   }
@@ -153,7 +180,7 @@ export function RichTextEditor({
       setError('URL gambar harus diawali http:// atau https://')
       return
     }
-    insertImageAtCursor(null, url, imageAlt.trim())
+    insertImage(url, imageAlt.trim())
     setImageDialog(false)
   }
 
@@ -163,11 +190,16 @@ export function RichTextEditor({
       setError(validation)
       return
     }
+    // Buat pratinjau lokal instan
+    const reader = new FileReader()
+    reader.onload = (e) => setImagePreview(e.target?.result as string)
+    reader.readAsDataURL(file)
+
     setUploading(true)
     setError(null)
     uploadImage(file, 'articles')
       .then((url) => {
-        insertImageAtCursor(null, url, imageAlt.trim())
+        insertImage(url, imageAlt.trim())
         setImageDialog(false)
       })
       .catch((err) => setError(err instanceof Error ? err.message : 'Upload gagal'))
@@ -278,6 +310,24 @@ export function RichTextEditor({
             onClick={() => editor.chain().focus().setHorizontalRule().run()}
           />
 
+          {showReadmoreButton && (
+            <button
+              type="button"
+              title="Sisip Batas Baca Selengkapnya (Read More) — teks di bawah batas ini dibuka saat klik Selengkapnya"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => {
+                editor
+                  .chain()
+                  .focus()
+                  .insertContent('<hr data-readmore="true" class="readmore-marker" />')
+                  .run()
+              }}
+              className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold leading-none text-amber-800 bg-amber-100/70 hover:bg-amber-200/80 border border-amber-300 transition"
+            >
+              <span>✂️ Batas Readmore</span>
+            </button>
+          )}
+
           <span className="mx-1 h-5 w-px bg-black/10" />
 
           <ToolButton
@@ -295,7 +345,7 @@ export function RichTextEditor({
               }
             }}
           />
-          <ToolButton label="🖼" title="Sisip gambar" onClick={openImageDialog} />
+          <ToolButton label="🖼" title="Sisip gambar (upload / url)" onClick={openImageDialog} />
 
           <span className="mx-1 h-5 w-px bg-black/10" />
 
@@ -316,6 +366,12 @@ export function RichTextEditor({
             title="Rata kanan"
             active={editor.isActive({ textAlign: 'right' })}
             onClick={align('right')}
+          />
+          <ToolButton
+            label="⇥⇤"
+            title="Rata kanan-kiri (Justify)"
+            active={editor.isActive({ textAlign: 'justify' })}
+            onClick={align('justify')}
           />
 
           <span className="mx-1 h-5 w-px bg-black/10" />
@@ -338,7 +394,7 @@ export function RichTextEditor({
         </div>
 
         {/* Area tulis */}
-        <div className="article-body">
+        <div className="article-body article-body-admin">
           <EditorContent editor={editor} />
         </div>
       </div>
@@ -386,6 +442,16 @@ export function RichTextEditor({
                 <p className="mt-1 text-xs text-neutral-400">
                   JPG, PNG, atau WebP — maksimal 5MB.
                 </p>
+                {imagePreview && (
+                  <div className="mt-2 overflow-hidden rounded-md border border-neutral-200">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={imagePreview}
+                      alt="Pratinjau"
+                      className="h-28 w-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2 text-xs text-neutral-400">

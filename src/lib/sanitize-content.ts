@@ -27,7 +27,8 @@ const ALLOWED_TAGS = [
 const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
   // Atribut yang boleh di semua tag dalam allowlist.
   '*': ['style'],
-  img: ['src', 'alt', 'title', 'width', 'height'],
+  img: ['src', 'alt', 'title', 'width', 'height', 'loading'],
+  hr: ['data-readmore', 'class'],
   a: ['href', 'title', 'target', 'rel'],
   ol: ['start'],
 }
@@ -36,7 +37,7 @@ const ALLOWED_ATTRIBUTES: Record<string, string[]> = {
 // (Bentuk rata salah — akan melewatkan semua deklarasi style tanpa difilter.)
 const ALLOWED_STYLES: Record<string, Record<string, RegExp[]>> = {
   '*': {
-    'text-align': [/^(left|center|right)$/i],
+    'text-align': [/^(left|center|right|justify)$/i],
   },
 }
 

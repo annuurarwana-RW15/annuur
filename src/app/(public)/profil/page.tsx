@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
 import { getSetting } from '@/lib/settings'
@@ -48,22 +49,48 @@ export default async function ProfilPage() {
   const activePengurus = pengurusList.filter((p) => p.isActive)
 
   return (
-    <div className="bg-krem">
+    <div className="bg-krem min-h-screen">
       {/* 1. Profil & Visi Misi */}
-      <section className="mx-auto max-w-6xl px-4 py-14">
-        <SectionHeading as="h1">{section.title || 'Profil Masjid'}</SectionHeading>
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+        {/* Breadcrumb navigasi */}
+        <nav aria-label="Breadcrumb" className="text-sm text-hijau-tua/70 mb-6">
+          <ol className="flex flex-wrap items-center gap-2">
+            <li>
+              <Link href="/" className="transition hover:text-hijau hover:underline">
+                Beranda
+              </Link>
+            </li>
+            <li aria-hidden="true">›</li>
+            <li aria-current="page" className="font-medium text-hijau-tua">
+              Profil &amp; Kepengurusan
+            </li>
+          </ol>
+        </nav>
 
-        <ProfilProse
-          text={profilText(section) || PROFIL_FALLBACK}
-          className="mt-6 max-w-3xl"
-        />
+        <header className="mb-8">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-krem-tua px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-emas-tua">
+            <span>🕌</span> Tentang Masjid Kami
+          </span>
+          <SectionHeading as="h1" className="mt-3">
+            {section.title || 'Profil Masjid'}
+          </SectionHeading>
+        </header>
 
+        {/* Card utama konten profil dengan tata letak tipografi rapi */}
+        <div className="rounded-3xl border border-emas/20 bg-white p-6 sm:p-10 lg:p-12 shadow-xs">
+          <ProfilProse
+            text={profilText(section) || PROFIL_FALLBACK}
+            className="max-w-none"
+          />
+        </div>
+
+        {/* Informasi Kontak & Lokasi Masjid */}
         {facts.length > 0 && (
-          <div className="ornament mt-10 rounded-2xl bg-hijau p-6 text-krem sm:p-8">
+          <div className="ornament mt-8 rounded-3xl bg-hijau p-6 text-krem sm:p-8 shadow-sm">
             <h2 className="font-display text-2xl font-bold">Informasi Masjid</h2>
             <dl className="mt-4 grid gap-5 sm:grid-cols-3">
               {facts.map((fact) => (
-                <div key={fact.label}>
+                <div key={fact.label} className="rounded-xl bg-white/5 p-4 border border-white/10">
                   <dt className="text-xs font-semibold uppercase tracking-[0.15em] text-emas">
                     {fact.label}
                   </dt>

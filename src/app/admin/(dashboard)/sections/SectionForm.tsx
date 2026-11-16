@@ -4,6 +4,8 @@ import { useMemo, useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import ImageField from '@/components/admin/ImageField'
+import { RichTextEditor } from '@/components/admin/RichTextEditor'
+import { isRichHtml, markdownToHtml } from '@/lib/article-html'
 import { updateSection } from './actions'
 import { buildContent, readField } from './section-content'
 import { SocialLinksEditor } from './SocialLinksEditor'
@@ -16,7 +18,7 @@ import { normalizeTestimoniItems } from './testimoni-items'
 interface FieldDef {
   name: string
   label: string
-  widget?: 'input' | 'textarea' | 'image' | 'social' | 'jumat' | 'testimoni' | 'galeri'
+  widget?: 'input' | 'textarea' | 'richtext' | 'image' | 'social' | 'jumat' | 'testimoni' | 'galeri'
   helper?: string
   rows?: number
 }
@@ -29,7 +31,12 @@ const FIELDS: Record<string, readonly FieldDef[]> = {
     { name: 'ctaHref', label: 'Link tombol CTA', helper: 'Contoh: /donasi' },
   ],
   profil: [
-    { name: 'text', label: 'Teks profil', widget: 'textarea', rows: 8 },
+    {
+      name: 'text',
+      label: 'Teks Profil Masjid',
+      widget: 'richtext',
+      helper: 'Tulis profil, sejarah, visi misi masjid dengan editor teks lengkap. Anda bisa menyisipkan gambar, paragraf, dan tombol "✂️ Batas Readmore" untuk menentukan bagian cuplikan di beranda.',
+    },
   ],
   jadwal: [
     { name: 'text', label: 'Keterangan', widget: 'textarea', rows: 4 },
@@ -224,7 +231,12 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
   const [draft, setDraft] = useState<Record<string, string>>(() => {
     const initial: Record<string, string> = {}
     for (const def of defs) {
-      initial[def.name] = stringify(readField(section.content, section.key, def.name))
+      const raw = stringify(readField(section.content, section.key, def.name))
+      if (def.widget === 'richtext' && raw) {
+        initial[def.name] = isRichHtml(raw) ? raw : markdownToHtml(raw)
+      } else {
+        initial[def.name] = raw
+      }
     }
     return initial
   })
@@ -402,6 +414,20 @@ export function SectionForm({ section, backHref }: SectionFormProps) {
                 </Link>
               </div>
               {def.helper ? <p className={helperClass}>{def.helper}</p> : null}
+            </div>
+          )
+        }
+        if (def.widget === 'richtext') {
+          return (
+            <div key={def.name} className="space-y-1">
+              <RichTextEditor
+                label={def.label}
+                value={draft[def.name] ?? ''}
+                onChange={(html) => setField(def.name, html)}
+                helper={def.helper}
+                placeholder="Tulis profil atau keterangan lengkap di sini…"
+                showReadmoreButton={true}
+              />
             </div>
           )
         }

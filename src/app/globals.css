@@ -111,7 +111,8 @@ summary:focus-visible {
   color: rgb(10 51 39 / 0.9);
 }
 
-.article-body > * + * {
+.article-body > * + *,
+.article-body .ProseMirror > * + * {
   margin-top: 1rem;
 }
 
@@ -188,13 +189,51 @@ summary:focus-visible {
   margin: 1.5rem 0;
 }
 
+/* Penanda Batas Readmore di Editor Tiptap Admin */
+.article-body .ProseMirror hr[data-readmore="true"],
+.article-body .ProseMirror hr.readmore-marker {
+  position: relative;
+  border: none;
+  border-top: 2px dashed #c9a227;
+  margin: 2.25rem 0;
+  text-align: center;
+  overflow: visible;
+}
+
+.article-body .ProseMirror hr[data-readmore="true"]::before,
+.article-body .ProseMirror hr.readmore-marker::before {
+  content: '✂️ Batas Cuplikan / Read More (Teks di bawah ini dibuka lewat Selengkapnya) ✂️';
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fbf7ee;
+  color: #855b0a;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 1px 12px;
+  border-radius: 9999px;
+  border: 1px dashed #c9a227;
+  white-space: nowrap;
+}
+
+/* Di halaman publik detail / profil penuh, batas readmore disembunyikan agar alur teks menyatu */
+.article-body:not(.article-body-admin) hr[data-readmore="true"],
+.article-body:not(.article-body-admin) hr.readmore-marker {
+  display: none;
+}
+
 .article-body img {
   display: block;
   max-width: 100%;
+  max-height: 520px;
+  object-fit: contain;
   height: auto;
-  margin: 0.25rem 0;
+  margin: 1.75rem auto;
   border-radius: 1rem;
   border: 1px solid rgb(0 0 0 / 0.08);
+  box-shadow: 0 4px 14px -2px rgb(0 0 0 / 0.06);
 }
 
 .article-body figure {
