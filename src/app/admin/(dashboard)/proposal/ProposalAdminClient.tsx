@@ -203,8 +203,12 @@ export function ProposalAdminClient({
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.type !== 'application/pdf') {
-      setFormError('File proposal wajib bertipe PDF.')
+    const isPdf =
+      file.type === 'application/pdf' ||
+      file.type.includes('pdf') ||
+      file.name.toLowerCase().endsWith('.pdf')
+    if (!isPdf) {
+      setFormError('File proposal wajib bertipe PDF (.pdf).')
       return
     }
 
@@ -617,38 +621,89 @@ export function ProposalAdminClient({
                   )}
                 </div>
 
-                {/* PDF File Upload */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Unggah Dokumen PDF Resmi Proposal
-                  </label>
+                {/* PDF File Upload & Document Link */}
+                <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-xs font-semibold text-slate-800">
+                      Dokumen PDF Resmi Proposal & RAB
+                    </label>
+                    <span className="text-[10px] text-slate-500">Maks. 10MB (.pdf)</span>
+                  </div>
                   <input
                     ref={pdfInputRef}
                     type="file"
-                    accept="application/pdf"
+                    accept="application/pdf,.pdf"
                     onChange={handlePdfUpload}
                     className="hidden"
                   />
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       disabled={isUploading}
                       onClick={() => pdfInputRef.current?.click()}
-                      className="rounded-xl border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 transition disabled:opacity-50"
+                      className="rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 shadow-sm hover:bg-slate-100 transition disabled:opacity-50"
                     >
                       {formData.filePdf ? 'Ganti Berkas PDF' : 'Pilih File PDF'}
                     </button>
                     {formData.filePdf && (
-                      <span className="text-[11px] text-emerald-600 font-medium">
-                        ✓ PDF {formData.filePdfSize ? `(${formData.filePdfSize})` : ''}
-                      </span>
+                      <>
+                        <a
+                          href={formData.filePdf}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 rounded-lg border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100 transition"
+                        >
+                          Buka / Tes File
+                          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                          </svg>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              filePdf: null,
+                              filePdfSize: null,
+                            }))
+                          }
+                          className="rounded-lg border border-rose-200 bg-white px-2.5 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-50 transition"
+                        >
+                          Hapus File
+                        </button>
+                      </>
                     )}
                   </div>
                   {formData.filePdf && (
-                    <div className="mt-1 text-[11px] text-slate-500 truncate">
-                      Path: {formData.filePdf}
+                    <div className="mt-2 flex items-center gap-1.5 text-[11px] text-emerald-700 bg-emerald-50/80 px-2.5 py-1 rounded-md border border-emerald-200/60">
+                      <svg className="w-3.5 h-3.5 text-emerald-600 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="font-semibold">Berkas tersimpan</span>
+                      {formData.filePdfSize && <span>({formData.filePdfSize})</span>}
+                      <span className="text-slate-400 font-mono truncate max-w-[200px] ml-auto">{formData.filePdf}</span>
                     </div>
                   )}
+
+                  <div className="mt-2.5 pt-2 border-t border-slate-200">
+                    <label className="block text-[11px] text-slate-600 mb-1">
+                      Atau input tautan/URL berkas langsung:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Contoh: /uploads/proposals/proposal-kanopi.pdf atau https://..."
+                      value={formData.filePdf || ''}
+                      onChange={(e) => {
+                        const val = e.target.value.trim()
+                        setFormData((prev) => ({
+                          ...prev,
+                          filePdf: val || null,
+                          filePdfSize: prev.filePdfSize || 'Eksternal',
+                        }))
+                      }}
+                      className="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs text-slate-900 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
                 </div>
               </div>
 

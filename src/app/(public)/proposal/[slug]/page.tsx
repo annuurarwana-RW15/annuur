@@ -117,6 +117,41 @@ export default async function ProposalDetailPage({ params }: Props) {
             <p className="mt-3 text-base leading-relaxed text-slate-600 sm:text-lg">
               {proposal.summary}
             </p>
+
+            {/* Quick Action Badges / Download Links */}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              {proposal.filePdf ? (
+                <a
+                  href={proposal.filePdf}
+                  download
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl bg-rose-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-rose-700 transition"
+                >
+                  <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                    <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                    <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                  </svg>
+                  <span>Unduh Berkas Proposal PDF {proposal.filePdfSize ? `(${proposal.filePdfSize})` : ''}</span>
+                </a>
+              ) : null}
+
+              <Link
+                href={`/proposal/${proposal.slug}/cetak`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 transition"
+              >
+                <span>📄 Cetak / Lembar Dokumen Resmi</span>
+              </Link>
+
+              <a
+                href={donasiHref}
+                className="inline-flex items-center gap-2 rounded-xl bg-hijau px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-hijau-tua transition"
+              >
+                <span>Salurkan Infaq Sekarang →</span>
+              </a>
+            </div>
           </div>
         </div>
 
@@ -134,61 +169,74 @@ export default async function ProposalDetailPage({ params }: Props) {
             </div>
 
             {/* Official PDF Document Card */}
-            {proposal.filePdf && (
-              <div className="rounded-2xl border border-emas/20 bg-white p-6 shadow-xs">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <h3 className="font-display text-base font-bold text-hijau-tua sm:text-lg">
-                      Dokumen Resmi Proposal (PDF)
-                    </h3>
-                    <p className="mt-1 text-xs text-slate-500">
-                      Silakan unduh dokumen proposal lengkap yang memuat rincian spesifikasi teknis dan Rencana Anggaran Biaya (RAB) bertanda tangan DKM.
-                    </p>
-                  </div>
-                  <span className="shrink-0 rounded-xl bg-rose-50 p-3 text-rose-600">
-                    <svg
-                      viewBox="0 0 24 24"
-                      className="h-6 w-6"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <polyline points="14 2 14 8 20 8" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                    </svg>
-                  </span>
+            <div className="rounded-2xl border border-emas/20 bg-white p-6 shadow-xs">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="font-display text-base font-bold text-hijau-tua sm:text-lg">
+                    Dokumen Resmi Proposal &amp; RAB (PDF)
+                  </h3>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Dokumen proposal resmi yang memuat rincian spesifikasi teknis dan Rencana Anggaran Biaya (RAB) bertanda tangan DKM Masjid An-Nuur Arwana.
+                  </p>
                 </div>
-
-                <div className="mt-5 flex flex-wrap items-center gap-3">
-                  <a
-                    href={proposal.filePdf}
-                    download
-                    className="inline-flex items-center gap-2 rounded-xl bg-hijau px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-hijau-tua transition"
+                <span className="shrink-0 rounded-xl bg-rose-50 p-3 text-rose-600">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
                   >
-                    <svg
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="h-4 w-4"
-                    >
-                      <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
-                      <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
-                    </svg>
-                    <span>Unduh Berkas Proposal {proposal.filePdfSize ? `(${proposal.filePdfSize})` : ''}</span>
-                  </a>
-
-                  <a
-                    href={proposal.filePdf}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
-                  >
-                    Buka di Tab Baru
-                  </a>
-                </div>
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                  </svg>
+                </span>
               </div>
-            )}
+
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                {proposal.filePdf ? (
+                  <>
+                    <a
+                      href={proposal.filePdf}
+                      download
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 rounded-xl bg-hijau px-4 py-2.5 text-xs font-semibold text-white shadow-xs hover:bg-hijau-tua transition"
+                    >
+                      <svg
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="h-4 w-4"
+                      >
+                        <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                        <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                      </svg>
+                      <span>Unduh Berkas Proposal {proposal.filePdfSize ? `(${proposal.filePdfSize})` : ''}</span>
+                    </a>
+
+                    <a
+                      href={proposal.filePdf}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition"
+                    >
+                      Buka File di Tab Baru
+                    </a>
+                  </>
+                ) : null}
+
+                <Link
+                  href={`/proposal/${proposal.slug}/cetak`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 transition"
+                >
+                  <span>🖨️ Lembar Cetak / Simpan PDF Resmi</span>
+                </Link>
+              </div>
+            </div>
           </div>
 
           {/* Sidebar Action & Funding (1 col) */}
@@ -252,6 +300,32 @@ export default async function ProposalDetailPage({ params }: Props) {
                   </svg>
                   <span>Salurkan Donasi Sekarang</span>
                 </Link>
+
+                {proposal.filePdf ? (
+                  <a
+                    href={proposal.filePdf}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-xs font-bold text-rose-800 shadow-2xs hover:bg-rose-100 transition"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-rose-600">
+                      <path d="M10.75 2.75a.75.75 0 0 0-1.5 0v8.614L6.295 8.235a.75.75 0 1 0-1.09 1.03l4.25 4.5a.75.75 0 0 0 1.09 0l4.25-4.5a.75.75 0 0 0-1.09-1.03l-2.955 3.129V2.75Z" />
+                      <path d="M3.5 12.75a.75.75 0 0 0-1.5 0v2.5A2.75 2.75 0 0 0 4.75 18h10.5A2.75 2.75 0 0 0 18 15.25v-2.5a.75.75 0 0 0-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5Z" />
+                    </svg>
+                    <span>Unduh Berkas Proposal PDF {proposal.filePdfSize ? `(${proposal.filePdfSize})` : ''}</span>
+                  </a>
+                ) : (
+                  <Link
+                    href={`/proposal/${proposal.slug}/cetak`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2.5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-100 transition"
+                  >
+                    <span>📄 Unduh / Cetak Dokumen Proposal</span>
+                  </Link>
+                )}
+
                 <p className="mt-2 text-center text-[11px] text-slate-500">
                   Donasi langsung tercatat dan masuk ke pos rekening masjid
                 </p>

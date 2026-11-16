@@ -6,6 +6,7 @@ import { slugify } from '@/lib/slugify'
 
 const ALLOWED_MIME_TO_EXT: Record<string, string[]> = {
   'application/pdf': ['pdf'],
+  'application/x-pdf': ['pdf'],
   'image/jpeg': ['jpg', 'jpeg'],
   'image/png': ['png'],
   'image/webp': ['webp'],
@@ -15,7 +16,7 @@ const MAX_SIZE = 15 * 1024 * 1024
 
 function validateMagicBytes(buffer: Buffer, mime: string): boolean {
   if (buffer.length < 4) return false
-  if (mime === 'application/pdf') {
+  if (mime === 'application/pdf' || mime === 'application/x-pdf') {
     return buffer.subarray(0, 5).toString('ascii') === '%PDF-'
   }
   if (mime === 'image/jpeg') {
@@ -56,10 +57,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'File tidak ditemukan' }, { status: 400 })
   }
 
-  const validExts = ALLOWED_MIME_TO_EXT[file.type]
+  const originalName = file.name || 'berkas'
+  const dot = originalName.lastIndexOf('.')
+  const rawExt = dot >= 0 ? originalName.slice(dot + 1).toLowerCase() : ''
+
+  // Fallback deteksi MIME jika browser mengirim kosong atau x-pdf
+  const effectiveMime =
+    file.type ||
+    (rawExt === 'pdf' ? 'application/pdf' : '') ||
+    (rawExt === 'jpg' || rawExt === 'jpeg' ? 'image/jpeg' : '') ||
+    (rawExt === 'png' ? 'image/png' : '') ||
+    (rawExt === 'webp' ? 'image/webp' : '')
+
+  const validExts = ALLOWED_MIME_TO_EXT[effectiveMime]
   if (!validExts) {
     return NextResponse.json(
       { error: 'Tipe file harus PDF atau Gambar (JPG/PNG/WebP)' },
+      { status: 400 },
+    )
+  }
+
+  if (!rawExt || !validExts.includes(rawExt)) {
+    return NextResponse.json(
+      { error: `Ekstensi .${rawExt || 'unknown'} tidak cocok dengan tipe file ${file.type || effectiveMime}` },
       { status: 400 },
     )
   }
@@ -71,20 +91,10 @@ export async function POST(req: Request) {
     )
   }
 
-  const originalName = file.name || 'berkas'
-  const dot = originalName.lastIndexOf('.')
-  const rawExt = dot >= 0 ? originalName.slice(dot + 1).toLowerCase() : ''
-  if (!rawExt || !validExts.includes(rawExt)) {
-    return NextResponse.json(
-      { error: `Ekstensi .${rawExt || 'unknown'} tidak cocok dengan tipe file ${file.type}` },
-      { status: 400 },
-    )
-  }
-
   const bytes = await file.arrayBuffer()
   const buffer = Buffer.from(bytes)
 
-  if (!validateMagicBytes(buffer, file.type)) {
+  if (!validateMagicBytes(buffer, effectiveMime)) {
     return NextResponse.json(
       { error: 'Isi file tidak sesuai dengan format yang diizinkan (verifikasi header gagal)' },
       { status: 400 },
