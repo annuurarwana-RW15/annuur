@@ -7,7 +7,7 @@ import type {
   ProgramCategory,
   ProgramStatus,
 } from '@prisma/client'
-import { formatRupiah } from '@/lib/format'
+import { formatRupiah, formatCurrencyInput, parseCurrencyInput } from '@/lib/format'
 import {
   saveProgram,
   updateQuickProgress,
@@ -68,6 +68,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingProgram, setEditingProgram] = useState<AdminProgramItem | null>(null)
+  const [budgetEstimateInput, setBudgetEstimateInput] = useState('')
   const [formData, setFormData] = useState<SaveProgramInput>({
     title: '',
     description: '',
@@ -108,6 +109,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
 
   function openCreateModal() {
     setEditingProgram(null)
+    setBudgetEstimateInput('')
     setFormData({
       title: '',
       description: '',
@@ -127,6 +129,7 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
 
   function openEditModal(prog: AdminProgramItem) {
     setEditingProgram(prog)
+    setBudgetEstimateInput(prog.budgetEstimate ? formatCurrencyInput(prog.budgetEstimate) : '')
     setFormData({
       id: prog.id,
       title: prog.title,
@@ -563,20 +566,35 @@ export function ProgramAdminClient({ initialPrograms }: ProgramAdminClientProps)
                   <label className="block text-xs font-semibold text-slate-700 mb-1">
                     Estimasi Anggaran (Rp)
                   </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="100000"
-                    value={formData.budgetEstimate ?? ''}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        budgetEstimate: e.target.value ? Number(e.target.value) : null,
-                      })
-                    }
-                    placeholder="Contoh: 25000000"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
-                  />
+                  <div className="relative">
+                    <span className="pointer-events-none absolute left-3 top-2 text-xs font-bold text-slate-400">
+                      Rp
+                    </span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={budgetEstimateInput}
+                      onChange={(e) => {
+                        const formatted = formatCurrencyInput(e.target.value)
+                        setBudgetEstimateInput(formatted)
+                        const val = parseCurrencyInput(formatted)
+                        setFormData((prev) => ({
+                          ...prev,
+                          budgetEstimate: val > 0 ? val : null,
+                        }))
+                      }}
+                      placeholder="Contoh: 25.000.000"
+                      className="w-full rounded-xl border border-slate-200 pl-9 pr-3 py-2 text-xs font-medium text-slate-800 shadow-2xs focus:border-hijau focus:outline-hidden"
+                    />
+                  </div>
+                  {formData.budgetEstimate ? (
+                    <p className="mt-1 text-[11px] text-slate-500">
+                      Nilai tercatat:{' '}
+                      <span className="font-semibold text-emerald-700">
+                        {formatRupiah(formData.budgetEstimate)}
+                      </span>
+                    </p>
+                  ) : null}
                 </div>
 
                 <div>

@@ -4,6 +4,8 @@ import {
   formatRupiah,
   formatRupiahCompact,
   parseRupiah,
+  formatCurrencyInput,
+  parseCurrencyInput,
 } from '@/lib/format'
 
 describe('formatRupiah', () => {
@@ -44,5 +46,25 @@ describe('roundtrip', () => {
 describe('formatDateID', () => {
   it('formatDateID(11 Okt 2026) === "11 Okt 2026"', () => {
     expect(formatDateID(new Date(2026, 9, 11))).toBe('11 Okt 2026')
+  })
+})
+
+describe('formatCurrencyInput & parseCurrencyInput', () => {
+  it('memformat angka mentah dan string ke format ribuan bertitik Indonesia', () => {
+    expect(formatCurrencyInput(50000000)).toBe('50.000.000')
+    expect(formatCurrencyInput('50000000')).toBe('50.000.000')
+    expect(formatCurrencyInput('15750250')).toBe('15.750.250')
+    expect(formatCurrencyInput('Rp 25.000.000')).toBe('25.000.000')
+    expect(formatCurrencyInput('12500000,50')).toBe('12.500.000,50')
+    expect(formatCurrencyInput('')).toBe('')
+    expect(formatCurrencyInput(null)).toBe('')
+  })
+
+  it('memparsing format mata uang ribuan bertitik ke number murni', () => {
+    expect(parseCurrencyInput('50.000.000')).toBe(50000000)
+    expect(parseCurrencyInput('Rp 15.750.250')).toBe(15750250)
+    expect(parseCurrencyInput('12.500.000,50')).toBe(12500000.5)
+    expect(parseCurrencyInput('')).toBe(0)
+    expect(parseCurrencyInput(null)).toBe(0)
   })
 })

@@ -42,3 +42,40 @@ export function parseRupiah(s: string): number {
 export function formatDateID(d: Date): string {
   return DATE_ID.format(d)
 }
+
+/**
+ * Format string input rupiah dengan pemisah ribuan titik (id-ID) saat penulisan/pengetikan.
+ * Mendukung input dengan awalan Rp, angka mentah, titik ribuan, dan koma desimal.
+ * Contoh: "50000000" → "50.000.000", "12500000,50" → "12.500.000,50"
+ */
+export function formatCurrencyInput(val: string | number | null | undefined): string {
+  if (val === '' || val === null || val === undefined) return ''
+  const str = String(val).replace(/rp/i, '').trim()
+  if (!str) return ''
+  const parts = str.split(',')
+  const intDigits = parts[0].replace(/\D/g, '')
+  if (!intDigits && parts.length === 1) return ''
+  const formattedInt = intDigits ? new Intl.NumberFormat('id-ID').format(Number(intDigits)) : '0'
+  if (parts.length > 1) {
+    const decDigits = parts[1].replace(/\D/g, '').slice(0, 2)
+    return `${formattedInt},${decDigits}`
+  }
+  return formattedInt
+}
+
+/**
+ * Parsing string mata uang rupiah berformat titik ribuan dan/atau koma desimal ke number.
+ * Contoh: "50.000.000" → 50000000, "12.500.000,50" → 12500000.5
+ */
+export function parseCurrencyInput(val: string | number | null | undefined): number {
+  if (val === null || val === undefined || val === '') return 0
+  if (typeof val === 'number') return isNaN(val) ? 0 : val
+  const str = String(val)
+    .replace(/rp/i, '')
+    .replace(/\s/g, '')
+    .replace(/\./g, '')
+    .replace(/,/g, '.')
+  const n = Number(str)
+  return isNaN(n) ? 0 : n
+}
+
