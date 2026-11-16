@@ -53,8 +53,14 @@ describe('ProposalCard Component', () => {
     expect(screen.getByText(/50%/i)).toBeInTheDocument()
 
     const downloadLink = screen.getByRole('link', { name: /unduh pdf/i })
-    expect(downloadLink).toHaveAttribute('href', '/uploads/proposal-genset.pdf')
+    expect(downloadLink).toHaveAttribute(
+      'href',
+      '/api/proposal/pengadaan-genset-otomatis-masjid/download',
+    )
     expect(downloadLink).toHaveAttribute('download')
+
+    const viewLink = screen.getByRole('link', { name: /buka pdf/i })
+    expect(viewLink).toHaveAttribute('href', '/uploads/proposal-genset.pdf')
   })
 
   it('renders detail link leading to /proposal/[slug]', () => {

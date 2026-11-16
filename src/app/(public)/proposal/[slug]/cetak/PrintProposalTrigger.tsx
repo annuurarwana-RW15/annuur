@@ -48,3 +48,4 @@ export function PrintProposalTrigger({ slug, filePdf }: Props) {
     </div>
   )
 }
+
