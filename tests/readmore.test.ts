@@ -77,3 +77,4 @@ describe('sanitizeArticleHtml with readmore and text alignment', () => {
     expect(sanitized).toContain('style="text-align:justify"')
   })
 })
+

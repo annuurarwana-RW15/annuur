@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import {
   getHijriMonthGrid,
   getHijriParts,
@@ -19,6 +19,13 @@ export function HijriCalendar() {
   const [selectedYear, setSelectedYear] = useState<number>(currentHijri.year)
   const [selectedMonth, setSelectedMonth] = useState<number>(currentHijri.month)
   const [activeTab, setActiveTab] = useState<'kalender' | 'agenda'>('kalender')
+  const [turnDirection, setTurnDirection] = useState<'next' | 'prev' | null>(null)
+  const [dragOffset, setDragOffset] = useState<number>(0)
+  const [isDragging, setIsDragging] = useState<boolean>(false)
+
+  const touchStartX = useRef<number | null>(null)
+  const touchStartY = useRef<number | null>(null)
+  const isSwipingHorizontal = useRef<boolean>(false)
 
   // Hari-hari dalam bulan terpilih
   const monthDays = useMemo(() => {
@@ -43,6 +50,7 @@ export function HijriCalendar() {
   const leadingBlankCount = monthDays.length > 0 ? monthDays[0].dayOfWeek : 0
 
   function prevMonth() {
+    setTurnDirection('prev')
     if (selectedMonth === 1) {
       setSelectedMonth(12)
       setSelectedYear((y) => y - 1)
@@ -52,6 +60,7 @@ export function HijriCalendar() {
   }
 
   function nextMonth() {
+    setTurnDirection('next')
     if (selectedMonth === 12) {
       setSelectedMonth(1)
       setSelectedYear((y) => y + 1)
@@ -60,13 +69,76 @@ export function HijriCalendar() {
     }
   }
 
+  function goToMonth(mNum: number) {
+    if (mNum === selectedMonth) return
+    setTurnDirection(mNum > selectedMonth ? 'next' : 'prev')
+    setSelectedMonth(mNum)
+  }
+
   function goToToday() {
+    if (selectedYear === currentHijri.year && selectedMonth === currentHijri.month) return
+    const isNewer =
+      selectedYear < currentHijri.year ||
+      (selectedYear === currentHijri.year && selectedMonth < currentHijri.month)
+    setTurnDirection(isNewer ? 'next' : 'prev')
     setSelectedYear(currentHijri.year)
     setSelectedMonth(currentHijri.month)
   }
 
+  function handleTouchStart(e: React.TouchEvent<HTMLDivElement>) {
+    const touch = e.touches[0]
+    touchStartX.current = touch.clientX
+    touchStartY.current = touch.clientY
+    isSwipingHorizontal.current = false
+    setIsDragging(false)
+  }
+
+  function handleTouchMove(e: React.TouchEvent<HTMLDivElement>) {
+    if (touchStartX.current === null || touchStartY.current === null) return
+    const touch = e.touches[0]
+    const deltaX = touch.clientX - touchStartX.current
+    const deltaY = touch.clientY - touchStartY.current
+
+    if (!isSwipingHorizontal.current) {
+      // Jika scroll vertikal lebih dominan, biarkan scroll halaman native berjalan
+      if (Math.abs(deltaY) > Math.abs(deltaX)) {
+        return
+      }
+      // Jika gerakan horizontal cukup terdeteksi (> 8px)
+      if (Math.abs(deltaX) > 8) {
+        isSwipingHorizontal.current = true
+        setIsDragging(true)
+      }
+    }
+
+    if (isSwipingHorizontal.current) {
+      // Batasi tahanan pergeseran maksimal 60px dengan hambatan elastis
+      const clamped = Math.max(-60, Math.min(60, deltaX))
+      setDragOffset(clamped)
+    }
+  }
+
+  function handleTouchEnd() {
+    if (isSwipingHorizontal.current) {
+      const SWIPE_THRESHOLD = 36
+      if (dragOffset < -SWIPE_THRESHOLD) {
+        // Geser ke kiri -> buka lembar bulan berikutnya
+        nextMonth()
+      } else if (dragOffset > SWIPE_THRESHOLD) {
+        // Geser ke kanan -> buka lembar bulan sebelumnya
+        prevMonth()
+      }
+    }
+
+    touchStartX.current = null
+    touchStartY.current = null
+    isSwipingHorizontal.current = false
+    setDragOffset(0)
+    setIsDragging(false)
+  }
+
   return (
-    <div className="mt-8 rounded-2xl border border-emas/30 bg-white p-4 shadow-sm sm:p-6">
+    <div className="mt-8 rounded-2xl border border-emas/30 bg-white p-4 shadow-sm sm:p-6 overflow-hidden">
       {/* Header Kalender Hijriah */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-emas/20 pb-4">
         <div>
@@ -154,7 +226,7 @@ export function HijriCalendar() {
             <button
               key={name}
               type="button"
-              onClick={() => setSelectedMonth(mNum)}
+              onClick={() => goToMonth(mNum)}
               className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium transition ${
                 isCurrent
                   ? 'bg-emas font-bold text-hijau shadow-sm'
@@ -168,90 +240,136 @@ export function HijriCalendar() {
       </div>
 
       {activeTab === 'kalender' ? (
-        <div className="mt-4">
-          {/* Header Nama Hari */}
-          <div className="grid grid-cols-7 gap-1 text-center font-display text-xs font-bold text-hijau-tua/75 border-b border-black/5 pb-2">
-            {DAY_NAMES.map((day, i) => (
-              <span key={day} className={i === 5 ? 'text-green-700 font-extrabold' : ''}>
-                {day}
-              </span>
-            ))}
+        <div
+          className="mt-4 touch-pan-y select-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
+        >
+          {/* Petunjuk Mobile Swipe & Visual Klip Kalender Lembaran */}
+          <div className="sm:hidden mb-2.5 flex items-center justify-between gap-2 px-1">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/80 shadow-2xs">
+              <span className="text-xs">↔️</span>
+              <span>Geser untuk buka lembar bulan</span>
+            </span>
+            <span className="text-[10px] text-neutral-400 font-medium">
+              {HIJRI_MONTHS_ID[selectedMonth - 1]}
+            </span>
           </div>
 
-          {/* Grid Tanggal */}
-          <div className="mt-2 grid grid-cols-7 gap-1.5 sm:gap-2">
-            {/* Blank leading cells */}
-            {Array.from({ length: leadingBlankCount }).map((_, i) => (
-              <div
-                key={`blank-${i}`}
-                aria-hidden="true"
-                className="h-14 sm:h-16 rounded-xl border border-transparent bg-neutral-50/40 opacity-40"
-              />
-            ))}
+          {/* Ornamen Klip Gantungan Kalender Lembaran (Desktop & Tablet) */}
+          <div className="hidden sm:flex justify-center items-center gap-12 -mt-1 mb-2.5 opacity-40">
+            <span className="h-2 w-5 rounded-full bg-neutral-300 border border-emas/50 shadow-inner" />
+            <span className="h-2 w-5 rounded-full bg-neutral-300 border border-emas/50 shadow-inner" />
+            <span className="h-2 w-5 rounded-full bg-neutral-300 border border-emas/50 shadow-inner" />
+          </div>
 
-            {/* Days in Month */}
-            {monthDays.map((d: HijriDayInfo) => {
-              const gDayText = d.gDate.getDate().toString()
-              const gMonthText = new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(
-                d.gDate,
-              )
+          {/* Lembaran Kalender dengan Animasi Page Turn / Flip */}
+          <div
+            key={`${selectedYear}-${selectedMonth}`}
+            className={
+              isDragging
+                ? ''
+                : turnDirection === 'next'
+                ? 'animate-calendar-turn-next'
+                : turnDirection === 'prev'
+                ? 'animate-calendar-turn-prev'
+                : ''
+            }
+            style={
+              isDragging
+                ? {
+                    transform: `perspective(1000px) translateX(${dragOffset}px) rotateY(${-dragOffset * 0.16}deg)`,
+                    transition: 'none',
+                  }
+                : undefined
+            }
+          >
+            {/* Header Nama Hari */}
+            <div className="grid grid-cols-7 gap-1 text-center font-display text-xs font-bold text-hijau-tua/75 border-b border-black/5 pb-2">
+              {DAY_NAMES.map((day, i) => (
+                <span key={day} className={i === 5 ? 'text-green-700 font-extrabold' : ''}>
+                  {day}
+                </span>
+              ))}
+            </div>
 
-              return (
+            {/* Grid Tanggal */}
+            <div className="mt-2 grid grid-cols-7 gap-1.5 sm:gap-2">
+              {/* Blank leading cells */}
+              {Array.from({ length: leadingBlankCount }).map((_, i) => (
                 <div
-                  key={`day-${d.hDay}`}
-                  className={`relative flex flex-col justify-between h-14 sm:h-16 rounded-xl border p-1.5 text-center transition ${
-                    d.isToday
-                      ? 'border-emas bg-gradient-to-br from-hijau to-hijau-tua text-krem shadow ring-2 ring-emas/80'
-                      : d.isJumat
-                      ? 'border-green-300 bg-green-50/50 hover:bg-green-100/50'
-                      : d.isSunnahFast
-                      ? 'border-amber-200 bg-amber-50/40 hover:bg-amber-100/50'
-                      : 'border-black/10 bg-white hover:border-emas/40 hover:bg-krem/30'
-                  }`}
-                >
-                  {/* Penanda Puasa Sunnah */}
-                  <div className="flex items-center justify-between text-[9px] leading-none">
-                    {d.isSunnahFast ? (
-                      <span
-                        className={`rounded px-1 py-0.2 font-semibold ${
-                          d.isToday
-                            ? 'bg-emas text-hijau'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}
-                        title={d.fastType ? `Puasa ${d.fastType}` : 'Puasa Sunnah'}
-                      >
-                        {d.fastType === 'Ayyamul Bidh' ? 'Bidh' : d.fastType}
-                      </span>
-                    ) : (
-                      <span />
-                    )}
-                    {d.isToday && (
-                      <span className="font-bold uppercase tracking-wider text-[8px] text-emas-muda">
-                        Hari Ini
-                      </span>
-                    )}
+                  key={`blank-${i}`}
+                  aria-hidden="true"
+                  className="h-14 sm:h-16 rounded-xl border border-transparent bg-neutral-50/40 opacity-40"
+                />
+              ))}
+
+              {/* Days in Month */}
+              {monthDays.map((d: HijriDayInfo) => {
+                const gDayText = d.gDate.getDate().toString()
+                const gMonthText = new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(
+                  d.gDate,
+                )
+
+                return (
+                  <div
+                    key={`day-${d.hDay}`}
+                    className={`relative flex flex-col justify-between h-14 sm:h-16 rounded-xl border p-1.5 text-center transition ${
+                      d.isToday
+                        ? 'border-emas bg-gradient-to-br from-hijau to-hijau-tua text-krem shadow ring-2 ring-emas/80'
+                        : d.isJumat
+                        ? 'border-green-300 bg-green-50/50 hover:bg-green-100/50'
+                        : d.isSunnahFast
+                        ? 'border-amber-200 bg-amber-50/40 hover:bg-amber-100/50'
+                        : 'border-black/10 bg-white hover:border-emas/40 hover:bg-krem/30'
+                    }`}
+                  >
+                    {/* Penanda Puasa Sunnah */}
+                    <div className="flex items-center justify-between text-[9px] leading-none">
+                      {d.isSunnahFast ? (
+                        <span
+                          className={`rounded px-1 py-0.2 font-semibold ${
+                            d.isToday
+                              ? 'bg-emas text-hijau'
+                              : 'bg-amber-100 text-amber-800'
+                          }`}
+                          title={d.fastType ? `Puasa ${d.fastType}` : 'Puasa Sunnah'}
+                        >
+                          {d.fastType === 'Ayyamul Bidh' ? 'Bidh' : d.fastType}
+                        </span>
+                      ) : (
+                        <span />
+                      )}
+                      {d.isToday && (
+                        <span className="font-bold uppercase tracking-wider text-[8px] text-emas-muda">
+                          Hari Ini
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Tanggal Hijriah Utama */}
+                    <span
+                      className={`font-display text-base sm:text-xl font-bold leading-none ${
+                        d.isToday ? 'text-emas-muda' : 'text-neutral-900'
+                      }`}
+                    >
+                      {d.hDay}
+                    </span>
+
+                    {/* Tanggal Masehi Pendamping */}
+                    <span
+                      className={`text-[10px] leading-none ${
+                        d.isToday ? 'text-krem/80' : 'text-neutral-500'
+                      }`}
+                    >
+                      {gDayText} {gMonthText}
+                    </span>
                   </div>
-
-                  {/* Tanggal Hijriah Utama */}
-                  <span
-                    className={`font-display text-base sm:text-xl font-bold leading-none ${
-                      d.isToday ? 'text-emas-muda' : 'text-neutral-900'
-                    }`}
-                  >
-                    {d.hDay}
-                  </span>
-
-                  {/* Tanggal Masehi Pendamping */}
-                  <span
-                    className={`text-[10px] leading-none ${
-                      d.isToday ? 'text-krem/80' : 'text-neutral-500'
-                    }`}
-                  >
-                    {gDayText} {gMonthText}
-                  </span>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
 
           {/* Legenda Keterangan */}

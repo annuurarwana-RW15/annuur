@@ -72,6 +72,65 @@ summary:focus-visible {
   animation-play-state: paused;
 }
 
+/* ——— Animasi Membuka Lembaran Kalender Hijriah (Page Turn / Flip) ——— */
+@keyframes calendarTurnNext {
+  0% {
+    opacity: 0.2;
+    transform: perspective(1000px) rotateY(28deg) translate3d(40px, 0, 0) scale(0.95);
+    box-shadow: -14px 4px 20px -4px rgba(15, 76, 58, 0.25);
+    transform-origin: left center;
+  }
+  65% {
+    opacity: 0.95;
+    transform: perspective(1000px) rotateY(-3deg) translate3d(-3px, 0, 0) scale(1.008);
+    transform-origin: left center;
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0deg) translate3d(0, 0, 0) scale(1);
+    box-shadow: none;
+    transform-origin: left center;
+  }
+}
+
+@keyframes calendarTurnPrev {
+  0% {
+    opacity: 0.2;
+    transform: perspective(1000px) rotateY(-28deg) translate3d(-40px, 0, 0) scale(0.95);
+    box-shadow: 14px 4px 20px -4px rgba(15, 76, 58, 0.25);
+    transform-origin: right center;
+  }
+  65% {
+    opacity: 0.95;
+    transform: perspective(1000px) rotateY(3deg) translate3d(3px, 0, 0) scale(1.008);
+    transform-origin: right center;
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1000px) rotateY(0deg) translate3d(0, 0, 0) scale(1);
+    box-shadow: none;
+    transform-origin: right center;
+  }
+}
+
+.animate-calendar-turn-next {
+  animation: calendarTurnNext 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.animate-calendar-turn-prev {
+  animation: calendarTurnPrev 0.42s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-calendar-turn-next,
+  .animate-calendar-turn-prev {
+    animation: zoomIn 0.25s ease-out forwards;
+    transform-origin: center center;
+  }
+}
+
 .mask-marquee {
   mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 4%, black 96%, transparent 100%);
