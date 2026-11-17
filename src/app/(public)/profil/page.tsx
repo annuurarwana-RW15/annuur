@@ -10,6 +10,7 @@ import {
   profilText,
 } from '@/components/public/ProfilSection'
 import { SectionHeading } from '@/components/public/SectionHeading'
+import { ShareButton } from '@/components/public/ShareButton'
 import { KATEGORI_LABELS, type PengurusKategori } from '@/lib/pengurus'
 import { getPengurusList } from '@/lib/pengurus-server'
 
@@ -82,6 +83,16 @@ export default async function ProfilPage() {
             text={profilText(section) || PROFIL_FALLBACK}
             className="max-w-none"
           />
+
+          <div className="mt-8 border-t border-emas/15 pt-5">
+            <ShareButton
+              title="Profil & Struktur Kepengurusan DKM Masjid An-Nuur Arwana"
+              text="Mengenal lebih dekat visi, misi, sejarah, dan struktur kepengurusan DKM Masjid An-Nuur Arwana."
+              url="/profil"
+              variant="inline"
+              label="Bagikan Profil Masjid"
+            />
+          </div>
         </div>
 
         {/* Informasi Kontak & Lokasi Masjid */}

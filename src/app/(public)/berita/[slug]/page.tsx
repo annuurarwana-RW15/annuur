@@ -7,6 +7,7 @@ import { formatDateID } from '@/lib/format'
 import { articleLd, breadcrumbLd, buildMetadata, jsonLd } from '@/lib/seo'
 import { asText } from '@/components/public/content'
 import { Markdown } from '@/components/public/Markdown'
+import { ShareButton } from '@/components/public/ShareButton'
 import { ViewCounter } from '@/components/public/ViewCounter'
 
 export const revalidate = 60
@@ -156,11 +157,21 @@ export default async function ArtikelPage({ params }: ArtikelPageProps) {
           <h1 className="font-display text-3xl font-bold leading-tight text-hijau sm:text-4xl">
             {article.title}
           </h1>
-          <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-hijau-tua/70">
-            <time dateTime={publishedDate.toISOString()}>{formatDateID(publishedDate)}</time>
-            <span aria-hidden="true">•</span>
-            <span>Penulis: {authorName}</span>
-          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-b border-emas/20 pb-4">
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-hijau-tua/70">
+              <time dateTime={publishedDate.toISOString()}>{formatDateID(publishedDate)}</time>
+              <span aria-hidden="true">•</span>
+              <span>Penulis: {authorName}</span>
+            </p>
+
+            <ShareButton
+              title={article.title}
+              text={article.excerpt || undefined}
+              url={`/berita/${article.slug}`}
+              variant="inline"
+              label="Bagikan"
+            />
+          </div>
         </header>
 
         {article.coverImage && (
@@ -173,6 +184,23 @@ export default async function ArtikelPage({ params }: ArtikelPageProps) {
         )}
 
         <Markdown text={article.body} className="mt-8" />
+
+        {/* Box Penutup Bagikan Artikel */}
+        <div className="mt-10 rounded-2xl border border-emas/30 bg-white/80 p-5 shadow-2xs">
+          <p className="font-display text-base font-bold text-hijau mb-2">
+            Bagikan Tulisan Ini
+          </p>
+          <p className="text-xs text-hijau-tua/80 mb-3">
+            Sebarkan kebaikan, kabar masjid, dan wawasan keislaman kepada keluarga dan sahabat jamaah:
+          </p>
+          <ShareButton
+            title={article.title}
+            text={article.excerpt || undefined}
+            url={`/berita/${article.slug}`}
+            variant="inline"
+            label="Share"
+          />
+        </div>
 
         <ViewCounter slug={article.slug} />
       </div>

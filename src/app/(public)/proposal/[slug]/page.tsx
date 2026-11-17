@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { getProposalBySlug, calculateProposalFunding } from '@/lib/proposal'
 import { formatRupiah } from '@/lib/format'
 import { formatWhatsAppLink } from '@/lib/whatsapp'
+import { ShareButton } from '@/components/public/ShareButton'
 
 export const revalidate = 60
 
@@ -151,6 +152,17 @@ export default async function ProposalDetailPage({ params }: Props) {
               >
                 <span>Salurkan Infaq Sekarang →</span>
               </a>
+            </div>
+
+            {/* Bar Bagikan Proposal */}
+            <div className="mt-5 border-t border-slate-100 pt-4">
+              <ShareButton
+                title={`Proposal Masjid: ${proposal.title}`}
+                text={`Target RAB: ${formatRupiah(Number(proposal.targetAmount))}. Mari berpartisipasi dalam program kebaikan & infaq jariyah Masjid An-Nuur Arwana.`}
+                url={`/proposal/${proposal.slug}`}
+                variant="inline"
+                label="Sebarkan Kebaikan"
+              />
             </div>
           </div>
         </div>
@@ -320,6 +332,16 @@ export default async function ProposalDetailPage({ params }: Props) {
                 <p className="mt-2 text-center text-[11px] text-slate-500">
                   Donasi langsung tercatat dan masuk ke pos rekening masjid
                 </p>
+
+                <div className="mt-4 border-t border-slate-100 pt-3 flex justify-center">
+                  <ShareButton
+                    title={`Bantu Donasi: ${proposal.title}`}
+                    text={`Terkumpul ${formatRupiah(funding.collectedTotal)} dari target ${formatRupiah(funding.targetAmount)}. Mari salurkan infaq jariyah terbaik.`}
+                    url={`/proposal/${proposal.slug}`}
+                    variant="inline"
+                    label="Ajak Teman"
+                  />
+                </div>
               </div>
             </div>
 

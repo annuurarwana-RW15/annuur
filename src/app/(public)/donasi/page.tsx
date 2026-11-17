@@ -6,6 +6,7 @@ import { buildMetadata } from '@/lib/seo'
 import { asText, safeHref } from '@/components/public/content'
 import { SectionHeading } from '@/components/public/SectionHeading'
 import { DonationForm } from '@/components/public/DonationForm'
+import { ShareButton } from '@/components/public/ShareButton'
 
 export const revalidate = 60
 
@@ -75,6 +76,16 @@ export default async function DonasiPage() {
           rekening resmi di bawah ini, lalu unggah bukti transfer agar
           pengurus dapat memverifikasi.
         </p>
+
+        <div className="mt-5 max-w-2xl">
+          <ShareButton
+            title="Infaq & Donasi Masjid An-Nuur Arwana"
+            text="Salurkan infaq dan sedekah jariyah Anda untuk operasional dan kemakmuran Masjid An-Nuur Arwana."
+            url="/donasi"
+            variant="inline"
+            label="Ajak Jamaah Berinfaq"
+          />
+        </div>
 
         <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
           <div className="space-y-4">

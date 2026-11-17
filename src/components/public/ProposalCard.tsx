@@ -7,6 +7,7 @@ import type { ProposalStatus } from '@prisma/client'
 import { formatRupiah } from '@/lib/format'
 import type { ProposalFunding } from '@/lib/proposal'
 import { ProposalPdfModal } from './ProposalPdfModal'
+import { ShareButton } from './ShareButton'
 
 export interface ProposalWithFunding {
   id: string
@@ -95,7 +96,7 @@ export function ProposalCard({
           )}
 
           {/* Badges on Top Image */}
-          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+          <div className="absolute left-3 top-3 flex flex-wrap gap-1.5 z-10">
             <span
               className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold backdrop-blur-md ${stat.badgeClass}`}
             >
@@ -106,6 +107,15 @@ export function ProposalCard({
                 ★ Prioritas
               </span>
             )}
+          </div>
+
+          {/* Tombol Bagikan di Cover Image */}
+          <div className="absolute right-3 top-3 z-10">
+            <ShareButton
+              title={proposal.title}
+              text={`Penggalangan dana target ${formatRupiah(proposal.targetAmount)}. Mari berpartisipasi dalam amal jariyah bersama DKM Masjid An-Nuur Arwana.`}
+              url={`/proposal/${proposal.slug}`}
+            />
           </div>
         </div>
 

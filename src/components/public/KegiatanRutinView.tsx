@@ -8,6 +8,7 @@ import {
   HARI_LABELS,
   KATEGORI_KEGIATAN_LABELS,
 } from '@/lib/kegiatan-rutin'
+import { ShareButton } from './ShareButton'
 
 interface Props {
   items: KegiatanRutinItem[]
@@ -128,12 +129,20 @@ export function KegiatanRutinView({ items }: Props) {
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-3">
-                  <span className="rounded-full bg-emerald-100 border border-emerald-300 px-3 py-0.5 text-xs font-bold text-emerald-900 uppercase tracking-wider">
-                    {HARI_LABELS[item.hari]}
-                  </span>
-                  <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
-                    {KATEGORI_KEGIATAN_LABELS[item.kategori]}
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-emerald-100 border border-emerald-300 px-3 py-0.5 text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                      {HARI_LABELS[item.hari]}
+                    </span>
+                    <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-[11px] font-semibold text-neutral-600">
+                      {KATEGORI_KEGIATAN_LABELS[item.kategori]}
+                    </span>
+                  </div>
+
+                  <ShareButton
+                    title={`Kegiatan Masjid: ${item.nama}`}
+                    text={`Jadwal: Setiap ${HARI_LABELS[item.hari]} pukul ${item.waktu}${item.pemateri ? ` bersama ${item.pemateri}` : ''}. Terbuka untuk umum di Masjid An-Nuur Arwana.`}
+                    url="/kegiatan"
+                  />
                 </div>
 
                 <h3 className="font-display text-xl font-bold text-hijau leading-snug">

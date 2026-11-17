@@ -4,6 +4,7 @@ import { readField } from '@/app/admin/(dashboard)/sections/section-content'
 import { formatWhatsAppLink } from '@/lib/whatsapp'
 import { asText, safeHref } from './content'
 import { StarGlyph } from './SectionHeading'
+import { ShareButton } from './ShareButton'
 
 function WhatsAppIcon({ className = 'h-5 w-5' }: { className?: string }) {
   return (
@@ -103,6 +104,15 @@ export function Hero({ section, whatsapp }: HeroProps) {
             <span>Infaq &amp; Donasi</span>
             <span aria-hidden="true">↓</span>
           </a>
+
+          <div className="inline-flex items-center">
+            <ShareButton
+              title="Masjid An-Nuur Arwana — Portal Resmi DKM"
+              text="Portal Resmi Informasi, Jadwal Sholat, Kegiatan, dan Donasi Masjid An-Nuur Arwana."
+              url="/"
+              variant="dropdown"
+            />
+          </div>
         </div>
       </div>
     </section>

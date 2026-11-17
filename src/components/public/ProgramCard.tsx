@@ -6,6 +6,7 @@ import type {
 } from '@prisma/client'
 import { formatRupiah } from '@/lib/format'
 import { formatWhatsAppLink } from '@/lib/whatsapp'
+import { ShareButton } from './ShareButton'
 
 export interface ProgramWithRelations {
   id: string
@@ -87,10 +88,17 @@ export function ProgramCard({ program }: { program: ProgramWithRelations }) {
           >
             {isPanjang ? 'Jangka Panjang' : 'Jangka Pendek'}
           </span>
-          <span className="ml-auto inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
-            <span className={`h-2 w-2 rounded-full ${stat.dotClass}`} />
-            {stat.label}
-          </span>
+          <div className="ml-auto flex items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-600">
+              <span className={`h-2 w-2 rounded-full ${stat.dotClass}`} />
+              {stat.label}
+            </span>
+            <ShareButton
+              title={`Program Kegiatan: ${program.title}`}
+              text={program.description}
+              url="/program"
+            />
+          </div>
         </div>
 
         {/* Title & Description */}
