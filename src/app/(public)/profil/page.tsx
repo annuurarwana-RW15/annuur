@@ -53,10 +53,10 @@ export default async function ProfilPage() {
   return (
     <div className="bg-krem min-h-screen">
       {/* 1. Profil & Visi Misi */}
-      <section className="relative isolate overflow-hidden">
+      <section className="relative overflow-hidden bg-krem">
         {/* Background foto masjid yang ter-blend halus */}
         <div
-          className="pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden"
+          className="pointer-events-none absolute inset-0 select-none overflow-hidden"
           aria-hidden="true"
         >
           <Image
@@ -65,13 +65,13 @@ export default async function ProfilPage() {
             role="presentation"
             fill
             sizes="100vw"
-            className="object-cover object-[70%_25%] opacity-20 md:opacity-28 filter saturate-[1.1]"
+            className="object-cover object-[80%_center] opacity-35 md:opacity-50 filter saturate-[1.1]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-krem/75 via-krem/90 to-krem" />
-          <div className="ornament absolute inset-0 opacity-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-krem/70 via-krem/90 to-krem" />
+          <div className="absolute inset-0 bg-gradient-to-r from-krem via-krem/90 via-35% to-transparent" />
         </div>
 
-        <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+        <div className="relative z-10 mx-auto max-w-6xl px-4 py-10 sm:py-14">
           {/* Breadcrumb navigasi */}
           <nav aria-label="Breadcrumb" className="text-sm text-hijau-tua/70 mb-6">
             <ol className="flex flex-wrap items-center gap-2">
@@ -95,6 +95,26 @@ export default async function ProfilPage() {
               {section.title || 'Profil Masjid'}
             </SectionHeading>
           </header>
+
+          {/* Banner foto gedung Masjid An-Nuur */}
+          <div className="relative mb-8 h-64 sm:h-80 md:h-96 w-full overflow-hidden rounded-3xl border border-emas/30 shadow-md">
+            <Image
+              src="/images/profil-masjid.jpg"
+              alt="Masjid An-Nuur Arwana"
+              fill
+              priority
+              className="object-cover object-[center_35%]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <div className="absolute bottom-5 left-5 sm:bottom-7 sm:left-7 text-white">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emas/90 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-hijau-tua">
+                Masjid An-Nuur Arwana
+              </span>
+              <p className="mt-2 text-sm sm:text-base text-white/90 font-medium">
+                Pusat Peribadahan, Ukhuwah, dan Pembinaan Jamaah
+              </p>
+            </div>
+          </div>
 
           {/* Card utama konten profil dengan tata letak tipografi rapi */}
           <div className="rounded-3xl border border-emas/20 bg-white/95 p-6 sm:p-10 lg:p-12 shadow-xs backdrop-blur-xs">

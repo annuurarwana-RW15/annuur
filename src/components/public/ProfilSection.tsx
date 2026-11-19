@@ -55,45 +55,59 @@ export function ProfilSection({ section }: { section: Section }) {
     <section
       id="profil"
       aria-labelledby="profil-judul"
-      className="relative isolate overflow-hidden bg-krem py-14 sm:py-20"
+      className="relative overflow-hidden bg-krem py-12 sm:py-20 lg:py-24"
     >
-      {/* Background foto masjid yang ter-blend halus ke tema krem masjid */}
+      {/* Background foto masjid yang ter-blend ke latar belakang */}
       <div
-        className="pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden"
+        className="pointer-events-none absolute inset-0 select-none overflow-hidden"
         aria-hidden="true"
       >
         <Image
           src="/images/profil-masjid.jpg"
-          alt=""
-          role="presentation"
+          alt="Masjid An-Nuur Arwana"
           fill
-          sizes="(max-width: 768px) 100vw, 1200px"
-          className="object-cover object-[75%_center] opacity-30 md:opacity-45 md:object-right filter saturate-[1.15]"
+          priority
+          sizes="100vw"
+          className="object-cover object-[75%_center] sm:object-[80%_center] lg:object-right opacity-85 sm:opacity-95"
         />
 
-        {/* Gradasi blending horizontal: memudar dari krem di area teks ke foto di sisi kanan */}
-        <div className="absolute inset-0 bg-gradient-to-r from-krem via-krem/90 via-45% to-krem/40 sm:to-transparent" />
+        {/* Gradasi blending horizontal: di sisi teks (kiri) menyatu dengan warna krem dasar, di sisi kanan foto masjid tetap jelas dan hidup */}
+        <div className="absolute inset-0 bg-gradient-to-r from-krem via-krem/90 via-35% to-krem/30 lg:to-transparent" />
 
-        {/* Gradasi blending vertikal: memudar di atas dan bawah agar transisi antar section menyatu */}
-        <div className="absolute inset-0 bg-gradient-to-b from-krem via-transparent to-krem" />
-
-        {/* Ornamen islami halus DKM */}
-        <div className="ornament absolute inset-0 opacity-15" />
+        {/* Gradasi blending vertikal: transisi halus di atas dan bawah agar menyatu antar-section */}
+        <div className="absolute inset-0 bg-gradient-to-b from-krem via-transparent via-50% to-krem" />
       </div>
 
-      <div className="mx-auto max-w-6xl px-4">
-        {/* Card pelindung teks: semi-transparan dengan backdrop blur & border emas halus agar teks tetap sangat mudah dibaca */}
-        <div className="relative z-10 max-w-3xl rounded-3xl border border-emas/30 bg-white/85 p-6 sm:p-10 shadow-sm backdrop-blur-xs">
-          <SectionHeading id="profil-judul">{section.title}</SectionHeading>
-          <div className="mt-4">
-            <ProfilProse text={preview} />
-            <Link
-              href="/profil"
-              className="mt-6 inline-flex items-center gap-1.5 font-semibold text-emas-tua transition hover:text-hijau hover:underline"
-            >
-              <span>Selengkapnya tentang masjid</span>
-              <span aria-hidden="true">→</span>
-            </Link>
+      <div className="relative z-10 mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
+          {/* Sisi Teks: Card elegan semi-transparan dengan backdrop blur & border emas halus agar teks ultra-readable */}
+          <div className="lg:col-span-7 xl:col-span-8">
+            <div className="rounded-3xl border border-emas/30 bg-white/92 p-6 sm:p-10 shadow-lg backdrop-blur-md">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-krem px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-emas-tua">
+                <span>🕌</span> Tentang Masjid Kami
+              </span>
+              <SectionHeading id="profil-judul" className="mt-3">
+                {section.title}
+              </SectionHeading>
+              <div className="mt-4">
+                <ProfilProse text={preview} />
+                <Link
+                  href="/profil"
+                  className="mt-6 inline-flex items-center gap-1.5 font-semibold text-emas-tua transition hover:text-hijau hover:underline"
+                >
+                  <span>Selengkapnya tentang masjid</span>
+                  <span aria-hidden="true">→</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Sisi Kanan: Ruang terbuka yang menampilkan foto masjid di background dengan badge info */}
+          <div className="hidden lg:block lg:col-span-5 xl:col-span-4" aria-hidden="true">
+            <div className="ml-auto max-w-xs rounded-2xl border border-white/60 bg-white/70 p-4 text-xs font-medium text-hijau-tua shadow-md backdrop-blur-md">
+              <p className="font-bold text-sm text-hijau">Masjid An-Nuur Arwana</p>
+              <p className="text-hijau-tua/80 mt-1">Pusat Ibadah, Pembinaan Jamaah &amp; Kemakmuran Umat</p>
+            </div>
           </div>
         </div>
       </div>
