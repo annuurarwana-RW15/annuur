@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { db } from '@/lib/db'
@@ -52,48 +53,66 @@ export default async function ProfilPage() {
   return (
     <div className="bg-krem min-h-screen">
       {/* 1. Profil & Visi Misi */}
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
-        {/* Breadcrumb navigasi */}
-        <nav aria-label="Breadcrumb" className="text-sm text-hijau-tua/70 mb-6">
-          <ol className="flex flex-wrap items-center gap-2">
-            <li>
-              <Link href="/" className="transition hover:text-hijau hover:underline">
-                Beranda
-              </Link>
-            </li>
-            <li aria-hidden="true">›</li>
-            <li aria-current="page" className="font-medium text-hijau-tua">
-              Profil &amp; Kepengurusan
-            </li>
-          </ol>
-        </nav>
-
-        <header className="mb-8">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-krem-tua px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-emas-tua">
-            <span>🕌</span> Tentang Masjid Kami
-          </span>
-          <SectionHeading as="h1" className="mt-3">
-            {section.title || 'Profil Masjid'}
-          </SectionHeading>
-        </header>
-
-        {/* Card utama konten profil dengan tata letak tipografi rapi */}
-        <div className="rounded-3xl border border-emas/20 bg-white p-6 sm:p-10 lg:p-12 shadow-xs">
-          <ProfilProse
-            text={profilText(section) || PROFIL_FALLBACK}
-            className="max-w-none"
+      <section className="relative isolate overflow-hidden">
+        {/* Background foto masjid yang ter-blend halus */}
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 select-none overflow-hidden"
+          aria-hidden="true"
+        >
+          <Image
+            src="/images/profil-masjid.jpg"
+            alt=""
+            role="presentation"
+            fill
+            sizes="100vw"
+            className="object-cover object-[70%_25%] opacity-20 md:opacity-28 filter saturate-[1.1]"
           />
-
-          <div className="mt-8 border-t border-emas/15 pt-5">
-            <ShareButton
-              title="Profil & Struktur Kepengurusan DKM Masjid An-Nuur Arwana"
-              text="Mengenal lebih dekat visi, misi, sejarah, dan struktur kepengurusan DKM Masjid An-Nuur Arwana."
-              url="/profil"
-              variant="inline"
-              label="Bagikan Profil Masjid"
-            />
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-krem/75 via-krem/90 to-krem" />
+          <div className="ornament absolute inset-0 opacity-10" />
         </div>
+
+        <div className="mx-auto max-w-6xl px-4 py-10 sm:py-14">
+          {/* Breadcrumb navigasi */}
+          <nav aria-label="Breadcrumb" className="text-sm text-hijau-tua/70 mb-6">
+            <ol className="flex flex-wrap items-center gap-2">
+              <li>
+                <Link href="/" className="transition hover:text-hijau hover:underline">
+                  Beranda
+                </Link>
+              </li>
+              <li aria-hidden="true">›</li>
+              <li aria-current="page" className="font-medium text-hijau-tua">
+                Profil &amp; Kepengurusan
+              </li>
+            </ol>
+          </nav>
+
+          <header className="mb-8">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-emas/40 bg-krem-tua px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-emas-tua">
+              <span>🕌</span> Tentang Masjid Kami
+            </span>
+            <SectionHeading as="h1" className="mt-3">
+              {section.title || 'Profil Masjid'}
+            </SectionHeading>
+          </header>
+
+          {/* Card utama konten profil dengan tata letak tipografi rapi */}
+          <div className="rounded-3xl border border-emas/20 bg-white/95 p-6 sm:p-10 lg:p-12 shadow-xs backdrop-blur-xs">
+            <ProfilProse
+              text={profilText(section) || PROFIL_FALLBACK}
+              className="max-w-none"
+            />
+
+            <div className="mt-8 border-t border-emas/15 pt-5">
+              <ShareButton
+                title="Profil & Struktur Kepengurusan DKM Masjid An-Nuur Arwana"
+                text="Mengenal lebih dekat visi, misi, sejarah, dan struktur kepengurusan DKM Masjid An-Nuur Arwana."
+                url="/profil"
+                variant="inline"
+                label="Bagikan Profil Masjid"
+              />
+            </div>
+          </div>
 
         {/* Informasi Kontak & Lokasi Masjid */}
         {facts.length > 0 && (
@@ -122,6 +141,7 @@ export default async function ProfilPage() {
             </dl>
           </div>
         )}
+        </div>
       </section>
 
       {/* 2. Struktur Kepengurusan DKM */}

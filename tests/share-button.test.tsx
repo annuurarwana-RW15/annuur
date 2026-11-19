@@ -88,3 +88,4 @@ describe('ShareButton', () => {
     expect(await screen.findByText('✓ Tersalin!')).toBeInTheDocument()
   })
 })
+
