@@ -90,6 +90,12 @@ export function cleanVerificationCode(raw?: string | null): string | undefined {
   const valueMatch = str.match(/value=["']([^"']+)["']/i)
   if (valueMatch?.[1]) return valueMatch[1].trim()
 
+  // Cek jika diawali format key=value (misal google-site-verification=XYZ)
+  if (/^[a-z0-9_-]+=/i.test(str)) {
+    const afterEqual = str.split('=')[1]?.trim()
+    if (afterEqual) return afterEqual
+  }
+
   return str
 }
 

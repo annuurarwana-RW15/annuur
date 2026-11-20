@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 import { buildRootMetadata } from "@/lib/seo";
 import { getSetting } from "@/lib/settings";
 import "./globals.css";
@@ -50,7 +51,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getSetting('seo.description', ''),
     getSetting('site.name', ''),
     getSetting('site.favicon', ''),
-    getSetting('webmaster.google', ''),
+    getSetting('webmaster.google', 'ICUH5bk-cvcolurKx8UCF-Kz3tjAD_r1_s4YJLOppzE'),
     getSetting('webmaster.bing', ''),
     getSetting('webmaster.yandex', ''),
   ])
@@ -59,7 +60,7 @@ export async function generateMetadata(): Promise<Metadata> {
     seoDescription,
     siteName,
     favicon,
-    webmasterGoogle,
+    webmasterGoogle: webmasterGoogle || 'ICUH5bk-cvcolurKx8UCF-Kz3tjAD_r1_s4YJLOppzE',
     webmasterBing,
     webmasterYandex,
   })
@@ -75,6 +76,29 @@ export default function RootLayout({
       lang="id"
       className={`${jakarta.variable} ${amiri.variable} ${geistMono.variable}`}
     >
+      <head>
+        <meta
+          name="google-site-verification"
+          content="ICUH5bk-cvcolurKx8UCF-Kz3tjAD_r1_s4YJLOppzE"
+        />
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtm.js?id=G-LF92L93KX7"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-analytics-gtag"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-LF92L93KX7');
+            `,
+          }}
+        />
+      </head>
       <body className="antialiased">{children}</body>
     </html>
   );

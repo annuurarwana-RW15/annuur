@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     getSetting('seo.robots', 'index'),
     getSetting('site.name', ''),
     getSetting('site.favicon', ''),
-    getSetting('webmaster.google', ''),
+    getSetting('webmaster.google', 'ICUH5bk-cvcolurKx8UCF-Kz3tjAD_r1_s4YJLOppzE'),
     getSetting('webmaster.bing', ''),
     getSetting('webmaster.yandex', ''),
   ])
@@ -54,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
     seoRobots,
     siteName,
     favicon,
-    webmasterGoogle,
+    webmasterGoogle: webmasterGoogle || 'ICUH5bk-cvcolurKx8UCF-Kz3tjAD_r1_s4YJLOppzE',
     webmasterBing,
     webmasterYandex,
   })
@@ -70,7 +70,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       console.warn('[PublicLayout] gagal memuat footer:', err)
       return null
     }),
-    getSetting('ga4.id', ''),
+    getSetting('ga4.id', 'G-LF92L93KX7'),
     auth().catch((err) => {
       console.warn('[PublicLayout] auth check failed:', err)
       return null
@@ -90,9 +90,10 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         role: session.user.role || 'VIEWER',
       }
     : null
-  const ga4Id = typeof ga4Raw === 'string' && /^G-[A-Z0-9]{4,}$/i.test(ga4Raw.trim())
-    ? ga4Raw.trim()
-    : ''
+  const ga4Id =
+    typeof ga4Raw === 'string' && /^G-[A-Z0-9]{4,}$/i.test(ga4Raw.trim())
+      ? ga4Raw.trim()
+      : (process.env.GA4_MEASUREMENT_ID || 'G-LF92L93KX7')
   const org = orgLd({
     name,
     address: asText(address),

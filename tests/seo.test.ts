@@ -363,6 +363,12 @@ describe('cleanVerificationCode', () => {
     expect(cleanVerificationCode('token-murni-789')).toBe('token-murni-789')
   })
 
+  it('mengekstrak token jika berformat key=value (seperti google-site-verification=...)', () => {
+    expect(
+      cleanVerificationCode('google-site-verification=ICUH5bk-cvcolurKx8UCF-Kz3tjAD_r1_s4YJLOppzE'),
+    ).toBe('ICUH5bk-cvcolurKx8UCF-Kz3tjAD_r1_s4YJLOppzE')
+  })
+
   it('mengembalikan undefined jika kosong', () => {
     expect(cleanVerificationCode('')).toBeUndefined()
     expect(cleanVerificationCode('   ')).toBeUndefined()
