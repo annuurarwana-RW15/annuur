@@ -96,12 +96,9 @@ export function ProfilSection({ section }: { section: Section }) {
                   priority
                   className="object-cover object-[center_35%]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
                 <div className="absolute bottom-3 left-3 text-white">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emas/90 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-hijau-tua">
-                    <span>🕌</span> Gedung Utama Masjid
-                  </span>
-                  <p className="mt-1 text-xs font-semibold text-white/95">
+                  <p className="text-xs font-semibold text-white/95 drop-shadow-sm">
                     Masjid An-Nuur Arwana
                   </p>
                 </div>
