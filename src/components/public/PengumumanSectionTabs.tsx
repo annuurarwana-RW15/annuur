@@ -204,27 +204,6 @@ export function PengumumanSectionTabs({
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
               >
-                {/* Indikator Status & Tombol Jeda di Mobile */}
-                {totalCount > 1 && (
-                  <div className="mb-3 flex items-center justify-between px-1 text-[11px] text-neutral-500">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className={`h-2 w-2 rounded-full ${
-                          isPaused ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse'
-                        }`}
-                      />
-                      <span>{isPaused ? 'Jeda otomatis' : 'Auto Slide (1 Card)'}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsPaused((prev) => !prev)}
-                      className="rounded-full bg-white/90 border border-neutral-200 px-2.5 py-0.5 text-[10px] font-semibold text-neutral-700 shadow-2xs hover:bg-neutral-50"
-                    >
-                      {isPaused ? '▶ Putar' : '⏸ Jeda'}
-                    </button>
-                  </div>
-                )}
-
                 {/* Track Slider Mobile */}
                 <div
                   className={`flex ${

@@ -73,16 +73,6 @@ describe('PengumumanSectionTabs — Desktop Grid & Mobile 1-Card Slider Looping'
     expect(screen.getAllByText('Kajian Subuh Berjamaah').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Tahsin & Tahfidz Al-Quran').length).toBeGreaterThan(0)
 
-    // Mobile slider badge dan kontrol jeda
-    expect(screen.getByText('Auto Slide (1 Card)')).toBeInTheDocument()
-    const pauseBtn = screen.getByRole('button', { name: /⏸ Jeda/i })
-    expect(pauseBtn).toBeInTheDocument()
-
-    // Toggle jeda
-    fireEvent.click(pauseBtn)
-    expect(screen.getByText('Jeda otomatis')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /▶ Putar/i })).toBeInTheDocument()
-
     // Dots indicator di mobile
     const dot1 = screen.getByRole('button', { name: /Lihat kegiatan 1/i })
     const dot2 = screen.getByRole('button', { name: /Lihat kegiatan 2/i })

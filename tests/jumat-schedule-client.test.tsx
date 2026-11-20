@@ -24,35 +24,19 @@ describe('JumatScheduleClient — Desktop Grid & Mobile Auto Slide (2 Cards) Loo
     expect(screen.getAllByText('Ust. Habib Ikhsan').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Drs. H. M. Syarif').length).toBeGreaterThan(0)
 
-    // Badge Auto Slide di mobile
-    expect(screen.getByText('Auto Slide (2 Jadwal)')).toBeInTheDocument()
-
-    // Tombol kontrol navigasi mobile
-    const nextBtn = screen.getByRole('button', { name: /Jadwal Jumat berikutnya/i })
-    const prevBtn = screen.getByRole('button', { name: /Jadwal Jumat sebelumnya/i })
-    expect(nextBtn).toBeInTheDocument()
-    expect(prevBtn).toBeInTheDocument()
-
-    // Indikator dots looping
+    // Indikator dots looping di mobile
     const dot1 = screen.getByRole('button', { name: /Lihat jadwal Jumat ke-1/i })
     expect(dot1).toBeInTheDocument()
   })
 
-  it('dapat melakukan navigasi manual slide berikutnya dan sebelumnya', () => {
+  it('dapat melakukan navigasi manual slide via dots indicator', () => {
     render(<JumatScheduleClient items={MOCK_JUMAT_ITEMS} />)
 
-    const nextBtn = screen.getByRole('button', { name: /Jadwal Jumat berikutnya/i })
-    fireEvent.click(nextBtn)
+    const dot2 = screen.getByRole('button', { name: /Lihat jadwal Jumat ke-2/i })
+    fireEvent.click(dot2)
 
     // Dot kedua aktif
-    const dot2 = screen.getByRole('button', { name: /Lihat jadwal Jumat ke-2/i })
     expect(dot2.className).toContain('bg-emas-tua')
-
-    const prevBtn = screen.getByRole('button', { name: /Jadwal Jumat sebelumnya/i })
-    fireEvent.click(prevBtn)
-
-    const dot1 = screen.getByRole('button', { name: /Lihat jadwal Jumat ke-1/i })
-    expect(dot1.className).toContain('bg-emas-tua')
   })
 
   it('menampilkan fallback teks jika daftar jadwal kosong', () => {

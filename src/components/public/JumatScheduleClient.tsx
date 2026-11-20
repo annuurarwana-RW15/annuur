@@ -162,38 +162,6 @@ export function JumatScheduleClient({ items }: JumatScheduleClientProps) {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        <div className="flex items-center justify-between mb-3 px-1">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200/80 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-800">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-600 animate-pulse" />
-            <span>Auto Slide (2 Jadwal)</span>
-          </span>
-
-          {totalCount >= 2 && (
-            <div className="flex items-center gap-1.5">
-              <button
-                type="button"
-                onClick={prevSlide}
-                aria-label="Jadwal Jumat sebelumnya"
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-emas/40 bg-white text-hijau shadow-2xs active:scale-90"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={nextSlide}
-                aria-label="Jadwal Jumat berikutnya"
-                className="flex h-7 w-7 items-center justify-center rounded-full border border-emas/40 bg-white text-hijau shadow-2xs active:scale-90"
-              >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-          )}
-        </div>
-
         {/* Carousel Viewport: 2 Card per Viewport */}
         <div className="overflow-hidden rounded-2xl p-1 -m-1">
           <div
